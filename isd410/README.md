@@ -19,7 +19,7 @@ Now, open your browser and navigate to http://localhost:8080
 Login with username admin and password opsmxadmin123
 
 Open another tab in the same browser and navigate to http://localhost:8090
-Login with username admin password xyzwet
+Login with username admin password xxxxxxxxxx
 
 Execute the below command to get the password
 
