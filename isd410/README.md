@@ -1,4 +1,4 @@
-Quick install for ISD whcih includes ArgoCD,ArgoRollouts,ISD Services.
+**Quick install for ISD which includes ArgoCD,ArgoRollouts,Autopilot Services.**
 
 To experience ISD quickly, you can install it and deploy your applications. Note that the instructions below are intended to get you started quickly and try out ISD functionality. This is not suitable for production or any environment where security is a concern.
 To begin installation, you'll need a Kubernetes cluster  (with 1 node 4CPU with 16GB RAM) and kubectl set-up.
@@ -21,6 +21,6 @@ Login with username admin and password opsmxadmin123
 Open another tab in the same browser and navigate to http://localhost:8090
 Login with username admin password xyzwet
 
-Follow below steps to get the password
+Execute the below command to get the password
 
 - kubectl -n opsmx-argo get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
