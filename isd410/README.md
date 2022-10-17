@@ -13,7 +13,7 @@ Check the status of the pods by executing this command:
 - kubectl -n opsmx-argo get po
 
 Once all pods show "Running" or "Completed" status, wait for a couple of minutes and execute this:
-- kubectl -n opsmx-argo port-forward svc/oes-ui 8080 & kubectl port-forward svc/isd-argocd-server 8090:80 ## Keep running, it shows messages such as "Forwarding from 127.0.0.1:8080 -> 8080,127.0.0.1:8090 -> 8080"
+- kubectl -n opsmx-argo port-forward svc/oes-ui 8080 & kubectl -n opsmx-argo port-forward svc/isd-argocd-server 8090:80 ## Keep running, it shows messages such as "Forwarding from 127.0.0.1:8080 -> 8080,127.0.0.1:8090 -> 8080"
 
 Now, open your browser and navigate to http://localhost:8080
 Login with username admin and password opsmxadmin123
