@@ -69,7 +69,7 @@ metadata:
   namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "Rjc3WHJLR3RRWg=="
+  postgresql-postgres-password: "QmZLNWVobWlubQ=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
@@ -539,7 +539,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/secrets/gitea-secret.yaml
 apiVersion: v1
@@ -594,7 +594,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-audit-client-config
 ---
 # Source: oes/templates/secrets/oes-audit-service-secret.yaml
@@ -643,7 +643,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-audit-service-config
 ---
 # Source: oes/templates/secrets/oes-autopilot-secret.yaml
@@ -702,7 +702,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/secrets/oes-datascience-secret.yaml
 apiVersion: v1
@@ -954,7 +954,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/secrets/oes-gate-secret.yaml
 apiVersion: v1
@@ -968,7 +968,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/secrets/oes-platform-configmap.yaml
 apiVersion: v1
@@ -1058,7 +1058,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/secrets/oes-sapor-configmap.yaml
 apiVersion: v1
@@ -1166,7 +1166,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/secrets/oes-visibility-secret.yaml
 apiVersion: v1
@@ -1270,7 +1270,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/secrets/opsmx-gitops-secret.yaml
 apiVersion: v1
@@ -1319,7 +1319,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/charts/minio/templates/configmap.yaml
 apiVersion: v1
@@ -2340,6 +2340,9 @@ data:
     DYNAMIC_ACCOUNTS_REPO=`echo $DYNAMIC_ACCOUNTS_REPO | sed 's/ *$//g'`
     sed -i  s/SPINNAKER_NAMESPACE/${SPINNAKER_NAMESPACE}/ /tmp/spinnaker/.hal/config
     sed -i  s/RELEASE_NAME/isd/g /tmp/spinnaker/.hal/config
+    BRANCH=master
+    echo $BRANCH
+    sed -i s/BRANCH/${BRANCH}/ /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
     sed -i  s/GIT_USER/${GIT_USER}/g /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
     sed -i  s/GIT_TOKEN/${GIT_TOKEN}/g /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
     sed -i  's|DYNAMIC_ACCOUNTS_REPO|'"${DYNAMIC_ACCOUNTS_REPO}"'|' /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
@@ -2826,7 +2829,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 data:
   datasource-api.sh: |-
     #!/bin/bash
@@ -2999,7 +3002,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/configmaps/oes-ui-configmap.yaml
 apiVersion: v1
@@ -4797,7 +4800,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/configmaps/oes-ui-nginxconf.yaml
 apiVersion: v1
@@ -4890,7 +4893,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 ---
 # Source: oes/templates/configmaps/opa-persist.yaml
 apiVersion: v1
@@ -5288,7 +5291,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 data:
   configFile: |
     serviceHostname: opsmx-controller-controller1
@@ -6466,7 +6469,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -6492,7 +6495,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -6511,7 +6514,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -6530,7 +6533,7 @@ metadata:
     component: sapor-gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: sapor-gate
 spec:
   type: ClusterIP
@@ -6552,7 +6555,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-audit-client
 spec:
   ports:
@@ -6574,7 +6577,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-audit-service
 spec:
   ports:
@@ -6596,7 +6599,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-autopilot
 spec:
   type: ClusterIP
@@ -6620,7 +6623,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-dashboard
 spec:
   type: ClusterIP
@@ -6642,7 +6645,7 @@ metadata:
     component: datascience
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-datascience
 spec:
   ports:
@@ -6664,7 +6667,7 @@ metadata:
     component: db
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-db
 spec:
   type: ClusterIP
@@ -6686,7 +6689,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-gate
 spec:
   type: ClusterIP
@@ -6714,7 +6717,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-platform
 spec:
   type: ClusterIP
@@ -6736,7 +6739,7 @@ metadata:
     component: rabbitmq
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: rabbitmq-service
 spec:
   ports:
@@ -6762,7 +6765,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-sapor
 spec:
   type: ClusterIP
@@ -6783,7 +6786,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-ui
 spec:
   type: ClusterIP
@@ -6807,7 +6810,7 @@ metadata:
     component: visibility 
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-visibility
 spec:
   type: ClusterIP
@@ -6828,7 +6831,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 spec:
   selector:
     app: opa
@@ -6847,7 +6850,7 @@ metadata:
     stack: deck
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: spin-deck-lb
 spec:
   type: ClusterIP
@@ -6871,7 +6874,7 @@ metadata:
     stack: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: spin-gate-lb
 spec:
   type: ClusterIP
@@ -7151,7 +7154,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-audit-client
 spec:
   replicas: 1
@@ -7172,7 +7175,7 @@ spec:
         component: auditclient
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.0.1 
@@ -7239,7 +7242,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-audit-service
 spec:
   replicas: 1
@@ -7260,7 +7263,7 @@ spec:
         component: auditservice
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.0.1
@@ -7330,7 +7333,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 spec:
   replicas: 1
   selector:
@@ -7344,7 +7347,7 @@ spec:
         component: autopilot
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
       annotations:
         configmap/checksum: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
         moniker.spinnaker.io/application: isd
@@ -7419,7 +7422,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-dashboard
 spec:
   replicas: 1
@@ -7441,7 +7444,7 @@ spec:
         component: dashboard
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.0.1
@@ -7502,7 +7505,7 @@ metadata:
     component: datascience
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-datascience
 spec:
   replicas: 1
@@ -7523,7 +7526,7 @@ spec:
         component: datascience
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.0.1
@@ -7564,7 +7567,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-gate
 spec:
   replicas: 1
@@ -7585,7 +7588,7 @@ spec:
         component: gate
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-gate:v4.0.1
@@ -7638,7 +7641,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-platform
 spec:
   replicas: 1
@@ -7660,7 +7663,7 @@ spec:
         component: platform
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       initContainers:
       - name: db-check
@@ -7725,7 +7728,7 @@ metadata:
     component: rabbitmq
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: rabbitmq
 spec:
   replicas: 1
@@ -7742,7 +7745,7 @@ spec:
         component: rabbitmq
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - image: quay.io/opsmxpublic/rabbitmq:3-management
@@ -7767,7 +7770,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-sapor
 spec:
   replicas: 1
@@ -7778,7 +7781,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: 6c95be1ca406a7ad0e66338a5078da947d733a4304b8ab91941042bba1f82e8f
+        checksum/configmap: 70d4e2b180bdd49c38b2d40574ad9c16deb060402f9b0389fa3d3045d89a3909
         checksum/configmap: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
         moniker.spinnaker.io/application: isd
         prometheus.io/scrape: "true"
@@ -7789,7 +7792,7 @@ spec:
         component: sapor
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       initContainers:
       - name: db-check
@@ -7871,7 +7874,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-ui
 spec:
   replicas: 1
@@ -7889,7 +7892,7 @@ spec:
         component: ui
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.0.1
@@ -7939,7 +7942,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-visibility
 spec:
   replicas: 1
@@ -7961,7 +7964,7 @@ spec:
         component: visibility
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       initContainers:
       - name: db-check
@@ -8026,7 +8029,7 @@ metadata:
     app: opa
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: opa
 spec:
   replicas: 1
@@ -8041,7 +8044,7 @@ spec:
         app: opa
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
       name: opa
     spec:
       containers:
@@ -8081,7 +8084,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
 spec:
   replicas: 1
   selector:
@@ -8095,7 +8098,7 @@ spec:
         agent.opsmx.com/role: controller
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
       annotations:
         pullversion: "16"
         checksum/configmap: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
@@ -8162,7 +8165,7 @@ metadata:
     component: sapor-gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: sapor-gate
 spec:
   replicas: 1
@@ -8180,7 +8183,7 @@ spec:
         component: sapor-gate
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-spin-gate:v3.12.0-saporgate
@@ -8709,7 +8712,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: 89aae7a8b0d1be12b83ad8327287854fd73fd7171a24e27cf3bb384d10e7a54b
+        checksum/configmap: 0b806557f37c8cde635a55ca1af3db66746996981a50c08b95dd5725fb6f4fbb
         moniker.spinnaker.io/application: spin
       labels:
         app: "isd-spinnaker"
@@ -8844,7 +8847,7 @@ metadata:
     component: db
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-db
 spec:
   podManagementPolicy: OrderedReady
@@ -8863,7 +8866,7 @@ spec:
         component: db
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-db:v3.0.0
@@ -9074,7 +9077,7 @@ metadata:
     component: oes-config
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.5"
+    chart: "oes-4.0.6"
   name: oes-config
 spec:
   template:
@@ -9087,7 +9090,7 @@ spec:
         component: oes-config
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.5"
+        chart: "oes-4.0.6"
     spec:
       containers:
       - command: ["bash", "/tmp/config/datasource-api.sh" ]
