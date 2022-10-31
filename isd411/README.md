@@ -3,6 +3,11 @@
 To experience ISD quickly, you can install it and deploy your applications. Note that the instructions below are intended to get you started quickly and try out ISD functionality. This is not suitable for production or any environment where security is a concern.
 To begin installation, you'll need a Kubernetes cluster  (with 1 node 4CPU with 16GB RAM) and kubectl set-up.
 
+Please ensure no port is running on 8099. Use below command to check
+- sudo lsof -i -P -n | grep LISTEN | grep 8099      # Linux Users
+- netstat -anp tcp | grep LISTEN | grep 8099        # Mac Users
+- netstat -aof | findstr "LISTENING"                # Windows Users
+
 Issue the following commands (copy paste in a terminal window)
 - kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/OpsMx/isd-quick-install/main/isd411/isd-argo-quick.yaml
 
