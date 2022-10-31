@@ -1003,13 +1003,6 @@ data:
         generate:
           command: ["argocd-vault-plugin"]
           args: ["generate", "-s", "{{ .Release.Namespace }}:argocd-vault-plugin-credentials", "./"]
-    dex.config: |-
-      staticClients:
-      - id: argo-workflows-sso
-        name: Argo Workflow
-        redirectURIs:
-          - https://workflow.ryzon7-argo22.opsmx.org/oauth2/callback ##Need to update url manually ArgoWorkflowurl Example: https://argoworkflow.ninja-test.opsmx.net/oauth2/callback
-        secretEnv: ARGO_WORKFLOWS_SSO_CLIENT_SECRET
     exec.enabled: "false"
     server.rbac.log.enforce.enable: "false"
     url: https://cd.ryzon7-argo22.opsmx.org
