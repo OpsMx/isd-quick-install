@@ -706,7 +706,7 @@ stringData:
         url: http://oes-visibility:8096
       auditservice:
         enabled: true
-        url: "http://oes-audit-service:8097" 
+        url: "http://oes-audit-service:8097"
       dashboard:
         url: http://oes-dashboard:8094
       commongateurl: https://oes.example.ops.com/gate
@@ -722,29 +722,29 @@ stringData:
     
     pipeline-promotion:
       github:
-        
+    
         enabled: true
-        
+    
         username:  git/stash_username
         token: git/stash_token
         branch: master
         cloneUrl: https://git/stash_username:git/stash_token@github.com/OpsMx/standard-gitops-repo
       bitbucket:
-        
+    
         enabled: false
-        
+    
         username:  git/stash_username
         token: git/stash_token
         branch: master
         cloneUrl: https://git/stash_username:git/stash_token@github.com/OpsMx//standard-gitops-repo
       amazonS3:
-        
+    
         enabled: false
-        
+    
         accessKeyId: AWS_ACCESS_KEY_ID
         secretAccessKey: AWS_SECRET_ACCESS_KEY
         region: regionofbucket
-        bucketName: bucket name.e.g-testbucket 
+        bucketName: bucket name.e.g-testbucket
     
     ## Set the below field to true if agent for kubernetes
     kubernetes:
@@ -763,7 +763,7 @@ stringData:
         path: /opt/opsmx/controller
         kubectlTemplateFileName: kubeconfig.template
         manifestTemplateFileName: deploy-agent.template
-      
+    
     
   client.p12: |
     
@@ -791,10 +791,10 @@ stringData:
         connectors:
           configured: JIRA,GIT,AUTOPILOT,SONARQUBE,JENKINS,AQUAWAVE
       logging:
-        level:  
-          io:     
+        level:
+          io:
             swagger:
-              models: 
+              models:
                 parameters:
                   AbstractSerializableParameter: ERROR
     
@@ -824,7 +824,7 @@ stringData:
     
     ui:
       approval:
-        url: https://oes.example.ops.com/ui/application/visibility/{applicationId}/{serviceId}/{approvalGateId}  
+        url: https://oes.example.ops.com/ui/application/visibility/{applicationId}/{serviceId}/{approvalGateId}
     
     gate:
       url: http://oes-gate:8084
@@ -935,7 +935,7 @@ metadata:
   name: opsmx-profile
 stringData:
   cd-integration: "true"
-  source-name: "argocd" 
+  source-name: "argocd"
   gate-url: "https://oes.example.ops.com"
   user: "admin"
 ---
@@ -2596,7 +2596,7 @@ data:
     \"\"\n    },\n    \"POLICY\": {\n      \"TOOLTIP\": \"\",\n      \"VALIDATION_MESSAGE\":
     \"\"\n    },\n    \"DELETE_PERMISSION\": {\n      \"TOOLTIP\": \"Insufficient Permission
     to Delete this Gate\",\n      \"VALIDATION_MESSAGE\": \"\"\n    }\n  },\n  \"LOGGED_INUSER_DETAILS\":
-    {\n    \"HEADER\": \"No Users found\",\n    \"BODY\": \"\"\n  },\n    \n  \"APPLICATION_DEPLOYMENT\":
+    {\n    \"HEADER\": \"No Users found\",\n    \"BODY\": \"\"\n  },\n\n  \"APPLICATION_DEPLOYMENT\":
     {\n    \"DEPLOYMENT_GRID_SYNC\": {\n      \"TOOLTIP\": \"When the cluster deployment
     matches with the latest pipeline execution it is 'In Sync'; if not, it is 'Out of
     Sync'\"\n    }\n  },\n\"INTEGRATION\": {\n\"AMAZONS3\":{\n  \"HEADER\": \"Amazon
@@ -2661,24 +2661,24 @@ data:
     Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
-    \ },\n  \"ENDPOINT\":{ \n    \"TOOLTIP\":\"The base URL of your Artifactory search
+    \ },\n  \"ENDPOINT\":{\n    \"TOOLTIP\":\"The base URL of your Artifactory search
     is reachable at\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Endpoint
-    cannot be empty\",\n      \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n  \"REPO\":{
-    \n    \"TOOLTIP\":\"The repo in your artifactory to be searched\",\n    \"VALIDATION_MESSAGE\":{\n
-    \     \"required\":\"Repo cannot be empty\"\n    }\n  },\n  \"REPOTYPE\":{ \n    \"TOOLTIP\":\"The
-    package type of repo in your Artifactory is to be searched. Default is Maven.\",\n
-    \   \"VALIDATION_MESSAGE\":{\n    }\n  },\n  \"GROUPID\":{ \n    \"TOOLTIP\":\"The
-    group id in your Artifactory is to be searched.\",\n    \"VALIDATION_MESSAGE\":{\n
-    \   }\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select how the external
-    resource confirms the user credentials\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Authentication
-    cannot be empty\"\n    }\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"The Token of the
-    artifactory user to authenticate as\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Token
-    cannot be empty\"\n    }\n  },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"The Artifactory
-    user's username for authentication\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Username
-    cannot be empty\"\n    }\n  },\n  \"PASSWORD\":{\n    \"TOOLTIP\":\"The Artifactory
-    user's password for authentication\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Password
-    cannot be empty\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Toggle
-    on to propagate the change into the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n
+    cannot be empty\",\n      \"invalidUrl\": \"Endpoint URL is invalid\"\n    }\n  },\n
+    \ \"REPO\":{\n    \"TOOLTIP\":\"The repo in your artifactory to be searched\",\n
+    \   \"VALIDATION_MESSAGE\":{\n      \"required\":\"Repo cannot be empty\"\n    }\n
+    \ },\n  \"REPOTYPE\":{\n    \"TOOLTIP\":\"The package type of repo in your Artifactory
+    is to be searched. Default is Maven.\",\n    \"VALIDATION_MESSAGE\":{\n    }\n  },\n
+    \ \"GROUPID\":{\n    \"TOOLTIP\":\"The group id in your Artifactory is to be searched.\",\n
+    \   \"VALIDATION_MESSAGE\":{\n    }\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select
+    how the external resource confirms the user credentials\",\n    \"VALIDATION_MESSAGE\":{\n
+    \     \"required\":\"Authentication cannot be empty\"\n    }\n  },\n  \"TOKEN\":{\n
+    \   \"TOOLTIP\":\"The Token of the artifactory user to authenticate as\",\n    \"VALIDATION_MESSAGE\":{\n
+    \     \"required\":\"Token cannot be empty\"\n    }\n  },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"The
+    Artifactory user's username for authentication\",\n    \"VALIDATION_MESSAGE\":{\n
+    \     \"required\":\"Username cannot be empty\"\n    }\n  },\n  \"PASSWORD\":{\n
+    \   \"TOOLTIP\":\"The Artifactory user's password for authentication\",\n    \"VALIDATION_MESSAGE\":{\n
+    \     \"required\":\"Password cannot be empty\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
+    \   \"TOOLTIP\":\"Toggle on to propagate the change into the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n
     \ }\n},\n\"BITBUCKET\":{\n  \"HEADER\": \"Bitbucket Cloud\",\n  \"BODY\":\"<span><p>BitBucket
     Cloud integration can be used as a datasource for Approval Gate as well as to configure
     Spinnaker for BitBucket Cloud.</p><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
@@ -2704,10 +2704,10 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"HOSTURL\":{\n    \"TOOLTIP\":\"BitBucket Cloud (SaaS) Web URL. It is usually
     https://bitbucket.org\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Host
-    URL cannot be empty\",\n      \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n
+    URL cannot be empty\",\n      \"invalidUrl\": \"Host URL is invalid\"\n    }\n  },\n
     \ \"APIURL\":{\n    \"TOOLTIP\":\"Bitbucket API base URL. Eg. https://api.github.com\",\n
     \   \"VALIDATION_MESSAGE\":{\n      \"required\":\"API URL cannot be empty\",\n
-    \     \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n  \"AUTHENTICATIONTYPE\":{\n
+    \     \"invalidUrl\": \"API URL is invalid\"\n    }\n  },\n  \"AUTHENTICATIONTYPE\":{\n
     \   \"TOOLTIP\":\"Select one of the available options. If you are unsure, consult
     your BitBucket administrator to determine which authentication mechanism is used.\",\n
     \   \"VALIDATION_MESSAGE\":{}\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"The user's
@@ -2747,7 +2747,7 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"HOSTURL\":{\n    \"TOOLTIP\":\"BitBucket Cloud (SaaS) Web URL. It is usually
     https://bitbucket.org\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Host
-    URL cannot be empty\",\n      \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n
+    URL cannot be empty\",\n      \"invalidUrl\": \"Host URL is invalid\"\n    }\n  },\n
     \ \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select one of the available options.
     If you are unsure, consult your BitBucket administrator to determine which authentication
     mechanism is used.\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"The
@@ -2800,7 +2800,7 @@ data:
     authenticate as\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Password
     cannot be empty\"\n    }\n  },\n  \"HOSTURL\":{\n    \"TOOLTIP\":\"Docker Registry
     Host URL\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Host URL cannot
-    be empty\",\n      \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
+    be empty\",\n      \"invalidUrl\": \"Host URL is invalid\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
     \   \"TOOLTIP\":\"Toggle on to propagate the change into the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n
     \ }\n},\n\"OCR\":{\n  \"HEADER\": \"Generic Docker Registries (ACR, Quay, JFrog)\",\n
     \ \"BODY\":\"<span><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
@@ -2847,7 +2847,7 @@ data:
     \ \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Toggle on to propagate the change into
     the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"HOSTURL\":{\n    \"TOOLTIP\":\"Container
     Registry Host URL\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Host URL
-    cannot be empty\",\n      \"invalidUrl\": \"URL is invalid\"\n    }\n  }\n},\n\"GITHUB\":{\n
+    cannot be empty\",\n      \"invalidUrl\": \"Host URL is invalid\"\n    }\n  }\n},\n\"GITHUB\":{\n
     \ \"HEADER\": \"GitHub\",\n  \"BODY\":\"<span><p>GITHUB integration can be used
     as a datasource for Approval Gate as well as to configure Spinnaker for GitHub.</p><p><strong>Fields</strong>:</p><ul
     class='helpTextUl'><li><strong>Account Name</strong>: User-defined account name
@@ -2867,22 +2867,23 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"HOSTURL\":{\n    \"TOOLTIP\":\"Github's host address, such as https://github.com\",\n
     \   \"VALIDATION_MESSAGE\":{\n      \"required\":\"Host URL cannot be empty\",\n
-    \     \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n  \"URL\":{\n    \"TOOLTIP\":\"Github's
+    \     \"invalidUrl\": \"Host URL is invalid\"\n    }\n  },\n  \"URL\":{\n    \"TOOLTIP\":\"Github's
     API endpoint host address, such as https://api.github.com\",\n    \"VALIDATION_MESSAGE\":{\n
-    \     \"required\":\"API URL cannot be empty\",\n      \"invalidUrl\": \"URL is
-    invalid\"\n    }\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"The user's token\",\n    \"VALIDATION_MESSAGE\":{\n
-    \     \"required\":\"Token cannot be empty\"\n    }\n  },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"The
-    GitHub username\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
-    \"User Name cannot contain special characters other than - and _\",\n      \"cannotContainSpace\":\"User
-    Name cannot contain space\",\n      \"required\":\"User Name cannot be empty\",\n
-    \     \"startingFromNumber\": \"User Name cannot start with numbers\"\n    }\n  },\n
-    \ \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Switch On this toggle to configure the
-    resource in a gitops enabled Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ }\n},\n\"GITLAB\":{\n  \"HEADER\": \"GitLab\",\n  \"BODY\":\"<span><li><strong>Account
-    Name</strong>: User-defined account name for your GitLab access.</li><li><strong>Host
-    URL</strong>: GitLab's host address, such as https://gitlab.com</li><li><strong>Username</strong>:
-    The GitLab server username </li><li><strong>Token</strong>: The user's personal
-    access token. Please refer <a href='https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html'
+    \     \"required\":\"API URL cannot be empty\",\n      \"invalidUrl\": \"API URL
+    is invalid\"\n    }\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"The user's token\",\n
+    \   \"VALIDATION_MESSAGE\":{\n      \"required\":\"Token cannot be empty\"\n    }\n
+    \ },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"The GitHub username\",\n    \"VALIDATION_MESSAGE\":{\n
+    \     \"noSpecialCharacters\": \"User Name cannot contain special characters other
+    than - and _\",\n      \"cannotContainSpace\":\"User Name cannot contain space\",\n
+    \     \"required\":\"User Name cannot be empty\",\n      \"startingFromNumber\":
+    \"User Name cannot start with numbers\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
+    \   \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops enabled
+    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"GITLAB\":{\n  \"HEADER\":
+    \"GitLab\",\n  \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
+    account name for your GitLab access.</li><li><strong>Host URL</strong>: GitLab's
+    host address, such as https://gitlab.com</li><li><strong>Username</strong>: The
+    GitLab server username </li><li><strong>Token</strong>: The user's personal access
+    token. Please refer <a href='https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html'
     target='_blank'>this document</a> for generating tokens.</li></span>\",\n  \"ACCOUNTNAME\":{\n
     \   \"TOOLTIP\":\"User-defined account name for your GitLab access.\",\n    \"VALIDATION_MESSAGE\":{\n
     \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
@@ -2890,9 +2891,9 @@ data:
     \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
     \"Account Name cannot start with numbers\"\n    }\n  },\n  \"HOSTURL\":{\n    \"TOOLTIP\":\"GitLab's
     host address, such as https://gitlab.com\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Host
-    URL cannot be empty\",\n      \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n
+    URL cannot be empty\",\n      \"invalidUrl\": \"Host URL is invalid\"\n    }\n  },\n
     \ \"APIBASEURL\":{\n    \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"API
-    URL cannot be empty\",\n      \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n
+    URL cannot be empty\",\n      \"invalidUrl\": \"API URL is invalid\"\n    }\n  },\n
     \ \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select how the external resource confirms
     the user credentials\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"GitLab
     token\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Token cannot be empty\"\n
@@ -2908,25 +2909,25 @@ data:
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"DEPLOYMENT\":{\n    \"TOOLTIP\":\"This Halyard deployment will be used
-    for Account creation / update\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"URL
-    cannot be empty\",\n      \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n  \"AUTHENTICATIONTYPE\":{\n
-    \   \"TOOLTIP\":\"Select an authentication type that corresponds to the connection
-    credential parameter. Recommended using the user token method.\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ },\n  \"URL\":{\n    \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"API
-    URL cannot be empty\",\n      \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n
-    \ \"TOKEN\":{\n    \"TOOLTIP\":\"Git token\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Token
-    cannot be empty\"\n    }\n  },\n  \"PASSWORD\":{\n    \"TOOLTIP\":\"Git password\",\n
-    \   \"VALIDATION_MESSAGE\":{\n      \"required\":\"Password cannot be empty\"\n
-    \   }\n  },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"Git username\",\n    \"VALIDATION_MESSAGE\":{\n
-    \     \"noSpecialCharacters\": \"User Name cannot contain special characters other
-    than - and _\",\n      \"cannotContainSpace\":\"User Name cannot contain space\",\n
-    \     \"required\":\"User Name cannot be empty\",\n      \"startingFromNumber\":
-    \"User Name cannot start with numbers\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
-    \   \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops enabled
-    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"HELM\":{\n  \"HEADER\":
-    \"Helm\",\n  \"BODY\": \"<span><li><strong>Account Name</strong>: User-defined account
-    name for target Helm repository access.</li><li><strong>Repository</strong>: Helm
-    Chart Repository’s HTTP endpoint.</li><li><strong>Authentication Type</strong>:
+    for Account creation / update\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Deployment
+    URL cannot be empty\",\n      \"invalidUrl\": \"Deployment URL is invalid\"\n    }\n
+    \ },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select an authentication type
+    that corresponds to the connection credential parameter. Recommended using the user
+    token method.\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"URL\":{\n    \"TOOLTIP\":\"\",\n
+    \   \"VALIDATION_MESSAGE\":{\n      \"required\":\"API URL cannot be empty\",\n
+    \     \"invalidUrl\": \"API URL is invalid\"\n    }\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"Git
+    token\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Token cannot be empty\"\n
+    \   }\n  },\n  \"PASSWORD\":{\n    \"TOOLTIP\":\"Git password\",\n    \"VALIDATION_MESSAGE\":{\n
+    \     \"required\":\"Password cannot be empty\"\n    }\n  },\n  \"USERNAME\":{\n
+    \   \"TOOLTIP\":\"Git username\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"User Name cannot contain special characters other than - and _\",\n      \"cannotContainSpace\":\"User
+    Name cannot contain space\",\n      \"required\":\"User Name cannot be empty\",\n
+    \     \"startingFromNumber\": \"User Name cannot start with numbers\"\n    }\n  },\n
+    \ \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Switch On this toggle to configure the
+    resource in a gitops enabled Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n
+    \ }\n},\n\"HELM\":{\n  \"HEADER\": \"Helm\",\n  \"BODY\": \"<span><li><strong>Account
+    Name</strong>: User-defined account name for target Helm repository access.</li><li><strong>Repository</strong>:
+    Helm Chart Repository’s HTTP endpoint.</li><li><strong>Authentication Type</strong>:
     Select an authentication type that corresponds to the connection credential parameter.</li><li><strong>Connect
     to Spinnaker</strong>: Toggle ON to propagate the change to Spinnaker Toggle on
     to propagate the change into the CD Tool.</li></span>\",\n  \"ACCOUNTNAME\":{\n
@@ -2937,14 +2938,14 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"REPOSITORY\":{\n    \"TOOLTIP\":\"Helm Chart Repository’s HTTP endpoint\",\n
     \   \"VALIDATION_MESSAGE\":{\n      \"required\":\"Repository cannot be empty\",\n
-    \     \"invalidUrl\": \"URL is invalid\"\n    }\n  },\n  \"DEPLOYMENT\":{\n    \"TOOLTIP\":\"This
-    Halyard deployment will be used for Account creation / update\",\n    \"VALIDATION_MESSAGE\":{\n
-    \   \n    }\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select an authentication
-    type that corresponds to the connection credential parameter.\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Token
-    cannot be empty\"\n    }\n  },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"User Name\",\n
-    \   \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"User Name cannot
-    contain special characters other than - and _\",\n      \"cannotContainSpace\":\"User
+    \     \"invalidUrl\": \"Repository URL is invalid\"\n    }\n  },\n  \"DEPLOYMENT\":{\n
+    \   \"TOOLTIP\":\"This Halyard deployment will be used for Account creation / update\",\n
+    \   \"VALIDATION_MESSAGE\":{\n\n    }\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select
+    an authentication type that corresponds to the connection credential parameter.\",\n
+    \   \"VALIDATION_MESSAGE\":{}\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n
+    \     \"required\":\"Token cannot be empty\"\n    }\n  },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"User
+    Name\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"User Name
+    cannot contain special characters other than - and _\",\n      \"cannotContainSpace\":\"User
     Name cannot contain space\",\n      \"required\":\"User Name cannot be empty\",\n
     \     \"startingFromNumber\": \"User Name cannot start with numbers\"\n    }\n  },\n
     \ \"PASSWORD\": {\n    \"TOOLTIP\": \"Password\",\n    \"VALIDATION_MESSAGE\":{\n
@@ -3127,8 +3128,8 @@ data:
     the default value of fake.email@spinnaker.io will be used.\",\n    \"VALIDATION_MESSAGE\":{\n
     \     \"email\":\"Email Id is invalid\",\n      \"required\":\"Email Id cannot be
     empty\"\n    }\n  },\n  \"URL\":{\n    \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n
-    \     \"required\":\"API URL cannot be empty\",\n      \"invalidUrl\": \"URL is
-    invalid\"\n    }\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n
+    \     \"required\":\"API URL cannot be empty\",\n      \"invalidUrl\": \"API URL
+    is invalid\"\n    }\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n
     \     \"required\":\"Token cannot be empty\"\n    }\n  },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"GCR
     User Name\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"User
     Name cannot contain special characters other than - and _\",\n      \"cannotContainSpace\":\"User
@@ -3159,12 +3160,13 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \   },\n    \"ENDPOINT\":{\n      \"TOOLTIP\":\"Bamboo URL\",\n      \"VALIDATION_MESSAGE\":{\n
     \       \"required\":\"Bamboo End Point cannot be empty\",\n        \"invalidUrl\":
-    \"URL is invalid\"\n      }\n    },\n    \"AUTHENTICATIONTYPE\":{\n      \"TOOLTIP\":\"Select
-    how the external resource confirms the user credentials\",\n      \"VALIDATION_MESSAGE\":{}\n
-    \   },\n    \"TOKEN\":{\n      \"TOOLTIP\":\"Your Bamboo token\",\n      \"VALIDATION_MESSAGE\":{\n
-    \       \"required\":\"Token cannot be empty\"\n      }\n    },\n    \"USERNAME\":{\n
-    \     \"TOOLTIP\":\"Your Bamboo username\",\n      \"VALIDATION_MESSAGE\":{\n        \"noSpecialCharacters\":
-    \"User Name cannot contain special characters other than - and _\",\n        \"cannotContainSpace\":\"User
+    \"Bamboo End Point URL is invalid\"\n      }\n    },\n    \"AUTHENTICATIONTYPE\":{\n
+    \     \"TOOLTIP\":\"Select how the external resource confirms the user credentials\",\n
+    \     \"VALIDATION_MESSAGE\":{}\n    },\n    \"TOKEN\":{\n      \"TOOLTIP\":\"Your
+    Bamboo token\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Token cannot
+    be empty\"\n      }\n    },\n    \"USERNAME\":{\n      \"TOOLTIP\":\"Your Bamboo
+    username\",\n      \"VALIDATION_MESSAGE\":{\n        \"noSpecialCharacters\": \"User
+    Name cannot contain special characters other than - and _\",\n        \"cannotContainSpace\":\"User
     Name cannot contain space\",\n        \"required\":\"User Name cannot be empty\",\n
     \       \"startingFromNumber\": \"User Name cannot start with numbers\"\n      }\n
     \   },\n    \"PASSWORD\":{\n      \"TOOLTIP\":\"Your Bamboo password\",\n      \"VALIDATION_MESSAGE\":{\n
@@ -3190,7 +3192,7 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \   },\n    \"HOSTURL\":{\n      \"TOOLTIP\":\"Jenkins host address, such as https://jenkins.opsmx.net\",\n
     \     \"VALIDATION_MESSAGE\":{\n        \"required\":\"Host URL cannot be empty\",\n
-    \       \"invalidUrl\": \"URL is invalid\"\n      }\n    },\n    \"CSRFFLAG\":{\n
+    \       \"invalidUrl\": \"Host URL is invalid\"\n      }\n    },\n    \"CSRFFLAG\":{\n
     \     \"TOOLTIP\":\"Recommended to toggle on the CSRF (Cross-Site Request Forgery)
     flag.\"\n    },\n    \"AUTHENTICATIONTYPE\":{\n      \"TOOLTIP\":\"Select an authentication
     type that corresponds to the connection credential parameter. It is preferable to
@@ -3216,9 +3218,9 @@ data:
     Access Token\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Token cannot
     be empty\"\n      }\n    },\n    \"HOSTURL\":{\n      \"TOOLTIP\":\"Jira Host URL\",\n
     \     \"VALIDATION_MESSAGE\":{\n        \"required\":\"Host URL cannot be empty\",\n
-    \       \"invalidUrl\": \"URL is invalid\"\n      }\n    },\n    \"SPINNAKERTOGGLE\":{\n
+    \       \"invalidUrl\": \"Host URL is invalid\"\n      }\n    },\n    \"SPINNAKERTOGGLE\":{\n
     \     \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops
-    enabled Spinnaker instance\",\n      \"VALIDATION_MESSAGE\":{}\n    }\n    \n  },\n
+    enabled Spinnaker instance\",\n      \"VALIDATION_MESSAGE\":{}\n    }\n\n  },\n
     \ \"SERVICENOW\":{\n    \"HEADER\": \"Service Now\",\n    \"BODY\":\"<span><p>Service
     integration can be used to configure ServiceNow Custom stages in Spinnaker. In addition,
     it can also be used as a datasource for Approval Gate.</p><p><strong>Fields</strong>:</p><ul
@@ -3242,7 +3244,7 @@ data:
     Now Password\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Password
     cannot be empty\"\n      }\n    },\n    \"HOSTURL\":{\n      \"TOOLTIP\":\"Service
     Now Host URL\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Host URL
-    cannot be empty\",\n        \"invalidUrl\": \"URL is invalid\"\n      }\n    }\n
+    cannot be empty\",\n        \"invalidUrl\": \"Host URL is invalid\"\n      }\n    }\n
     \ }\n  ,\n  \"APPDYNAMICS\":{\n    \"HEADER\": \"APPDYNAMICS\",\n    \"BODY\":\"\",\n
     \   \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User defined name for the APPDYNAMICS
     account\",\n      \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account
@@ -3251,42 +3253,43 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \   },\n    \"CONTROLLERHOST\":{\n      \"TOOLTIP\":\"APPDYNAMICS Controller Host\",\n
     \     \"VALIDATION_MESSAGE\":{\n        \"required\":\"Controller Host  cannot be
-    empty\",\n        \"invalidUrl\": \"URL is invalid\"\n      }\n    },\n    \"TEMPORARYACCESSTOKEN\":{\n
-    \     \"TOOLTIP\":\"APPDYNAMICS Personal Temporary Access Token\",\n      \"VALIDATION_MESSAGE\":{\n
-    \       \"required\":\"Temporary Access Token cannot be empty\"\n      }\n    }\n
-    \ },\n  \"CLOUDWATCH\":{\n    \"HEADER\": \"AWS-CLOUDWATCH\",\n    \"BODY\":\"\",\n
-    \   \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User defined name for the AWS-CLOUDWATCH
-    account\",\n      \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account
-    Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
-    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
-    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
-    \   },\n    \"ACCESS_ID\":{\n      \"TOOLTIP\":\"AWS-CLOUDWATCH Access Key Id\",\n
-    \     \"VALIDATION_MESSAGE\":{\n        \"required\":\"Access Key Id cannot be empty\"\n
-    \     }\n    },\n    \"SECRET_KEY\":{\n      \"TOOLTIP\":\"AWS-CLOUDWATCH Secret
-    Access Key\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Secret Access
-    Key cannot be empty\"\n      }\n    }\n  },\n  \"DATADOG\":{\n    \"HEADER\": \"DATADOG\",\n
-    \   \"BODY\":\"\",\n    \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User defined name
-    for the DATADOG account\",\n      \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
-    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
-    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
-    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
-    \   \n    },\n    \"API_KEY\":{\n      \"TOOLTIP\":\"DATADOG Api Key\",\n      \"VALIDATION_MESSAGE\":{\n
-    \       \"required\":\"API key cannot be empty\"\n      }\n    },\n    \"APPLICATION_KEY\":{\n
-    \     \"TOOLTIP\":\"DATADOG Application Key\",\n      \"VALIDATION_MESSAGE\":{\n
-    \       \"required\":\"Application Key cannot be empty\"\n      }\n    }\n  },\n
-    \ \"DYNATRACE\":{\n    \"HEADER\": \"Dynatrace\",\n    \"BODY\":\"\",\n    \"ACCOUNTNAME\":{\n
-    \     \"TOOLTIP\":\"User defined name for the Dynatrace account\",\n      \"VALIDATION_MESSAGE\":{\n
+    empty\",\n        \"invalidUrl\": \"Controller Host URL is invalid\"\n      }\n
+    \   },\n    \"TEMPORARYACCESSTOKEN\":{\n      \"TOOLTIP\":\"APPDYNAMICS Personal
+    Temporary Access Token\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Temporary
+    Access Token cannot be empty\"\n      }\n    }\n  },\n  \"CLOUDWATCH\":{\n    \"HEADER\":
+    \"AWS-CLOUDWATCH\",\n    \"BODY\":\"\",\n    \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User
+    defined name for the AWS-CLOUDWATCH account\",\n      \"VALIDATION_MESSAGE\":{\n
     \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
     other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
     \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
-    \"Account Name cannot start with numbers\"\n    }\n    },\n    \"END_POINT\":{\n
-    \     \"TOOLTIP\":\"Dynatrace URL\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Url
-    cannot be empty\",\n        \"invalidUrl\": \"URL is invalid\"\n      }\n    },\n
-    \   \"API_TOKEN\":{\n      \"TOOLTIP\":\"Dynatrace Personal Access Token\",\n      \"VALIDATION_MESSAGE\":{\n
-    \       \"required\":\"Api Token cannot be empty\"\n      }\n    }\n  },\n  \"ELASTICSEARCH\":{\n
-    \   \"HEADER\": \"Elasticsearch\",\n    \"BODY\":\"<span><li><strong>Account Name</strong>:
-    User-defined account name for your Elasticsearch access.</li><li><strong>Endpoint</strong>:
-    Elasticsearch host address, from which you access the Elasticsearch</li><li><strong>Username</strong>:
+    \"Account Name cannot start with numbers\"\n    }\n    },\n    \"ACCESS_ID\":{\n
+    \     \"TOOLTIP\":\"AWS-CLOUDWATCH Access Key Id\",\n      \"VALIDATION_MESSAGE\":{\n
+    \       \"required\":\"Access Key Id cannot be empty\"\n      }\n    },\n    \"SECRET_KEY\":{\n
+    \     \"TOOLTIP\":\"AWS-CLOUDWATCH Secret Access Key\",\n      \"VALIDATION_MESSAGE\":{\n
+    \       \"required\":\"Secret Access Key cannot be empty\"\n      }\n    }\n  },\n
+    \ \"DATADOG\":{\n    \"HEADER\": \"DATADOG\",\n    \"BODY\":\"\",\n    \"ACCOUNTNAME\":{\n
+    \     \"TOOLTIP\":\"User defined name for the DATADOG account\",\n      \"VALIDATION_MESSAGE\":{\n
+    \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
+    other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
+    \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
+    \"Account Name cannot start with numbers\"\n    }\n\n    },\n    \"API_KEY\":{\n
+    \     \"TOOLTIP\":\"DATADOG Api Key\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"API
+    key cannot be empty\"\n      }\n    },\n    \"APPLICATION_KEY\":{\n      \"TOOLTIP\":\"DATADOG
+    Application Key\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Application
+    Key cannot be empty\"\n      }\n    }\n  },\n  \"DYNATRACE\":{\n    \"HEADER\":
+    \"Dynatrace\",\n    \"BODY\":\"\",\n    \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User
+    defined name for the Dynatrace account\",\n      \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
+    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
+    \   },\n    \"END_POINT\":{\n      \"TOOLTIP\":\"Dynatrace URL\",\n      \"VALIDATION_MESSAGE\":{\n
+    \       \"required\":\"Endpoint Url cannot be empty\",\n        \"invalidUrl\":
+    \"Endpoint URL is invalid\"\n      }\n    },\n    \"API_TOKEN\":{\n      \"TOOLTIP\":\"Dynatrace
+    Personal Access Token\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Api
+    Token cannot be empty\"\n      }\n    }\n  },\n  \"ELASTICSEARCH\":{\n    \"HEADER\":
+    \"Elasticsearch\",\n    \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
+    account name for your Elasticsearch access.</li><li><strong>Endpoint</strong>: Elasticsearch
+    host address, from which you access the Elasticsearch</li><li><strong>Username</strong>:
     Elasticsearch username </li><li><strong>Password</strong>: Elasticsearch password</li><li><strong>Kibana
     Endpoint</strong>: Elasticsearch Kibana host address, from which you access the
     Elasticsearch Kibana</li><li><strong>Kibana username</strong>: Elasticsearch Kibana
@@ -3298,19 +3301,19 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \   },\n    \"ENDPOINT\":{\n      \"TOOLTIP\":\"Elasticsearch host address, from
     which you access the Elasticsearch\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Elastic
-    End Point cannot be empty\",\n        \"invalidUrl\": \"URL is invalid\"\n      }\n
-    \   },\n    \"USERNAME\":{\n      \"TOOLTIP\":\"Elasticsearch username\",\n      \"VALIDATION_MESSAGE\":{\n
-    \       \"noSpecialCharacters\": \"User Name cannot contain special characters other
-    than - and _\",\n        \"cannotContainSpace\":\"User Name cannot contain space\",\n
-    \       \"startingFromNumber\": \"User Name cannot start with numbers\"\n      }\n
-    \   },\n    \"PASSWORD\":{\n      \"TOOLTIP\":\"Elasticsearch password\",\n      \"VALIDATION_MESSAGE\":{\n
-    \       \"required\":\"Password cannot be empty\"\n      }\n    },\n    \"KIBANAENDPOINT\":{\n
-    \     \"TOOLTIP\":\"Elasticsearch Kibana host address, from which you access the
-    Elasticsearch Kibana\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Kibana
-    End Point cannot be empty\",\n        \"invalidUrl\": \"URL is invalid\"\n      }\n
-    \   },\n    \"KIBANAUSERNAME\":{\n      \"TOOLTIP\":\"Elasticsearch Kibana username\",\n
-    \     \"VALIDATION_MESSAGE\":{\n        \"noSpecialCharacters\": \"Kibana User Name
-    cannot contain special characters other than - and _\",\n        \"cannotContainSpace\":\"Kibana
+    End Point cannot be empty\",\n        \"invalidUrl\": \"Elastic End Point is invalid\"\n
+    \     }\n    },\n    \"USERNAME\":{\n      \"TOOLTIP\":\"Elasticsearch username\",\n
+    \     \"VALIDATION_MESSAGE\":{\n        \"noSpecialCharacters\": \"User Name cannot
+    contain special characters other than - and _\",\n        \"cannotContainSpace\":\"User
+    Name cannot contain space\",\n        \"startingFromNumber\": \"User Name cannot
+    start with numbers\"\n      }\n    },\n    \"PASSWORD\":{\n      \"TOOLTIP\":\"Elasticsearch
+    password\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Password cannot
+    be empty\"\n      }\n    },\n    \"KIBANAENDPOINT\":{\n      \"TOOLTIP\":\"Elasticsearch
+    Kibana host address, from which you access the Elasticsearch Kibana\",\n      \"VALIDATION_MESSAGE\":{\n
+    \       \"required\":\"Kibana End Point cannot be empty\",\n        \"invalidUrl\":
+    \"Kibana End Point is invalid\"\n      }\n    },\n    \"KIBANAUSERNAME\":{\n      \"TOOLTIP\":\"Elasticsearch
+    Kibana username\",\n      \"VALIDATION_MESSAGE\":{\n        \"noSpecialCharacters\":
+    \"Kibana User Name cannot contain special characters other than - and _\",\n        \"cannotContainSpace\":\"Kibana
     User Name cannot contain space\",\n        \"required\":\"Kibana User Name cannot
     be empty\",\n        \"startingFromNumber\": \"Kibana User Name cannot start with
     numbers\"\n      }\n    },\n    \"KIBANAPASSWORD\":{\n      \"TOOLTIP\":\"Elasticsearch
@@ -3326,7 +3329,7 @@ data:
     \"Account Name cannot start with numbers\"\n    }\n      },\n      \"URL\":{\n        \"TOOLTIP\":\"Graphite
     host address, from which you access the Graphite\",\n        \"VALIDATION_MESSAGE\":{\n
     \         \"required\":\"End Point cannot be empty\",\n          \"invalidUrl\":
-    \"URL is invalid\"\n        }\n      }\n    },\n    \"GRAYLOG\":{\n      \"HEADER\":
+    \"End Point URL is invalid\"\n        }\n      }\n    },\n    \"GRAYLOG\":{\n      \"HEADER\":
     \"GRAYLOG\",\n      \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
     account name for your Graylog access.</li><li><strong>Endpoint</strong>: Graylog
     host address, from which you access the Graylog </li><li><strong>Token</strong>:
@@ -3337,14 +3340,14 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \     },\n      \"ENDPOINT\":{\n        \"TOOLTIP\":\"Graylog host address, from
     which you access the Graylog\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"End
-    Point cannot be empty\",\n          \"invalidUrl\": \"URL is invalid\"\n        }\n
-    \     },\n      \"TOKEN\":{\n        \"TOOLTIP\":\"GrayLog Personal Access Token\",\n
-    \       \"VALIDATION_MESSAGE\":{\n          \"required\":\"Token cannot be empty\"\n
-    \       }\n      }\n    },\n    \"NEWRELIC\":{\n      \"HEADER\": \"New Relic\",\n
-    \     \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined account name
-    for your NewRelic access.</li><li><strong>Api Key</strong>: The user's token to
-    authenticate with Newrelic</li><li><strong>Application Key</strong>: The application
-    key identifies which account the incoming data belongs to.</li><li><strong>Account
+    Point cannot be empty\",\n          \"invalidUrl\": \"End Point URL is invalid\"\n
+    \       }\n      },\n      \"TOKEN\":{\n        \"TOOLTIP\":\"GrayLog Personal Access
+    Token\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Token cannot
+    be empty\"\n        }\n      }\n    },\n    \"NEWRELIC\":{\n      \"HEADER\": \"New
+    Relic\",\n      \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
+    account name for your NewRelic access.</li><li><strong>Api Key</strong>: The user's
+    token to authenticate with Newrelic</li><li><strong>Application Key</strong>: The
+    application key identifies which account the incoming data belongs to.</li><li><strong>Account
     ID</strong>: Provide account ID to identify the account </li><li><strong>Query Key</strong>:
     Provide a query key to filter the data </li></span>\",\n      \"ACCOUNTNAME\":{\n
     \       \"TOOLTIP\":\"User-defined account name for your NewRelic access.\",\n        \"VALIDATION_MESSAGE\":{\n
@@ -3372,13 +3375,13 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \     },\n      \"ENDPOINT\":{\n        \"TOOLTIP\":\"Prometheus host address, from
     which you access the Prometheus\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"End
-    Point cannot be empty\",\n          \"invalidUrl\": \"URL is invalid\"\n        }\n
-    \     },\n      \"USERNAME\":{\n        \"TOOLTIP\":\"Prometheus username\",\n        \"VALIDATION_MESSAGE\":{\n
-    \         \"noSpecialCharacters\": \"User Name cannot contain special characters
-    other than - and _\",\n          \"cannotContainSpace\":\"User Name cannot contain
-    space\",\n          \"required\":\"User Name cannot be empty\",\n          \"startingFromNumber\":
-    \"User Name cannot start with numbers\"\n        }\n      },\n      \"PASSWORD\":{\n
-    \       \"TOOLTIP\":\"Prometheus password\",\n        \"VALIDATION_MESSAGE\":{\n
+    Point cannot be empty\",\n          \"invalidUrl\": \"End Point URL is invalid\"\n
+    \       }\n      },\n      \"USERNAME\":{\n        \"TOOLTIP\":\"Prometheus username\",\n
+    \       \"VALIDATION_MESSAGE\":{\n          \"noSpecialCharacters\": \"User Name
+    cannot contain special characters other than - and _\",\n          \"cannotContainSpace\":\"User
+    Name cannot contain space\",\n          \"required\":\"User Name cannot be empty\",\n
+    \         \"startingFromNumber\": \"User Name cannot start with numbers\"\n        }\n
+    \     },\n      \"PASSWORD\":{\n        \"TOOLTIP\":\"Prometheus password\",\n        \"VALIDATION_MESSAGE\":{\n
     \         \"required\":\"Password cannot be empty\"\n        }\n      }\n    },\n
     \   \"SPLUNK\":{\n      \"HEADER\": \"Splunk\",\n      \"BODY\":\"<span><li><strong>Account
     Name</strong>: User-defined account name for your Splunk access.</li><li><strong>Splunk
@@ -3392,7 +3395,7 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \     },\n      \"END_POINT\":{\n        \"TOOLTIP\":\"Splunk host address, from
     which you access the Splunk\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Splunk
-    Url  cannot be empty\",\n          \"invalidUrl\": \"URL is invalid\"\n        }\n
+    Url  cannot be empty\",\n          \"invalidUrl\": \"Splunk Url is invalid\"\n        }\n
     \     },\n      \"PASSWORD\":{\n        \"TOOLTIP\":\"Splunk's password\",\n        \"VALIDATION_MESSAGE\":{\n
     \         \"required\":\"Password cannot be empty\"\n        }\n      },\n      \"USER_NAME\":{\n
     \       \"TOOLTIP\":\"Splunk's user name\",\n        \"VALIDATION_MESSAGE\":{\n
@@ -3402,9 +3405,9 @@ data:
     \"Account Name cannot start with numbers\"\n    }\n      },\n      \"DASHBOARD_ENDPOINT\":{\n
     \       \"TOOLTIP\":\"Splunk Dashboard URL that you want to access\",\n        \"VALIDATION_MESSAGE\":{\n
     \         \"required\":\"Splunk DashBoard Url cannot be empty\",\n          \"invalidUrl\":
-    \"URL is invalid\"\n        }\n      }\n    },\n    \"STACKDRIVER\":{\n      \"HEADER\":
-    \"Stackdriver\",\n      \"BODY\":\"\",\n      \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User
-    defined name for the Stackdriver account\",\n        \"VALIDATION_MESSAGE\":{\n
+    \"Splunk DashBoard Url is invalid\"\n        }\n      }\n    },\n    \"STACKDRIVER\":{\n
+    \     \"HEADER\": \"Stackdriver\",\n      \"BODY\":\"\",\n      \"ACCOUNTNAME\":{\n
+    \       \"TOOLTIP\":\"User defined name for the Stackdriver account\",\n        \"VALIDATION_MESSAGE\":{\n
     \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
     other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
     \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
@@ -3426,7 +3429,7 @@ data:
     Zone\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Zone
     cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Zone
     cannot contain space\",\n      \"required\":\"Zone cannot be empty\",\n      \"startingFromNumber\":
-    \"Zone cannot start with numbers\"\n    }\n      }\n    },\n    \n    \"VMWARETANZU\":{\n
+    \"Zone cannot start with numbers\"\n    }\n      }\n    },\n\n    \"VMWARETANZU\":{\n
     \     \"HEADER\": \"VMWare Tanzu Observability\",\n      \"BODY\":\"<span><li><strong>Account
     Name</strong>: User-defined account name for your VMWare Tanzu access</li><li><strong>Endpoint</strong>:
     VMWare Tanzu host address, from which you access the VMWare Tanzu</li><li><strong>Email</strong>:
@@ -3439,14 +3442,14 @@ data:
     \"Account Name cannot start with numbers\"\n    }\n      },\n      \"END_POINT\":{\n
     \       \"TOOLTIP\":\"VMWare Tanzu host address, from which you access the VMWare
     Tanzu\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"End Point cannot
-    be empty\",\n          \"invalidUrl\": \"URL is invalid\"\n        }\n      },\n
-    \     \"EMAIL\":{\n        \"TOOLTIP\":\"Provide the user's registered and authorized
-    email\",\n        \"VALIDATION_MESSAGE\":{\n          \"email\":\"Email Id is invalid\",\n
-    \         \"required\":\"Email Id cannot be empty\"\n        }\n      },\n      \"API_TOKEN\":{\n
-    \       \"TOOLTIP\":\"The user's API token\",\n        \"VALIDATION_MESSAGE\":{\n
-    \         \"required\":\"Api Token cannot be empty\"\n        }\n      }\n    },\n
-    \   \"MSTEAMS\":{\n      \"HEADER\": \"Microsoft Teams\",\n      \"BODY\":\"\"\n
-    \   },\n    \"SLACK\":{\n      \"HEADER\": \"Slack\",\n      \"BODY\":\"<span><li><strong>Account
+    be empty\",\n          \"invalidUrl\": \"End Point URL is invalid\"\n        }\n
+    \     },\n      \"EMAIL\":{\n        \"TOOLTIP\":\"Provide the user's registered
+    and authorized email\",\n        \"VALIDATION_MESSAGE\":{\n          \"email\":\"Email
+    Id is invalid\",\n          \"required\":\"Email Id cannot be empty\"\n        }\n
+    \     },\n      \"API_TOKEN\":{\n        \"TOOLTIP\":\"The user's API token\",\n
+    \       \"VALIDATION_MESSAGE\":{\n          \"required\":\"Api Token cannot be empty\"\n
+    \       }\n      }\n    },\n    \"MSTEAMS\":{\n      \"HEADER\": \"Microsoft Teams\",\n
+    \     \"BODY\":\"\"\n    },\n    \"SLACK\":{\n      \"HEADER\": \"Slack\",\n      \"BODY\":\"<span><li><strong>Account
     Name</strong>: User-defined account name for your Slack access.</li><li><strong>BotName</strong>:
     Provide the bot name where you want to receive notifications in slack</li><li><strong>Token</strong>:
     The user's token to authenticate with slack.</li></span>\",\n      \"ACCOUNTNAME\":{\n
@@ -3473,12 +3476,12 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \     },\n      \"ENDPOINT\":{\n        \"TOOLTIP\":\"OPA server host address, such
     as https://opa:8181\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"End
-    Point cannot be empty\",\n          \"invalidUrl\": \"URL is invalid\"\n        }\n
-    \     }\n    },\n    \"AQUAWAVE\":{\n      \"HEADER\": \"Aqua Wave\",\n      \"BODY\":\"<span><li><strong>Account
-    Name</strong>: User-defined account name for your Aqua Wave access.</li><li><strong>Username</strong>:
-    The Aquawave username</li><li><strong>Token</strong>: The user's token.</li></span>\",\n
-    \     \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User-defined account name for your
-    Aqua Wave access.\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    Point cannot be empty\",\n          \"invalidUrl\": \"End Point URL is invalid\"\n
+    \       }\n      }\n    },\n    \"AQUAWAVE\":{\n      \"HEADER\": \"Aqua Wave\",\n
+    \     \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined account name
+    for your Aqua Wave access.</li><li><strong>Username</strong>: The Aquawave username</li><li><strong>Token</strong>:
+    The user's token.</li></span>\",\n      \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User-defined
+    account name for your Aqua Wave access.\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
     \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
@@ -3511,13 +3514,13 @@ data:
     \"Account Name cannot start with numbers\"\n    }\n      },\n      \"ENDPOINT\":{\n
     \       \"TOOLTIP\":\"Jfrog Xray host address, from which you access the Jfrog Xray
     instance\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Endpoint
-    cannot be empty\",\n          \"invalidUrl\": \"URL is invalid\"\n        }\n      },\n
-    \     \"TOKEN\":{\n        \"TOOLTIP\":\"The user's token from jfrog xray to authenticate\",\n
-    \       \"VALIDATION_MESSAGE\":{\n          \"required\":\"Token cannot be empty\"\n
-    \       }\n      }\n    },\n    \"PRISMACLOUD\":{\n      \"HEADER\": \"Prisma Cloud\",\n
-    \     \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined account name
-    for your Prisma Cloud access.</li><li><strong>Host Url</strong>: Your Prisma Cloud
-    host address, from which you access the Prisma Cloud instance</li><li><strong>Access
+    cannot be empty\",\n          \"invalidUrl\": \"End Point URL is invalid\"\n        }\n
+    \     },\n      \"TOKEN\":{\n        \"TOOLTIP\":\"The user's token from jfrog xray
+    to authenticate\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Token
+    cannot be empty\"\n        }\n      }\n    },\n    \"PRISMACLOUD\":{\n      \"HEADER\":
+    \"Prisma Cloud\",\n      \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
+    account name for your Prisma Cloud access.</li><li><strong>Host Url</strong>: Your
+    Prisma Cloud host address, from which you access the Prisma Cloud instance</li><li><strong>Access
     Key ID</strong>: The user's access key who has access to the Prisma Cloud. If you
     are unsure, consult your Prisma Cloud administrator to get an access key.</li><li><strong>Secret
     key</strong>: The user's secret key</li></span>\",\n      \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User-defined
@@ -3528,13 +3531,13 @@ data:
     \"Account Name cannot start with numbers\"\n    }\n      },\n      \"HOSTURL\":{\n
     \       \"TOOLTIP\":\"Prisma Cloud host address, from which you access the Prisma
     Cloud instance\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Host
-    URL cannot be empty\",\n          \"invalidUrl\": \"URL is invalid\"\n        }\n
-    \     },\n      \"APPLICATIONURL\":{\n        \"TOOLTIP\":\"Prisma Cloud Application
-    URL\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Application URL
-    cannot be empty\",\n          \"invalidUrl\": \"URL is invalid\"\n        }\n      },\n
-    \     \"ACCESSKEYID\":{\n        \"TOOLTIP\":\"The user's access key who has access
-    to the Prisma Cloud. If you are unsure, consult your Prisma Cloud administrator
-    to get an access key.\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Access
+    URL cannot be empty\",\n          \"invalidUrl\": \"End Point URL is invalid\"\n
+    \       }\n      },\n      \"APPLICATIONURL\":{\n        \"TOOLTIP\":\"Prisma Cloud
+    Application URL\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Application
+    URL cannot be empty\",\n          \"invalidUrl\": \"Application URL is invalid\"\n
+    \       }\n      },\n      \"ACCESSKEYID\":{\n        \"TOOLTIP\":\"The user's access
+    key who has access to the Prisma Cloud. If you are unsure, consult your Prisma Cloud
+    administrator to get an access key.\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Access
     Key Id cannot be empty\"\n        }\n      },\n      \"SECRETKEY\":{\n        \"TOOLTIP\":\"The
     user's secret key\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Secret
     Key cannot be empty\"\n        }\n      }\n    },\n    \"SONARQUBE\":{\n      \"HEADER\":
@@ -3548,7 +3551,7 @@ data:
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \     },\n      \"HOSTURL\":{\n        \"TOOLTIP\":\"Sonarqube host address, from
     which you access the Sonaqube instance\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Host
-    URL cannot be empty\",\n          \"invalidUrl\": \"URL is invalid\"\n        }\n
+    URL cannot be empty\",\n          \"invalidUrl\": \"Host URL is invalid\"\n        }\n
     \     },\n      \"TOKEN\":{\n        \"TOOLTIP\":\"The user's token (it is optional)\",\n
     \       \"VALIDATION_MESSAGE\":{\n          \"required\":\"Token cannot be empty\"\n
     \       }\n      }\n    },\n    \"AUTOPILOT\":{\n      \"HEADER\": \"Autopilot\",\n
@@ -20278,7 +20281,7 @@ kind: Service
 metadata:
   labels:
     app: oes
-    component: visibility 
+    component: visibility
     heritage: "Helm"
     release: "isdargo"
     chart: "isdargo-4.1.0"
@@ -20286,7 +20289,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - name: visibility 
+  - name: visibility
     protocol: TCP
     port: 8096
     targetPort: 8096
@@ -21257,7 +21260,7 @@ spec:
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
-        - mountPath: /app/secrets/controller-ca.crt 
+        - mountPath: /app/secrets/controller-ca.crt
           name: ca-certs-volume
           subPath: tls.crt
         - mountPath: /app/secrets/controller-control/tls.crt
@@ -21268,7 +21271,7 @@ spec:
           subPath: tls.key
         - mountPath: /app/config/carina-manager.yaml
           name: carina-volume
-          subPath: carina-manager.yaml          
+          subPath: carina-manager.yaml
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -21401,7 +21404,7 @@ spec:
         chart: "isdargo-4.1.0"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.0 
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.0
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
         ports:
@@ -21948,7 +21951,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: 7ec09466724e3a838b137945ce34d1da28e6083f37bfad9cf03fbc17e15b6825
+        checksum/configmap: 5b9ccb0fdeed3b780774c35c9d82be3abf4df19a316a39e29a5032dbac191beb
         checksum/configmap: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
         prometheus.io/scrape: "true"
         prometheus_io_path: /mgmt/prometheus
@@ -22115,7 +22118,7 @@ spec:
   template:
     metadata:
       annotations:
-        configmap/checksum: 4da1b59521ab323f4e57e3ec71a44c101d209d1e4758aa09a9b54acf10e54050
+        configmap/checksum: 4bc045e18dbbf5885e9a3019147085e9e94b6dd4b139aa3f0a8de617afa278ca
         prometheus.io/scrape: "true"
         prometheus_io_path: /mgmt/prometheus
         prometheus_io_port: "8096"
@@ -22541,8 +22544,8 @@ spec:
            valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-         args: 
-         - "$(NAMESPACE)" 
+         args:
+         - "$(NAMESPACE)"
        restartPolicy: Never
        serviceAccount: create-controller-secret
 ---
