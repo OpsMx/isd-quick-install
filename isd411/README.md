@@ -9,7 +9,7 @@ Please ensure no port is running on 8099. Use below command to check
 - netstat -aof | findstr "LISTENING"                # Windows Users
 
 Issue the following commands (copy paste in a terminal window)
-- kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/OpsMx/isd-quick-install/main/isd411/isd-argo-quick.yaml
+- kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/saitejaopsmx/isd-quick-install/main/isd411/isd-argo-quick.yaml
 
 WAIT for about 5-10 min, depending your network speed.
 It is normal for some pods to go into error/crashloop before stabilising.
