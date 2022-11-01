@@ -379,10 +379,8 @@ stringData:
     secret.ds.protocol=http://
     secret.ds.url=localhost:5005
     secret.dashboard.url=http://oes-dashboard:8094
-    
-    server.host.dns.name=https://oes.example.ops.com/ui
-    
-    gate.url=https://oes.example.ops.com/gate
+    server.host.dns.name=http://localhost:8080/ui
+    gate.url=http://oes-gate:8084
     
     #datascience configuration
     oes.datascience.baseUrl=http://oes-datascience:5005
@@ -936,7 +934,7 @@ metadata:
 stringData:
   cd-integration: "true"
   source-name: "argocd"
-  gate-url: "https://oes.example.ops.com"
+  gate-url: http://oes-gate:8084
   user: "admin"
 ---
 # Source: isdargo/templates/secrets/sapor-bootstrap-secret.yaml
