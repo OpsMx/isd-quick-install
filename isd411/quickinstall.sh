@@ -171,3 +171,4 @@ getports
 replaceports
 checkcrds
 isdargoinstallation
+isdargocheck
