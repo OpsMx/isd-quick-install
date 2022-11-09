@@ -48,11 +48,11 @@ curl -o curl-isd-argo-quick.yaml https://raw.githubusercontent.com/saitejaopsmx/
 getports(){
 ## Checking the available ports for ISD UI,ArgoCD and Argo Rollouts
 ARGOCD_PORT=$(assignPort 9000)
-echo $ARGOCD_PORT
+#echo $ARGOCD_PORT
 ISDUI_PORT=$(assignPort 8080)
-echo $ISDUI_PORT
+#echo $ISDUI_PORT
 ROLLOUT_PORT=$(assignPort 9100)
-echo $ROLLOUT_PORT
+#echo $ROLLOUT_PORT
 }
 
 assignPort(){
@@ -119,8 +119,9 @@ then
     AUTOPILOT=$(grep oes-autopilot inst.status | awk '{print $2}')
     ARGOSERVER=$(grep argocd-server inst.status | awk '{print $2}')
     OESGATE=$(grep oes-gate inst.status | awk '{print $2}')
+    AGENTCONFIG=$(grep oes-autoconfig inst.status | awk '{print $2}')
     wait_period=$(($wait_period+10))
-    READYBASIC=$([ "$OESGATE" == "true" ] &&[ "$ARGOSERVER" == "true" ] && [ "$SAPOR" == "true" ] && [ "$PLATFORM" == "true" ] && [ "$AUTOPILOT" == "true" ]; echo $(($? == 0)) )
+    READYBASIC=$([ "$AGENTCONFIG" == "false" ] && [ "$OESGATE" == "true" ] && [ "$ARGOSERVER" == "true" ] && [ "$SAPOR" == "true" ] && [ "$PLATFORM" == "true" ] && [ "$AUTOPILOT" == "true" ]; echo $(($? == 0)) )
     READY=$READYBASIC
     if [ $READY == 1 ];
     then
@@ -131,14 +132,14 @@ then
 	echo ""
 	echo "Below are the services need to be portforwarded to Access the ISD-ARGO:"
         echo ""
-        echo "       kubectl -n opsmx-argo port-forward svc/oes-ui $ISDUI_PORT & kubectl -n opsmx-argo port-forward svc/isdargo-argocd-server $ARGOCD_PORT:80 & kubectl -n opsmx-argo port-forward svc/isdargo-argo-rollouts-dashboard $ROLLOUT_PORT:3100"
+        echo " ---------->  kubectl -n opsmx-argo port-forward svc/oes-ui $ISDUI_PORT & kubectl -n opsmx-argo port-forward svc/isdargo-argocd-server $ARGOCD_PORT:80 & kubectl -n opsmx-argo port-forward svc/isdargo-argo-rollouts-dashboard $ROLLOUT_PORT:3100"
         echo ""
         echo ""
         echo "       Access the ISD          --> http://localhost:$ISDUI_PORT"
         echo ""
-        echo "       Access the ArgoCD       --> http://$ARGOCD_PORT"
+        echo "       Access the ArgoCD       --> http://localhost:$ARGOCD_PORT"
         echo ""
-        echo "       Access the Argorollouts --> http://$ROLLOUT_PORT"
+        echo "       Access the Argorollouts --> http://localhost:$ROLLOUT_PORT"
         echo ""
         echo "       Login with Openldap Credentials"
         echo ""
@@ -153,7 +154,7 @@ then
             break
         else
             echo "       Waiting for ISD services to be ready"
-            kubectl get po -n $isdnamespace | egrep 'ContainerStatusUnknown|CrashLoopBackOff|Evicted' | awk '{print $1}' | xargs kubectl delete po -n $isdnamespace > /dev/null 2>&1
+            kubectl get po -n opsmx-argo | egrep 'ContainerStatusUnknown|CrashLoopBackOff|Evicted' | awk '{print $1}' | xargs kubectl delete po -n opsmx-argo > /dev/null 2>&1
             sleep 30
         fi
     fi
