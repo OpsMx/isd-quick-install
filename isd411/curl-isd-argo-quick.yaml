@@ -379,7 +379,7 @@ stringData:
     secret.ds.protocol=http://
     secret.ds.url=localhost:5005
     secret.dashboard.url=http://oes-dashboard:8094
-    server.host.dns.name=http://localhost:8080/ui
+    server.host.dns.name=http://localhost:ISDUI_PORT/ui
     gate.url=http://oes-gate:8084
     
     #datascience configuration
@@ -1834,7 +1834,7 @@ data:
             token: xxxx
         annotations:
           description: argocd via agent
-          uiUrl: http://localhost:8099
+          uiUrl: http://localhost:ARGOCD_PORT
 ---
 # Source: isdargo/templates/configmaps/argocd-cmd-params-cm.yaml
 apiVersion: v1
