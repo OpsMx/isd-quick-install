@@ -380,6 +380,7 @@ stringData:
     secret.ds.url=localhost:5005
     secret.dashboard.url=http://oes-dashboard:8094
     server.host.dns.name=http://localhost:ISDUI_PORT/ui
+    #server.host.dns.name=http://localhost:8080/ui
     gate.url=http://oes-gate:8084
     
     #datascience configuration
@@ -29424,7 +29425,7 @@ metadata:
     chart: "isdargo-4.1.0"
   name: oes-gate
 spec:
-  type: 
+  type: ClusterIP
   ports:
   - name: "https"
     port: 443
@@ -29495,7 +29496,7 @@ metadata:
     chart: "isdargo-4.1.0"
   name: oes-ui
 spec:
-  type: 
+  type: ClusterIP
   ports:
   - name: "https"
     port: 443
