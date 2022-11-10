@@ -20,23 +20,7 @@ echo "   Configuration with at least 4 cores and 16 GB memory"
 echo "   Kubernetes cluster 1.19 or later                    "
 echo "-------------------------"
 read -p "Press enter to continue..."
-echo "-------------------------------------"
-echo "           Pre Installation          "
-echo "-------------------------------------"
 echo ""
-}
-
-checkdep(){
-echo "Checking for dependency......"
-## check kubectl 
-#kubectl version > /dev/null 2>&1
-#if [ $? == 0 ];
-#then
-#  echo "Kubectl present in server.."
-#else
-#  echo "ERROR: kubectl not installed ..."
-#  exit 1
-#fi
 }
 
 getinstallyaml(){
@@ -135,18 +119,15 @@ then
         echo ""
         echo " ---------->  kubectl -n opsmx-argo port-forward svc/oes-ui $ISDUI_PORT & kubectl -n opsmx-argo port-forward svc/isdargo-argocd-server $ARGOCD_PORT:80 & kubectl -n opsmx-argo port-forward svc/isdargo-argo-rollouts-dashboard $ROLLOUT_PORT:3100"
         echo ""
+        argopass=$(kubectl -n opsmx-argo get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
         echo ""
-        echo "       Access the ISD          --> http://localhost:$ISDUI_PORT"
+        echo "       ISD UI          ---> http://localhost:$ISDUI_PORT    ---> Login with admin/opsmxadmin123"
         echo ""
-        echo "       Access the ArgoCD       --> http://localhost:$ARGOCD_PORT"
+        echo "       ARGOCD UI       ---> http://localhost:$ARGOCD_PORT   ---> Login with admin/$argopass"
         echo ""
-        echo "       Access the Argorollouts --> http://localhost:$ROLLOUT_PORT"
+        echo "       ARGOROLLOUTS UI ---> http://localhost:$ROLLOUT_PORT"
         echo ""
-        echo "       Login with Openldap Credentials"
         echo ""
-        echo "                           Username: admin"
-        echo "                           Password: opsmxadmin123"
-        echo "      ------------------------------------------------------"
         break
     else
         if [ $wait_period -gt 2000 ];
@@ -156,7 +137,7 @@ then
         else
             echo "       Waiting for ISD services to be ready"
             kubectl get po -n opsmx-argo | egrep 'ContainerStatusUnknown|CrashLoopBackOff|Evicted' | awk '{print $1}' | xargs kubectl delete po -n opsmx-argo > /dev/null 2>&1
-            sleep 30
+            sleep 60
         fi
     fi
   done
@@ -167,10 +148,9 @@ else
 fi
 }
 isdlogo
-checkdep
 getinstallyaml
 getports
 replaceports
-checkcrds
+#checkcrds
 isdargoinstallation
 isdargocheck
