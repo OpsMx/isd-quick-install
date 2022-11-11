@@ -31793,7 +31793,7 @@ spec:
     namespace: opsmx-argo
     server: ''
   source:
-    path: app-of-apps
+    path: sampleapps
     repoURL: 'git@github.com:OpsMx/argo-sample-apps.git'
     targetRevision: HEAD
   project: default
