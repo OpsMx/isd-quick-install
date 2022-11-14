@@ -8997,30 +8997,6 @@ spec:
        restartPolicy: Never
        serviceAccount: create-controller-secret
 ---
-# Source: oes/charts/gitea/templates/tests/test-http-connection.yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: "isd-gitea-test-connection"
-  labels:
-
-    helm.sh/chart: gitea-5.0.1
-    app: gitea
-    app.kubernetes.io/name: gitea
-    app.kubernetes.io/instance: isd
-    app.kubernetes.io/version: "1.15.10"
-    version: "1.15.10"
-    app.kubernetes.io/managed-by: Helm
-  annotations:
-    "helm.sh/hook": test-success
-spec:
-  containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args:  ['isd-gitea-http:3000']
-  restartPolicy: Never
----
 # Source: oes/charts/minio/templates/post-install-create-bucket-job.yaml
 apiVersion: batch/v1
 kind: Job
@@ -9067,48 +9043,6 @@ spec:
         resources:
           requests:
             memory: 128Mi
----
-# Source: oes/charts/spinnaker/templates/hooks/cleanup.yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: "isd-spinnaker-cleanup-using-hal"
-  labels:
-    app: "isd-spinnaker"
-    heritage: "Helm"
-    release: "isd"
-    chart: "spinnaker-2.2.3"
-    component: halyard
-  annotations:
-    "helm.sh/hook": "pre-delete"
-    "helm.sh/hook-delete-policy": "before-hook-creation"
-spec:
-  template:
-    metadata:
-      annotations:
-        moniker.spinnaker.io/application: spin
-      labels:
-        app: "isd-spinnaker"
-        heritage: "Helm"
-        release: "isd"
-        chart: "spinnaker-2.2.3"
-        component: halyard
-    spec:
-      restartPolicy: OnFailure
-      volumes:
-      - name: halyard-config
-        configMap:
-          name: isd-spinnaker-halyard-config
-      containers:
-      - name: halyard-install
-        image: quay.io/opsmxpublic/ubi8-spin-halyard:1.28.1-v4.0.2
-        volumeMounts:
-        - name: halyard-config
-          mountPath: /opt/halyard/scripts
-        command:
-        - bash
-        - -xe
-        - "/opt/halyard/scripts/clean.sh"
 ---
 # Source: oes/charts/spinnaker/templates/hooks/install-using-hal.yaml
 apiVersion: batch/v1
@@ -9161,33 +9095,6 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: status.hostIP
----
-# Source: oes/templates/hooks/cleanup.yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: "oes-cleanup"
-  labels:
-    heritage: "Helm"
-    release: "isd"
-    chart: "oes-4.0.7"
-  annotations:
-    "helm.sh/hook": "pre-delete"
-    "helm.sh/hook-delete-policy": "before-hook-creation"
-spec:
-  template:
-    metadata:
-      labels:
-        heritage: "Helm"
-        release: "isd"
-        chart: "oes-4.0.7"
-    spec:
-      restartPolicy: OnFailure
-      containers:
-      - name: oes-cleanup
-        image: quay.io/opsmxpublic/ubi8-spin-halyard:1.28.1-v4.0.2
-        command: ["/bin/bash","-c"]
-        args: ["kubectl delete ingress --ignore-not-found oes-gate-ingress oes-ui-ingress isd-spinnaker-deck; kubectl delete secret --ignore-not-found ca-secret jwt-secret oes-cacerts oes-control-secret"]
 ---
 # Source: oes/templates/hooks/oes-config-job.yaml
 apiVersion: batch/v1
