@@ -2,7 +2,6 @@ To experience ISD quickly, you can install it and deploy your applications. Note
 To begin installation, you'll need a Kubernetes cluster  (with 2 nodes with 32GB RAM each) and kubectl set-up.
 
 Issue the following commands (copy paste in a terminal window)
-- kubectl create namespace opsmx-isd
 - kubectl -n opsmx-isd apply -f https://raw.githubusercontent.com/OpsMx/isd-quick-install/main/isd40/isd-gitea-quick.yaml
 
 WAIT for about 20-30 min, depending your network speed.
