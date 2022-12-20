@@ -1,15 +1,16 @@
 **Quick install for ISD which includes ArgoCD,ArgoRollouts,Autopilot Services.**
 
 To experience ISD quickly, you can install it and deploy your applications. Note that the instructions below are intended to get you started quickly and try out ISD functionality. This is not suitable for production or any environment where security is a concern.
-To begin installation, you'll need a Kubernetes cluster  (with 1 node 4CPU with 16GB RAM) and kubectl set-up.
+To begin installation, you'll need a Kubernetes cluster > 1.24.0 (with 1 node 4CPU with 16GB RAM) and kubectl set-up.
 
 Please ensure no port is running on 8099. Use below command to check
+
 Linux   -  sudo lsof -i -P -n | grep LISTEN | grep 8099      
 Mac     -     netstat -anp tcp | grep LISTEN | grep 8099        
 Windows -   netstat -aof | findstr "LISTENING"            
 
 Issue the following commands (copy paste in a terminal window)
-- `kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/opsmx/isd-quick-install/main/isd411/isd-argo-quick.yaml`
+- `kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/saitejaopsmx/isd-quick-install/main/isd411/isd-argo-quick.yaml`
 
 If you see any error at the end of the command output, please wait for a few seconds and reissue the command above. 
 
