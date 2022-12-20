@@ -9,23 +9,35 @@ Mac     -     netstat -anp tcp | grep LISTEN | grep 8099
 Windows -   netstat -aof | findstr "LISTENING"            
 
 Issue the following commands (copy paste in a terminal window)
-- kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/opsmx/isd-quick-install/main/isd411/isd-argo-quick.yaml
+- `kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/opsmx/isd-quick-install/main/isd411/isd-argo-quick.yaml`
+
+If you see any error at the end of the command output, please wait for a few seconds and reissue the command above. 
 
 WAIT for about 5-10 min, depending your network speed.
 It is normal for some pods to go into error/crashloop before stabilising.
 
 Check the status of the pods by executing this command:
-- kubectl -n opsmx-argo get po
+- `kubectl -n opsmx-argo get po`
 
 Once all pods show "Running" or "Completed" status, wait for a couple of minutes and execute this:
 - kubectl -n opsmx-argo port-forward svc/oes-ui 8080 & kubectl -n opsmx-argo port-forward svc/isdargo-argocd-server 8099:80 ## Keep running, it shows messages such as "Forwarding from 127.0.0.1:8080 -> 8080,127.0.0.1:8099 -> 8080"
 
 Now, open your browser and navigate to http://localhost:8080
-Login with username admin and password opsmxadmin123
+Login with username admin and password xxxxxxxxx
+
+Execute the following command to retrieve the password
+
+- `kubectl -n opsmx-argo get secret openldap -o jsonpath='{.data.LDAP_ADMIN_PASSWORD}'| base64 -d`
+
+In case "base64 command not found":  Please execute the below command. 
+
+- `kubectl -n opsmx-argo get secret openldap -o jsonpath='{.data.LDAP_ADMIN_PASSWORD}'`
+
+After executing the above command, copy the output and decode it using any online decoding site such as https://www.base64decode.org/.
 
 Open another tab in the same browser and navigate to http://localhost:8099
 Login with username admin password xxxxxxxxxx
 
 Execute the below command to get the password
 
-- kubectl -n opsmx-argo get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
+- `kubectl -n opsmx-argo get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d`
