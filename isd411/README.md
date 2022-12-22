@@ -10,7 +10,7 @@ Mac     -     netstat -anp tcp | grep LISTEN | grep 8099
 Windows -   netstat -aof | findstr "LISTENING"            
 
 Issue the following commands (copy paste in a terminal window)
-- `kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/saitejaopsmx/isd-quick-install/main/isd411/isd-argo-quick.yaml`
+- `kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/opsmx/isd-quick-install/main/isd411/isd-argo-quick.yaml`
 
 If you see any error at the end of the command output, please wait for a few seconds and reissue the command above. 
 
