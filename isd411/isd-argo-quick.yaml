@@ -403,6 +403,11 @@ stringData:
     # Standard-error-path
     standardErrorCodes.filePath=/opsmx/conf/standard-error-code.csv
     
+    agent.enabled=true
+    agent.caCertfile=/opsmx/conf/controller/ca.crt
+    agent.certFile=/opsmx/conf/controller/tls.crt
+    agent.keyFile=/opsmx/conf/controller/tls.key
+
     #storage configuration
     storage.type =db_storage
     #storage.type =object_storage
@@ -767,7 +772,7 @@ stringData:
         caCertfile: /opt/opsmx/controller/ca.crt
         certFile: /opt/opsmx/controller/cert/tls.crt
         keyFile: /opt/opsmx/controller/cert/tls.key
-        image: quay.io/opsmxpublic/forwarder-agent:v3.5.7
+        image: quay.io/opsmxpublic/forwarder-agent:v3.5.9
       template:
         path: /opt/opsmx/controller
         kubectlTemplateFileName: kubeconfig.template
@@ -895,7 +900,7 @@ metadata:
 apiVersion: v1
 data:
   name: b3BzbXgtc2FtcGxlcw==
-  project: ZGVmYXVsdA==
+  project: b3BzbXhwcm9qCg==
   sshPrivateKey: LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQkc1dmJtVUFBQUFFYm05dVpRQUFBQUFBQUFBQkFBQUFNd0FBQUF0emMyZ3RaVwpReU5UVXhPUUFBQUNETi96S2oyU2szTXdEN1c4V3o4S1JDdGJEOWIvZGw0NWN1TE5SOHdzTmNWd0FBQUppbEd3VCtwUnNFCi9nQUFBQXR6YzJndFpXUXlOVFV4T1FBQUFDRE4vektqMlNrM013RDdXOFd6OEtSQ3RiRDliL2RsNDVjdUxOUjh3c05jVncKQUFBRUFQUFlGQUdCMlpsWWloNitrWXF5dE1XcFdEUml5b3U5U0t4T3pDWUk3c1E4My9NcVBaS1RjekFQdGJ4YlB3cEVLMQpzUDF2OTJYamx5NHMxSHpDdzF4WEFBQUFFMnR6Y21sdWFXMWlZVUJuYldGcGJDNWpiMjBCQWc9PQotLS0tLUVORCBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0K
   type: Z2l0
   url: Z2l0QGdpdGh1Yi5jb206T3BzTXgvYXJnby1zYW1wbGUtYXBwcy5naXQ=
@@ -32615,7 +32620,7 @@ spec:
         checksum/secret: 3317d0843d09e8e86afa45102c110412f46f8d4715da5fdf1208733b21c1ff37
     spec:
       containers:
-      - image: quay.io/opsmxpublic/carina-manager:v1.4.2
+      - image: quay.io/opsmxpublic/carina-manager:v1.9.1
         imagePullPolicy: IfNotPresent
         name: oes-carina
         ports:
@@ -32688,7 +32693,7 @@ spec:
     spec:
       containers:
       - name: opsmx-controller-controller1
-        image: quay.io/opsmxpublic/forwarder-controller:v3.5.7
+        image: quay.io/opsmxpublic/forwarder-controller:v3.5.9
         ports:
           - containerPort: 9001
             name: agent-grpc
@@ -32768,7 +32773,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.2-rc2
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.2-rc3
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
         ports:
@@ -32854,7 +32859,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.1.2-rc2
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.1.2-rc3
         imagePullPolicy: IfNotPresent
         name: oes-audit
         ports:
@@ -32963,7 +32968,7 @@ spec:
         image: quay.io/opsmxpublic/postgres:9.6.5
         command: ['/bin/bash', '-c', "sleep 30;echo Waiting for oes-db to be up and running; pg_isready -h oes-db -p 5432 && echo PostgreSQL DB is ready to receive connections"]
       containers:
-        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2-rc2
+        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2-rc3
           imagePullPolicy: IfNotPresent
           name: oes-autopilot
           resources:
@@ -33031,7 +33036,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.1.2-rc2
+      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.1.2-rc3
         name: oes-dashboard
         ports:
         - containerPort: 8094
@@ -33111,7 +33116,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.1.2-rc2
+      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.1.2-rc3
         imagePullPolicy: IfNotPresent
         name: oes-datascience
         ports:
@@ -33171,7 +33176,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-gate:v4.1.2-rc2
+      - image: quay.io/opsmxpublic/ubi8-gate:v4.1.2-rc3
         name: oes-gate
         env:
         - name: spring_profiles_active
@@ -33248,7 +33253,7 @@ spec:
         image: quay.io/opsmxpublic/postgres:9.6.5
         command: ['/bin/bash', '-c', "sleep 30;echo Waiting for oes-db to be up and running; pg_isready -h oes-db -p 5432 && echo PostgreSQL DB is ready to receive connections"]
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.1.2-rc2
+      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.1.2-rc3
         name: oes-platform
         ports:
         - containerPort: 8095
@@ -33332,7 +33337,7 @@ spec:
         image: quay.io/opsmxpublic/postgres:9.6.5
         command: ['/bin/bash', '-c', "sleep 30;echo Waiting for oes-db to be up and running; pg_isready -h oes-db -p 5432 && echo PostgreSQL DB is ready to receive connections"]
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.1.2-rc2
+      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.1.2-rc3
         name: oes-sapor
         env:
         ports:
@@ -33425,7 +33430,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2-rc2
+      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2-rc3
         name: oes-ui
         ports:
         - containerPort: 8080
@@ -33498,7 +33503,7 @@ spec:
         image: quay.io/opsmxpublic/postgres:9.6.5
         command: ['/bin/bash', '-c', "sleep 30;echo Waiting for oes-db to be up and running; pg_isready -h oes-db -p 5432 && echo PostgreSQL DB is ready to receive connections"]
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.1.2-rc2
+      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.1.2-rc3
         name: oes-visibility
         ports:
         - containerPort: 8096
@@ -33574,7 +33579,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/rabbitmq:3-management
+      - image: quay.io/opsmxpublic/rabbitmq:3.11.4-management
         imagePullPolicy: IfNotPresent
         name: rabbitmq
         ports:
@@ -34031,37 +34036,37 @@ spec:
        restartPolicy: Never
        serviceAccount: create-controller-secret
 ---
-# Source: isdargo/templates/sampleapps/app-of-app.yaml
+# Source: isdargo/templates/sampleapps/opsmxproj.yaml
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: AppProject
 metadata:
-  name: app-of-apps
+  name: opsmxproj
 spec:
-  destination:
-    name: in-cluster
-    namespace: opsmx-argo
-    server: ''
-  source:
-    path: sampleapps
-    repoURL: 'git@github.com:OpsMx/argo-sample-apps.git'
-    targetRevision: HEAD
-  project: default
-  syncPolicy:
-    automated:
-      prune: false
-      selfHeal: false
----
-# Source: isdargo/templates/configmaps/extensions.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: ArgoCDExtension
-metadata:
-  finalizers:
-  - extensions-finalizer.argocd.argoproj.io
-  name: opsmx-extensions
-spec:
-  sources:
-  - web:
-      url: https://github.com/OpsMx/rollout-extension/releases/download/v0.3.7/extension.tar
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - name: '*'
+    namespace: '!default'
+    server: '*'
+  - name: '*'
+    namespace: '!cert-manager'
+    server: '*'
+  - name: '*'
+    namespace: '!ingress-nginx'
+    server: '*'
+  - name: '*'
+    namespace: '!kube-node-lease'
+    server: '*'
+  - name: '*'
+    namespace: '!kube-public'
+    server: '*'
+  - name: '*'
+    namespace: '!kube-system'
+    server: '*'
+  sourceRepos:
+  - '*'
+status: {}
 ---
 # Source: isdargo/charts/minio/templates/post-install-create-bucket-job.yaml
 apiVersion: batch/v1
@@ -34147,3 +34152,43 @@ spec:
           defaultMode: 420
           name: oes-autoconfigure
         name: autoconfigure
+---
+# Source: isdargo/templates/sampleapps/app-of-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    "helm.sh/hook": "post-install"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+    "helm.sh/hook-weight": "10"
+  name: app-of-apps
+spec:
+  destination:
+    name: in-cluster
+    namespace: opsmx-argo
+    server: ''
+  source:
+    path: sampleapps-opsmxproj
+    repoURL: 'git@github.com:OpsMx/argo-sample-apps.git'
+    targetRevision: HEAD
+  project: opsmxproj
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+---
+# Source: isdargo/templates/configmaps/extensions.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCDExtension
+metadata:
+  annotations:
+    "helm.sh/hook": "post-install"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+    "helm.sh/hook-weight": "10"
+  name: opsmx-extensions
+  finalizers:
+  - extensions-finalizer.argocd.argoproj.io
+spec:
+  sources:
+  - web:
+      url: https://github.com/OpsMx/rollout-extension/releases/download/v0.3.7/extension.tar
