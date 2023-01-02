@@ -1018,6 +1018,7 @@ data:
     - name: argocd-vault-plugin
       generate:
         command: ["argocd-vault-plugin"]
+        args: ["generate", "-s", "{{ .Release.Namespace }}:argocd-vault-plugin-credentials", "./"]
   exec.enabled: "false"
   server.rbac.log.enforce.enable: "false"
   timeout.hard.reconciliation: 0s
