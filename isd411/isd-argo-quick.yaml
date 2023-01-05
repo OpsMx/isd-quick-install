@@ -516,7 +516,7 @@ stringData:
         externalUrl: /ui/
       user: {}
     cors:
-      allowed-origins-pattern: ^https?://(?:localhost|oes.example.ops.com|opsmx.com)(?::[1-9]\d*)?/?
+      allowed-origins-pattern: ^https?://(?:localhost|ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM|opsmx.com)(?::[1-9]\d*)?/?
     ldap:
       enabled: true
       url: ldap://openldap:389
@@ -645,18 +645,18 @@ stringData:
       auditclient:
         url: http://oes-audit-client:8098
       policyGate:
-        url: "https://oes.example.ops.com/gate"
+        url: "https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate"
         path: /v1/data/
       ui:
       # Ex: "https://oes-poc.dev.opsmx.org/"
-        url: "https://oes.example.ops.com/ui"
+        url: "https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/ui"
       gate:
         url: http://oes-gate:8084
       approvalGate:
-        apiUrl: https://oes.example.ops.com/gate/visibilityservice/v5/approvalGates/{id}/trigger
+        apiUrl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate/visibilityservice/v5/approvalGates/{id}/trigger
     
       verificationGate:
-        apiUrl: https://oes.example.ops.com/gate/autopilot/api/v3/registerCanary
+        apiUrl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate/autopilot/api/v3/registerCanary
     
     logging:
       level:
@@ -725,7 +725,7 @@ stringData:
         url: "http://oes-audit-service:8097"
       dashboard:
         url: http://oes-dashboard:8094
-      commongateurl: https://oes.example.ops.com/gate
+      commongateurl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate
     spinnaker:
       encrypt:
         enabled: false
@@ -840,7 +840,7 @@ stringData:
     
     ui:
       approval:
-        url: https://oes.example.ops.com/ui/application/visibility/{applicationId}/{serviceId}/{approvalGateId}
+        url: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/ui/application/visibility/{applicationId}/{serviceId}/{approvalGateId}
     
     gate:
       url: http://oes-gate:8084
@@ -1023,7 +1023,7 @@ data:
   server.rbac.log.enforce.enable: "false"
   timeout.hard.reconciliation: 0s
   timeout.reconciliation: 180s
-  url: https://cd.ryzon7-argo22.opsmx.org
+  url: https://ARGO.REPLACE.THIS.WITH.YOURCOMPANY.COM
 ---
 # Source: isdargo/charts/argo-cd/templates/argocd-configs/argocd-cmd-params-cm.yaml
 apiVersion: v1
@@ -1090,7 +1090,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
 data:
   context: |
-    argocdUrl: "cd.ryzon7-argo22.opsmx.org"
+    argocdUrl: "ARGO.REPLACE.THIS.WITH.YOURCOMPANY.COM"
   service.email.gmail: |
     username: $email-username
     password: $email-password
@@ -2255,8 +2255,8 @@ metadata:
 data:
   configFile: |
     serviceHostname: opsmx-controller-controller1
-    agentHostname: agent-grpc
-    remoteCommandHostname: agent-grpc
+    agentHostname: agent-grpc.opsmx-argo.svc.cluster.local
+    remoteCommandHostname: agent-grpc.opsmx-argo.svc.cluster.local
     controlHostname: opsmx-controller-controller1
     #agentAdvertisePort: "443"
     serviceAuth:
@@ -32783,6 +32783,9 @@ spec:
       - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.2-rc4
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 8098
           name: backend
@@ -32869,6 +32872,9 @@ spec:
       - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.1.2-rc4
         imagePullPolicy: IfNotPresent
         name: oes-audit
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 8097
           name: backend
@@ -32983,48 +32989,51 @@ spec:
         image: quay.io/opsmxpublic/postgres:9.6.5
         command: ['/bin/bash', '-c', "sleep 30;echo Waiting for oes-db to be up and running; pg_isready -h oes-db -p 5432 && echo PostgreSQL DB is ready to receive connections"]
       containers:
-        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2-rc4
-          imagePullPolicy: IfNotPresent
-          name: oes-autopilot
-          resources:
+      - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2-rc4
+        imagePullPolicy: IfNotPresent
+        name: oes-autopilot
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
+        resources:
             {}
-          ports:
-            - containerPort: 8090
-              name: backend
-              protocol: TCP
-            - containerPort: 9090
-              name: metricfetcher
-              protocol: TCP
-          volumeMounts:
-          - mountPath: /opsmx/conf/controller/ca.crt
-            name: ca-certs-volume
-            subPath: tls.crt
-          - mountPath: /opsmx/conf/controller/tls.crt
-            name: certs-volume
-            subPath: tls.crt
-          - mountPath: /opsmx/conf/controller/tls.key
-            name: certs-volume
-            subPath: tls.key
-          - name: autopilot-config-volume
-            mountPath: /opsmx/conf/autopilot.properties
-            subPath: autopilot.properties
-          - mountPath: /opsmx/conf/bootstrap.yml
-            name: bootstrap-config-volume
-            subPath: bootstrap.yml
-          - mountPath: /opsmx/conf/standard-error-code.csv
-            name: standard-error-conf
-            subPath: standard-error-codes.csv
-          readinessProbe:
-            tcpSocket:
-              port: 8090
-            initialDelaySeconds: 60
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /mgmt/health
-              port: 8090
-            initialDelaySeconds: 120
-            periodSeconds: 60
+        ports:
+        - containerPort: 8090
+          name: backend
+          protocol: TCP
+        - containerPort: 9090
+          name: metricfetcher
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /opsmx/conf/controller/ca.crt
+          name: ca-certs-volume
+          subPath: tls.crt
+        - mountPath: /opsmx/conf/controller/tls.crt
+          name: certs-volume
+          subPath: tls.crt
+        - mountPath: /opsmx/conf/controller/tls.key
+          name: certs-volume
+          subPath: tls.key
+        - name: autopilot-config-volume
+          mountPath: /opsmx/conf/autopilot.properties
+          subPath: autopilot.properties
+        - mountPath: /opsmx/conf/bootstrap.yml
+          name: bootstrap-config-volume
+          subPath: bootstrap.yml
+        - mountPath: /opsmx/conf/standard-error-code.csv
+          name: standard-error-conf
+          subPath: standard-error-codes.csv
+        readinessProbe:
+          tcpSocket:
+            port: 8090
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /mgmt/health
+            port: 8090
+          initialDelaySeconds: 120
+          periodSeconds: 60
 ---
 # Source: isdargo/templates/oes-dashboard/oes-dashboard-deployment.yaml
 apiVersion: apps/v1
@@ -33062,10 +33071,12 @@ spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.1.2-rc4
         name: oes-dashboard
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 8094
           protocol: TCP
-        env:
         volumeMounts:
         - mountPath: /opsmx/conf/dashboard-local.yml
           name: dashboard-config
@@ -33143,6 +33154,9 @@ spec:
       - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.1.2-rc4
         imagePullPolicy: IfNotPresent
         name: oes-datascience
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 5005
           name: backend
@@ -33188,7 +33202,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secret: 9915337d351d5ae897936ec1e3e070717170fcb618b3aba1b00b8d64b2876010
+        checksum/secret: 1d69ce0384924d6e9b6a474fcf6dcc7dfb18bf8573bba70a4201f59e4e39144e
         prometheus.io/scrape: "false"
         prometheus_io_path: /mgmt/prometheus
         prometheus_io_port: "8084"
@@ -33205,6 +33219,8 @@ spec:
         env:
         - name: spring_profiles_active
           value: vault,local
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 8084
           protocol: TCP
@@ -33279,10 +33295,15 @@ spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.1.2-rc4
         name: oes-platform
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 8095
           protocol: TCP
         env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         resources:
             {}
         readinessProbe:
@@ -33364,6 +33385,8 @@ spec:
       - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.1.2-rc4
         name: oes-sapor
         env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 8085
           protocol: TCP
@@ -33456,6 +33479,9 @@ spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2-rc4
         name: oes-ui
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 8080
           protocol: TCP
@@ -33529,11 +33555,16 @@ spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.1.2-rc4
         name: oes-visibility
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 8096
           protocol: TCP
         env:
         env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         volumeMounts:
         - mountPath: /opsmx/conf/visibility-local.yml
           name: visibility-config
@@ -33606,6 +33637,9 @@ spec:
       - image: quay.io/opsmxpublic/rabbitmq:3.11.4-management
         imagePullPolicy: IfNotPresent
         name: rabbitmq
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m
         ports:
         - containerPort: 5672
           protocol: TCP
