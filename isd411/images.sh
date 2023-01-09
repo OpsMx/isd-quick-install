@@ -40,7 +40,7 @@ do
   docker pull $image
   if [ $? != 0 ]
     then
-  echo "Failed to pull image $image;" 
+  echo "Failed to pull image $image" 
   exit 1
   fi
 done < "$input"
