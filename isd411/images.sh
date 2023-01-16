@@ -37,7 +37,7 @@ EOL
 input="/tmp/imglist.txt"
 while IFS= read -r image
 do
-  docker pull $image
+  sudo docker pull $image
   if [ $? != 0 ]
     then
   echo "Failed to pull image $image" 
