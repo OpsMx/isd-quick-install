@@ -247,11 +247,13 @@ type: Opaque
 data:
   redis-password: "cGFzc3dvcmQ="
 ---
-# Source: isdargo/templates/carina/secret.yaml
+# Source: isdargo/templates/carina/carina-manager-secret.yaml
 apiVersion: v1
 stringData:
   carina-manager.yaml: |    
-    httpListenPort: 8090
+    httpListenPort: 8091
+    rbac:
+      httpListenPort: 8092
     controller:
       url: 'https://opsmx-controller-controller1:9003'
       caPath: /app/secrets/controller-ca.crt
@@ -384,7 +386,7 @@ stringData:
     secret.ds.protocol=http://
     secret.ds.url=localhost:5005
     secret.dashboard.url=http://oes-dashboard:8094
-    server.host.dns.name=http://localhost:8080/ui
+    server.host.dns.name=http://localhost:8093/ui
     gate.url=http://oes-gate:8084
     
     #datascience configuration
@@ -554,9 +556,431 @@ stringData:
     security:
       contentSecurityPolicy: "object-src 'none'; script-src 'unsafe-eval' 'unsafe-inline' https: http:;"
     
+    
+    keycloak:
+      realmName: isd
+      ldapName: ldap
+      samlName: saml
+      clientId: isd-client
+      serverUrl: https://KEYCLOAK.REPLACE.THIS.WITH.YOURCOMPANY.COM/auth/
+      username: admin
+      password: opsmxadmin123
+      ldap:
+        props:
+          connectionTimeout: ""
+          customUserSearchFilter: ""
+          readTimeout: ""
+          batchSizeForSync: ""
+          startTls: "false"
+          useTruststoreSpi: "never"
+          connectionPooling: "false"
+          searchScope: ""
+          pagination: "false"
+          importEnabled: "true"
+          syncRegistrations: "true"
+          allowKerberosAuthentication: "false"
+          useKerberosForPasswordAuthentication: "false"
+          cachePolicy: "DEFAULT"
+          usePasswordModifyExtendedOp: "false"
+          validatePasswordPolicy: "false"
+          trustEmail: "false"
+          changedSyncPeriod: "-1"
+          fullSyncPeriod: "-1"
+      auth:
+        providers:
+          - name: ldap
+            display: LDAP
+            type: label
+            helpText: "This page allows you to configure LDAP Authentication providers such as Active Directory and OpenLDAP. Once this is enabled, ISD will import all users and groups from your LDAP and users will be able to login to ISD using their LDAP user id and password. Super admin users will continue to be able to log in using their current user id and password.Follow the below steps to enable LDAP Provider.
+            - Select your LDAP Vendor, enter your LDAP Connection URL and click on 'Test Connection' to verify the connectivity between ISD and LDAP
+            - Select the Bind Type, enter Bind DN, Credential (Password) and click on 'Test Authentication'
+            - The details you enter in the User Search Settings and Group Search Settings sections will be used to search for users and groups in your LDAP
+            - Most of the values are auto-populated based on the selected Provider.
+            - Click on the 'Enabled' toggle and click the Save button at the bottom."
+            sections:
+              - name: toggleSettings
+                display:
+                type:
+                helpText:
+                inputparameters:
+                  - name: enabled
+                    display: Enabled
+                    inputType: toggle
+                    required: true
+                    helpText: Enabled
+                    readonly: false
+                    placeholder:
+                    defaultValue: false
+                    loadValues: []
+    
+              - name: connectionSettings
+                display: Connection Settings
+                type: label
+                helpText: Connection Settings
+                inputparameters:
+                  - name: vendor
+                    display: Vendor
+                    inputType: dropdown
+                    required: true
+                    helpText: Choose your LDAP Vendor (Provider)
+                    readonly: false
+                    placeholder:
+                    defaultValue:
+                    loadValues:
+                      - Active Directory
+                      - Red Hat Directory Server
+                      - Tivoli
+                      - Novell eDirectory
+                      - Other
+    
+                  - name: connectionUrl
+                    display: Connection URL
+                    inputType: url
+                    required: true
+                    helpText: Connection URL to your LDAP Server
+                    readonly: false
+                    placeholder: LDAP connection URL
+                    defaultValue:
+                    loadValues: []
+    
+                  - name: authType
+                    display: Bind Type
+                    inputType: dropdown
+                    required: true
+                    helpText: Type of the authentication method used during LDAP bind operation. It is used in most of the requests sent to the LDAP server. Currently only 'none' (anonymous LDAP authentication) or 'simple' (bind credential + bind password authentication) mechanisms are available
+                    readonly: false
+                    placeholder:
+                    defaultValue: simple
+                    loadValues:
+                      - none
+                      - simple
+    
+                  - name: bindDn
+                    display: Bind DN
+                    inputType: text
+                    required: true
+                    helpText: Distinguished Name of the LDAP admin, which will be used by ISD to access LDAP server
+                    readonly: false
+                    placeholder: cn=Administrator,CN=Users,DC=example,DC=com
+                    defaultValue:
+                    loadValues: []
+    
+                  - name: bindCredential
+                    display: Bind Credential
+                    inputType: password
+                    required: true
+                    helpText: Password of LDAP admin.
+                    readonly: false
+                    placeholder: Password associated with the Bind DN
+                    defaultValue:
+                    loadValues: []
+    
+              - name: userSearchSettings
+                display: User Search Settings
+                type: label
+                helpText: User Search Settings
+                inputparameters:
+                  - name: userObjectClasses
+                    display: User Object Classes
+                    inputType: text
+                    required: true
+                    helpText: "All values of LDAP objectClass attribute for users in LDAP, divided by commas. For example: 'inetOrgPerson, organizationalPerson'. LDAP user records are found just if they contain all those object classes."
+                    readonly: false
+                    placeholder: inetOrgPerson, organizationalPerson
+                    defaultValue:
+                    loadValues: []
+    
+                  - name: usersDn
+                    display: Users DN
+                    inputType: text
+                    required: true
+                    helpText: Full DN of LDAP tree where your users are. This DN is the parent of LDAP users. It could be for example 'ou=users,dc=example,dc=com' assuming that your typical user will have DN like 'uid='john',ou=users,dc=example,dc=com
+                    readonly: false
+                    placeholder: ou=users,dc=example,dc=com
+                    defaultValue:
+                    loadValues: []
+    
+                nestedSections:
+                  - name: advancedOptions
+                    display: Advanced Options
+                    type: accordian
+                    helpText: Advanced Options
+                    inputparameters:
+                      - name: editMode
+                        display: Edit Mode
+                        inputType: dropdown
+                        required: true
+                        helpText: The mode of communication between ISD and LDAP. This is always READ_ONLY.
+                        readonly: false
+                        placeholder:
+                        defaultValue: READ_ONLY
+                        loadValues:
+                          - READ_ONLY
+    
+                      - name: usernameLDAPAttribute
+                        display: Username LDAP attribute
+                        inputType: text
+                        required: true
+                        helpText: Name of the LDAP attribute, which is mapped as ISD username. For many LDAP server vendors it can be 'uid'. For Active directory it can be 'sAMAccountName' or 'cn'. The attribute should be filled for all LDAP user records you want to import from LDAP.
+                        readonly: false
+                        placeholder: LDAP attribute name for username
+                        defaultValue:
+                        loadValues: []
+    
+                      - name: rdnLDAPAttribute
+                        display: RDN LDAP attribute
+                        inputType: text
+                        required: true
+                        helpText: Name of the LDAP attribute, which is used as a unique object identifier (UUID) for objects in LDAP. For many LDAP server vendors, it is 'entryUUID'; however some are different. For example, for Active directory it should be 'objectGUID'. If your LDAP server does not support the notion of UUID, you can use any other attribute that is supposed to be unique among LDAP users in tree. For example 'uid' or 'entryDN'.
+                        readonly: false
+                        placeholder: LDAP attribute name for user RDN
+                        defaultValue:
+                        loadValues: []
+    
+                      - name: uuidLDAPAttribute
+                        display: UUID LDAP attribute
+                        inputType: text
+                        required: true
+                        helpText: UUID LDAP attribute
+                        readonly: false
+                        placeholder: LDAP attribute name for UUID
+                        defaultValue:
+                        loadValues: []
+    
+                      - name: customUserSearchFilter
+                        display: User LDAP Filter
+                        inputType: text
+                        required: false
+                        helpText: Additional LDAP filter for filtering searched users. Leave this empty if you don't need an additional filter. Make sure that it starts with '(' and ends with ')'.
+                        readonly: false
+                        placeholder:
+                        defaultValue:
+                        loadValues: []
+    
+              - name: groupSearchSettings
+                display: Group Search Settings
+                type: label
+                helpText: Group Search Settings
+                inputparameters:
+                  - name: groupsDn
+                    display: Group DN
+                    inputType: text
+                    required: true
+                    helpText: LDAP DN where are groups of this tree saved. For example 'ou=groups,dc=example,dc=org'
+                    readonly: false
+                    placeholder: ou=groups,dc=example,dc=org
+                    defaultValue:
+                    loadValues: []
+    
+                  - name: groupNameLdapAttribute
+                    display: Group Role Name Attribute
+                    inputType: text
+                    required: true
+                    helpText: Name of LDAP attribute, which is used in group objects for name and RDN of group. Usually it will be 'cn' . In this case typical group/role object may have DN like 'cn=Group1,ou=groups,dc=example,dc=org'
+                    readonly: false
+                    placeholder:
+                    defaultValue: cn
+                    loadValues: []
+    
+                nestedSections:
+                  - name: advancedOptions
+                    display: Advanced Options
+                    type: accordian
+                    helpText: Advanced Options
+                    inputparameters:
+                      - name: membershipLdapAttribute
+                        display: Membership LDAP Attribute
+                        inputType: text
+                        required: true
+                        helpText: Name of LDAP attribute on group, which is used for membership mappings. Usually it will be 'member' .However when 'Membership Attribute Type' is 'UID' then 'Membership LDAP Attribute' could be typically 'memberUid'
+                        readonly: false
+                        placeholder:
+                        defaultValue: member
+                        loadValues: []
+    
+                      - name: groupObjectClasses
+                        display: Group Object Classes
+                        inputType: text
+                        required: false
+                        helpText: Object class (or classes) of the group object. It's divided by comma if more classes needed. In typical LDAP deployment it could be 'groupOfNames' . In Active Directory it's usually 'group'
+                        readonly: false
+                        placeholder:
+                        defaultValue: groupOfNames
+                        loadValues: []
+    
+                      - name: membershipUserLdapAttribute
+                        display: Membership User LDAP Attribute
+                        inputType: text
+                        required: false
+                        helpText: "Used just if Membership Attribute Type is UID. It is name of LDAP attribute on user, which is used for membership mappings. Usually it will be 'uid' . For example if value of 'Membership User LDAP Attribute' is 'uid' and LDAP group has 'memberUid: john', then it is expected that particular LDAP user will have attribute 'uid: john' ."
+                        readonly: false
+                        placeholder:
+                        defaultValue: uid
+                        loadValues: []
+    
+                      - name: membershipAttributeType
+                        display: Membership Attribute Type
+                        inputType: dropdown
+                        required: false
+                        helpText: "DN means that LDAP group has it's members declared in form of their full DN. For example 'member: uid=john,ou=users,dc=example,dc=com' . UID means that LDAP group has it's members declared in form of pure user uids. For example 'memberUid: john'"
+                        readonly: false
+                        placeholder:
+                        defaultValue: DN
+                        loadValues:
+                          - DN
+                          - UID
+    
+                      - name: mode
+                        display: Mode
+                        inputType: dropdown
+                        required: false
+                        helpText: LDAP_ONLY means that all group mappings of users are retrieved from LDAP and saved into LDAP. READ_ONLY is Read-only LDAP mode where group mappings are retrieved from both LDAP and DB and merged together. New group joins are not saved to LDAP but to DB. IMPORT is Read-only LDAP mode where group mappings are retrieved from LDAP just at the time when user is imported from LDAP and then they are saved to local ISD DB.
+                        readonly: false
+                        placeholder:
+                        defaultValue: READ_ONLY
+                        loadValues:
+                          - READ_ONLY
+                          - LDAP_ONLY
+                          - IMPORT
+    
+                      - name: userRolesRetrieveStrategy
+                        display: User Groups Retrieve Strategy
+                        inputType: dropdown
+                        required: false
+                        helpText: Specify how to retrieve groups of user. LOAD_GROUPS_BY_MEMBER_ATTRIBUTE means that roles of user will be retrieved by sending LDAP query to retrieve all groups where 'member' is our user. GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE means that groups of user will be retrieved from 'memberOf' attribute of our user. Or from the other attribute specified by 'Member-Of LDAP Attribute' .
+                        readonly: false
+                        placeholder:
+                        defaultValue: LOAD_GROUPS_BY_MEMBER_ATTRIBUTE
+                        loadValues:
+                          - LOAD_GROUPS_BY_MEMBER_ATTRIBUTE
+                          - GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE
+    
+                      - name: memberofLdapAttribute
+                        display: Member-Of LDAP Attribute
+                        inputType: text
+                        required: false
+                        helpText: "Used just when 'User Roles Retrieve Strategy' is GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE . It specifies the name of the LDAP attribute on the LDAP user, which contains the groups, which the user is member of. Usually it will be 'memberOf' and that's also the default value."
+                        readonly: false
+                        placeholder:
+                        defaultValue: memberOf
+                        loadValues: []
+    
+                      - name: groupsLdapFilter
+                        display: LDAP Filter
+                        inputType: text
+                        required: false
+                        helpText: LDAP Filter adds additional custom filter to the whole query for retrieve LDAP groups. Leave this empty if no additional filtering is needed and you want to retrieve all groups from LDAP. Otherwise make sure that filter starts with '(' and ends with ')'
+                        readonly: false
+                        placeholder:
+                        defaultValue:
+                        loadValues: []
+    
+          - name: saml
+            display: SAML
+            type: label
+            helpText: "This page allows you to configure SAML Authentication providers such as Okta and Azure. Once this is enabled, the 'Sign in with SAML' option will be available on the ISD login screen. All users configured in your SAML authentication provider will be able to access ISD. Super admin users will continue to be able to log in using their current user id and password.
+            Follow the below steps to enable SAML Provider. 
+            - Copy and Use the redirect URI as the ACS URL of the ISD application and Service Provider (Entity ID) while configuring your Identity Provider
+            - Download the metadata XML from your Identity Provider and import it to ISD
+            - Single Sign-On service URL will get auto-populated from the metadata XML
+            - The group attribute helps ISD to identify the groups the user belongs to. You can add group attribute statements to the SAML assertion shared with ISD from your Identity Provider. The value entered here should match the name of the group attribute on your IDP. By default it's memberOf
+            - Click on the 'Enabled' toggle and Save button at the bottom to enable the provider."
+            sections:
+              - name: toggleSettings
+                display:
+                type:
+                helpText:
+                inputparameters:
+                  - name: enabled
+                    display: Enabled
+                    inputType: toggle
+                    required: true
+                    helpText: Enabled
+                    readonly: false
+                    placeholder:
+                    defaultValue: false
+                    loadValues: []
+    
+              - name: idpSettings
+                display:
+                type:
+                helpText:
+                inputparameters:
+                  - name: redirectURI
+                    display: Redirect URI
+                    inputType: url
+                    required: true
+                    helpText: The redirect uri to use when configuring the identity provider.
+                    readonly: true
+                    placeholder:
+                    defaultValue: https://KEYCLOAK.REPLACE.THIS.WITH.YOURCOMPANY.COM/auth/realms/isd/broker/saml/endpoint
+                    loadValues: []
+    
+              - name: identityProviderMetadata
+                display: Identity Provider Metadata
+                type: label
+                helpText: Identity Provider Metadata
+                inputparameters:
+                  - name: importFromFile
+                    display: Import from file
+                    inputType: file
+                    required: false
+                    helpText: Import from file
+                    readonly: false
+                    placeholder:
+                    defaultValue:
+                    loadValues: []
+    
+                  - name: serviceProviderEntityId
+                    display: Service Provider Entity ID
+                    inputType: url
+                    required: true
+                    helpText: The Entity ID that will be used by your IDP to uniquely identify this SAML Service Provider (ISD).
+                    readonly: false
+                    placeholder:
+                    defaultValue: https://KEYCLOAK.REPLACE.THIS.WITH.YOURCOMPANY.COM/auth/realms/isd
+                    loadValues: []
+    
+                  - name: importFromFile
+                    display: Import Identity Provider Metadata
+                    inputType: file
+                    required: false
+                    helpText: Upload Metadata XML From the Identity Provider
+                    readonly: false
+                    placeholder:
+                    defaultValue:
+                    loadValues: []
+    
+                  - name: singleSignOnServiceUrl
+                    display: Single Sign-On Service URL
+                    inputType: url
+                    required: true
+                    helpText: The url that must be used to send authentication requests (SAML AuthnRequest).
+                    readonly: true
+                    placeholder:
+                    defaultValue:
+                    loadValues: []
+    
+                  - name: groupAttribute
+                    display: Group Attribute
+                    inputType: text
+                    required: false
+                    helpText: The group attribute helps ISD to identify the groups the user belongs to. You can add group attribute statements to the SAML assertion shared with ISD from your Identity Provider. The value entered here should match the name of the group attribute on your IDP. By default it's memberOf.
+                    readonly: false
+                    placeholder:
+                    defaultValue: memberOf
+                    loadValues: []
+    
     allowUnauthenticatedAccess:
       agentAPI: false
       webhooks: true
+    
+    jwt:
+      secret: YXJnb19uYXZpcw==
+      token:
+        durationInSeconds: 36000
+    vela:
+      bounceUrl: https://VELA.REPLACE.THIS.WITH.YOURCOMPANY.COM/bounce
     
     logging:
       level:
@@ -652,6 +1076,8 @@ stringData:
         url: "https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/ui"
       gate:
         url: http://oes-gate:8084
+      carinamanager:
+        url: "http://oes-carina:8092"
       approvalGate:
         apiUrl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate/visibilityservice/v5/approvalGates/{id}/trigger
     
@@ -704,8 +1130,11 @@ stringData:
     argo:
       manifest:
         newArgoAgentTemplate: newargoagentmanifest.template
+        newArgoAgentWithoutUrlTemplate: newargoagentmanifestwithouturl.template
         existingArgoAgentTemplate: existingargoagentmanifest.template
+        existingArgoAgentWithoutUrlTemplate: existingargoagentmanifestwithouturl.template
         newArgoAgentWithoutRolloutsTemplate: newargoagentwithoutrollouts.template
+        newArgoAgentWithoutRolloutsWithoutUrlTemplate: newargoagentwithoutrolloutswithouturl.template
     
     secretManagement:
       source:
@@ -903,9 +1332,8 @@ apiVersion: v1
 data:
   name: b3BzbXgtc2FtcGxlcw==
   project: b3BzbXhwcm9qCg==
-  sshPrivateKey: LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQkc1dmJtVUFBQUFFYm05dVpRQUFBQUFBQUFBQkFBQUFNd0FBQUF0emMyZ3RaVwpReU5UVXhPUUFBQUNETi96S2oyU2szTXdEN1c4V3o4S1JDdGJEOWIvZGw0NWN1TE5SOHdzTmNWd0FBQUppbEd3VCtwUnNFCi9nQUFBQXR6YzJndFpXUXlOVFV4T1FBQUFDRE4vektqMlNrM013RDdXOFd6OEtSQ3RiRDliL2RsNDVjdUxOUjh3c05jVncKQUFBRUFQUFlGQUdCMlpsWWloNitrWXF5dE1XcFdEUml5b3U5U0t4T3pDWUk3c1E4My9NcVBaS1RjekFQdGJ4YlB3cEVLMQpzUDF2OTJYamx5NHMxSHpDdzF4WEFBQUFFMnR6Y21sdWFXMWlZVUJuYldGcGJDNWpiMjBCQWc9PQotLS0tLUVORCBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0K
   type: Z2l0
-  url: Z2l0QGdpdGh1Yi5jb206T3BzTXgvYXJnby1zYW1wbGUtYXBwcy5naXQ=
+  url: aHR0cHM6Ly9naXRodWIuY29tL29wc214L2lzZC1zYW1wbGUtYXBwcy5naXQ=
 kind: Secret
 metadata:
   annotations:
@@ -2086,6 +2514,11 @@ data:
               credentials:
                 type: bearer
                 token: xxxx
+          - name: argocd
+            type: carinainstance
+            enabled: true
+            config:
+              url: http://carina-instance:8090
             annotations:
               description: argocd via agent
               uiUrl: http://localhost:8099
@@ -2101,7 +2534,7 @@ data:
     OESUI=$(grep oes-ui /tmp/live.status | awk '{print $2}')
     OESPLATFORM=$(grep oes-platform /tmp/live.status | awk '{print $2}')
     wait_period=$(($wait_period+10))
-    if  [ "$OESPLATFORM" == "true" ] && [ "$OESUI" == "true" ] && [ "$OESGATE" == "true" ] && [ "$ARGOCDSERVER" == "true" ] && [ "$validate" == "200" ] && [ "$OESSAPOR" == "true" ];
+      if  [ "$OESPLATFORM" == "true" ] && [ "$OESUI" == "true" ] && [ "$OESGATE" == "true" ] && [ "$ARGOCDSERVER" == "true" ] && [ "$validate" == "200" ] && [ "$OESSAPOR" == "true" ];
     then
       echo \"ArgocdServer is  Up and Ready..\"
       while true
@@ -2151,9 +2584,24 @@ data:
          ## Adding the agent service configmap with added arocd token
          #kubectl get cm opsmx-services-isd-argo-agent -o yaml > /tmp/agent-cm.yaml
          sed -i 's/token: .*xxx/token: '$encodedtoken'/g' /tmp/agent-cm.yaml
+         ## Replace the controller host name
+         yq e '.data.configFile' /tmp/yamls/configmap-opsmx-agent-isd-argo-agent.yaml > /tmp/filter.yaml
+         yq -i eval 'del(.data)' /tmp/yamls/configmap-opsmx-agent-isd-argo-agent.yaml
+         sed --in-place "s|\"|'|g" /tmp/yamls/configmap-opsmx-agent-isd-argo-agent.yaml
+         yq -i e '.controllerHostname = "agent-grpc:9001"' /tmp/filter.yaml
+         configFile=$(cat /tmp/filter.yaml)
+         yq eval ".data.\"configFile\" = \"$configFile\"" --inplace /tmp/yamls/configmap-opsmx-agent-isd-argo-agent.yaml
+         ## Agent replicaset
+         yq e -i '.spec.replicas = 1' /tmp/yamls/deployment-opsmx-agent-isd-argo-agent.yaml
          ## Apply the yamls
          kubectl replace --force -f /tmp/agent-cm.yaml
          kubectl apply -f /tmp/yamls/
+         echo "------------------------------"
+         echo "*** SECURITY ISSUE, please delete this pod after noting down the password ***"
+         echo "------------------------------"
+         echo "Username: admin"
+         echo "Password: $argopassword"
+         echo "------------------------------"
          break
       fi
       done
@@ -2170,6 +2618,20 @@ data:
     fi
     done
 ---
+# Source: isdargo/templates/configmaps/isd-feature-flag-config.yml
+apiVersion: v1
+data:
+  feature.yml: |
+     feature:
+       auth-provider:
+         flag: true
+         jira: OP-18050
+kind: ConfigMap
+metadata:
+  labels:
+    app: oes
+  name: isd-feature-flag-config
+---
 # Source: isdargo/templates/configmaps/standard-error-codes.yaml
 apiVersion: v1
 data:
@@ -2185,6 +2647,7 @@ data:
     standardErrorCodesMapping.ISD-MustBeANumber-400-09 = ISD-MustBeANumber-400-09 : {0} - {1} must be a number : {2}
     standardErrorCodesMapping.ISD-InvalidURL-400-10 = ISD-InvalidURL-400-10 : {0} - {1} is invalid - {2}
     standardErrorCodesMapping.ISD-BadRequest-400-11 = ISD-BadRequest-400-11 : {0} - {1} {2}
+    standardErrorCodesMapping.ISD-EmptyKeyOrValue-400-12 = ISD-EmptyKeyOrValue-400-12 : {0} - {1} is missing !
     standardErrorCodesMapping.ISD-Unauthorized-401-01 = ISD-Unauthorized-401-01 : {0} - {1} not authorized. {2}.
     standardErrorCodesMapping.ISD-Unauthorized-401-02 = ISD-Unauthorized-401-02 : {0} - User group not found for user : {1}.
     standardErrorCodesMapping.ISD-NotAdmin-401-03 = ISD-NotAdmin-401-03 : {0} - {1} is not an admin !
@@ -2196,6 +2659,7 @@ data:
     standardErrorCodesMapping.ISD-NoData-404-02 = ISD-NoData-404-02 : {0} - No data found for {1}
     standardErrorCodesMapping.ISD-DoesNotExist-404-03 = ISD-DoesNotExist-404-03 : {0} - {1} does not exist {2}.
     standardErrorCodesMapping.ISD-IsNotFound-404-04 = ISD-IsNotFound-404-04 : {0} - {1} not found {2}.
+    standardErrorCodesMapping.ISD-Unavailable-404-05 = ISD-Unavailable-404-05 : {0} - {1} is unavailable.
     standardErrorCodesMapping.ISD-AlreadyExists-409-01 = ISD-AlreadyExists-409-01 : {0} - {1} already exists: {2}
     standardErrorCodesMapping.ISD-FailedToDelete-412-01 = ISD-FailedToDelete-412-01 : {0} - Unable to delete {1} as {1} is already in use !
     standardErrorCodesMapping.ISD-FailedToDeletePolicy-412-02 = ISD-FailedToDeletePolicy-412-02 : {0} - Unable to delete policy as it is already in use for {1} gate !
@@ -2259,6 +2723,8 @@ data:
     remoteCommandHostname: agent-grpc.opsmx-argo.svc.cluster.local
     controlHostname: opsmx-controller-controller1
     #agentAdvertisePort: "443"
+    serverNames:
+      - agent-grpc
     serviceAuth:
       currentKeyName: "public.pem"
       headerMutationKeyName: "public.pem"
@@ -2325,7 +2791,7 @@ data:
         "triggerPipeline": false,
         "cdTool": "Argo"
     }
-  help-text.json: |
+  help-text.json: |+
     {
       "POLICY_LISTING": {
         "HEADER": "Policies not found!",
@@ -2555,7 +3021,7 @@ data:
       },
       "SPINNAKER_LISTING": {
        "HEADER": "No CD Integration found!",
-        "BODY": "<div><p>Use this page to connect an existing Argo CD or to Create a new Argo CD instance.</p><strong>Existing Argo CD</strong><p><strong>Step 1</strong>:<span> Providing the following information to generate the manifest</span></p><ul><li><strong>Name</strong>: User Defined Name for this CD integration.</li><li><strong>Namespace</strong>: Namespace where argocd is installed. Usually it is 'argocd'</li><li><strong> Argo CD URL</strong>: URL of your ArgoCD instance. Providing this is optional. You can replace this value after downloading the agent manifest in the next step.</li></ul><p><strong>step 2</strong>: If required, Modify the Manifest and Apply it to the target Cluster</p><ul><li>Download the Agent Manifest.</li><li>(Optional) Replace the following parameters with appropriate values. You can skip this if you have already given them in the first step.<div><ul><li>agentnamespace</li><li>argocdurl</li></ul></div></li><li>Generate an ArgoCD API Token, encode it in base64 format and update it in the isd-argo-agent.yml. For more information, see How to Generate Argo CD API Token</li><li>Run the agent in the same cluster where argo cd is installed</li></ul><p><strong>Create New Argo CD</strong></p><p><strong>Step 1</strong>:<span> Providing the following information to generate the manifest</span></p><ul><li><strong>Name</strong>: User Defined Name for this CD integration.</li><li><strong>Namespace</strong>: Namespace where argocd is installed. Usually it is 'argocd'</li><li><strong> Argo CD URL</strong>: URL of your ArgoCD instance. Providing this is optional. You can replace this value after downloading the agent manifest in the next step.</li><li><strong> Argo Rollouts URL</strong>: URL of your Argo Rollouts instance. Providing this is optional. You can replace this value after downloading the agent manifest in the next step.</li></ul><p><strong>step 2</strong>: If required, Modify the Manifest and Apply it to the target Cluster</p><ul><li>Download the Agent Manifest.</li><li>(Optional) Replace the following parameters with appropriate values. You can skip this if you have already given them in the first step.<div><ul><li>agentnamespace</li><li>argocdurl</li><li>argorolloutsurl</li></ul></div></li><li>Generate an ArgoCD API Token, encode it in base64 format and update it in the isd-argo-agent.yml. For more information, see How to Generate Argo CD API Token</li><li>Run the agent in the same cluster where argo cd is installed</li></div>",
+        "BODY": "<div><p>Use this page to connect ISD to an existing Argo CD or to install new OpsMx Enterprise for Argo - a security validated release of Argo from OpsMx</p><strong>Existing Argo CD</strong><p><strong>Step 1</strong>:<span> Providing the following information to generate the manifest</span></p><ul><li><strong>Name</strong>: User Defined Name for this CD integration.</li><li><strong>Namespace</strong>: Namespace where argocd is installed. Usually it is 'argocd'</li><li><strong> Argo CD URL</strong>: URL of your ArgoCD instance, providing this is optional</li></ul><p><strong>step 2</strong>: Download and apply the manifest in the same namespace where Argo CD Is installed</p><ul><li>Download the Agent Manifest.</li><li>Generate an ArgoCD API Token, encode it in base64 format and update it in the isd-argo-agent.yml. For more information, see How to Generate Argo CD API Token</li><li>Apply the agent manifest in the same namespace where Argo CD Is installed</li></ul><p><strong>Create New Argo CD</strong></p><p>This installs OpsMx Enterprise for Argo (OEA - a security validated release of Argo from OpsMx) in the given namespace and automatically connects it with ISD.</p><p><strong>Step 1</strong>:<span> Providing the following information to generate the manifest</span></p><ul><li><strong>Name</strong>: User Defined Name for this integration.</li><li><strong>Namespace</strong>: Namespace where argocd is installed. You should create this namespace in your cluster.</li><li><strong> Argo CD URL</strong>: URL for your new Argo CD Instance. We will be creating an ngnix ingress with the provided url. This field is optional</li></ul><p><strong>step 2</strong>: Download and apply the manifest</p></div>",
         "CDTOOL_ERROR": "Unable to connect to CD Tool"
       },
       "SPINNAKER_SETUP": {
@@ -2805,6 +3271,22 @@ data:
             "TOOLTIP": "Metric template for the verification run",
             "VALIDATION_MESSAGE": {}
           },
+          "LOG_BASELINE" :{
+            "TOOLTIP": "Filter keys values to collect log data for Baseline",
+            "VALIDATION_MESSAGE" :{}
+          },
+          "METRIC_BASELINE" :{
+            "TOOLTIP": "Filter keys values to collect metric data for Baseline ",
+            "VALIDATION_MESSAGE" :{}
+          },
+          "LOG_NEW_RELEASE" :{
+            "TOOLTIP": "Filter keys values to collect log data for New Release",
+            "VALIDATION_MESSAGE" :{}
+          },
+          "METRIC_NEW_RELEASE" :{
+            "TOOLTIP": "Filter keys values to collect metric data for New Release",
+            "VALIDATION_MESSAGE" :{}
+          },
           "LOG_BASELINE_START_TIME": {
             "TOOLTIP": "Start time of the canary analysis for Baseline",
             "VALIDATION_MESSAGE": {}
@@ -2874,7 +3356,7 @@ data:
             "VALIDATION_MESSAGE": {}
           },
           "INTERVAL_MINUTES": {
-            "TOOLTIP": "The Lifetime hours in minutes",
+            "TOOLTIP": "The duration of the interval in minutes",
             "VALIDATION_MESSAGE": {}
           },
           "REGULAR_EXPRESSION": {
@@ -5195,7 +5677,7 @@ data:
           "QUERY_NAME": {
             "TOOLTIP": "A meaningful name given to a query or a group of similar queries ",
             "VALIDATION_MESSAGE": {
-              "exist": "Query Name already exists",
+              "exist":"Query Name already exists",
               "required": "Query Name cannot be empty"
             }
           },
@@ -5346,7 +5828,152 @@ data:
               "required": "Atleast one feature has to be enabled"
             }
           }
+        },
+    "AUTHPROVIDER":{
+      "LDAP":{
+        "HEADER": "LDAP Provider",
+        "BODY": "<p>This page allows you to configure LDAP Authentication providers such as Active Directory and OpenLDAP.Once this is enabled, ISD will import all users and groups from your LDAP and users will be able to login to ISD using their LDAP user id and password. Super admin users will continue to be able to log in using their current user id and password.</p><p>Follow the below steps to enable LDAP Provider.</p>  <p>- Select your LDAP Vendor, enter your LDAP Connection URL and click on <b>Test Connection</b> to verify the connectivity between ISD and LDAP</p> <p>- Select the Bind Type, enter Bind DN, Credential (Password) and click on <b>Test Authentication</b></p> <p>- The details you enter in the User Search Settings and Group Search Settings sections will be used to search for users and groups in your LDAP</p> <p>- Most of the values are auto-populated based on the selected Provider.</p> <p> - Click on the <b>Enabled</b> toggle and click the Save button at the bottom.</p>",
+        "EDITMODE":{
+          "VALIDATION_MESSAGE": {
+            "required":"Edit Mode cannot be empty"
+          }
+      },
+        "VENDOR":{
+          "VALIDATION_MESSAGE": {
+            "required":"Vendor cannot be empty"
+          }
+        },
+        "USERNAMELDAPATTRIBUTE":{
+          "VALIDATION_MESSAGE": {
+           "required":"Username LDAP attribute cannot be empty"
+          }
+        },
+        "RDNLDAPATTRIBUTE":{
+        "VALIDATION_MESSAGE": {
+          "required":"RDN LDAP attribute cannot be empty"
+          }
+        },
+        "UUIDLDAPATTRIBUTE":{
+          "VALIDATION_MESSAGE": {
+            "required":"UUID LDAP attribute cannot be empty"
+          }
+        },
+        "USEROBJECTCLASSES":{
+          "VALIDATION_MESSAGE": {
+            "required":"User Object Classes cannot be empty"
+          }
+        },
+        "CONNECTIONURL":{
+          "VALIDATION_MESSAGE": {
+            "required":"Connection Url cannot be empty"
+          }
+        },
+        "USERDN":{
+          "VALIDATION_MESSAGE": {
+            "required":"Users Dn cannot be empty"
+          }
+        },
+        "AUTHTYPE":{
+          "VALIDATION_MESSAGE": {
+            "required":"Bind Type cannot be empty"
+          }
+        },
+        "BINDDN":{
+          "VALIDATION_MESSAGE": {
+            "required":"Bind Dn cannot be empty"
+          }
+        },
+        "BINDCREDENTIAL":{
+          "VALIDATION_MESSAGE": {
+            "required":"Bind Credential cannot be empty"
+          }
+        },
+        "GROUPSDN":{
+          "VALIDATION_MESSAGE": {
+            "required":"Groups DN cannot be empty"
+          }
+        },
+        "GROUPSEARCHFILTER":{
+          "VALIDATION_MESSAGE": {
+            "required":"Group Search Filter cannot be empty"
+          }
+        },
+        "GROUPROLENAMEATTRIBUTES":{
+          "VALIDATION_MESSAGE": {
+            "required":"Group Role Name Attributes cannot be empty"
+          }
+        },
+        "GROUPOBJECTCLASSES":{
+          "VALIDATION_MESSAGE": {
+            "required":"Group Object Classes cannot be empty"
+          }
+        },
+        "MEMBERSHIPUSERLDAPATTRIBUTE":{
+          "VALIDATION_MESSAGE": {
+            "required":"Membership User Ldap Attribute cannot be empty"
+          }
+        },
+        "MEMBERSHIPATTRIBUTETYPE":{
+          "VALIDATION_MESSAGE": {
+            "required":"Membership Attribute DN cannot be empty"
+          }
+        },
+       "MODE":{
+          "VALIDATION_MESSAGE": {
+            "required":"Mode cannot be empty"
+          }
+        },
+        "USERGROUPSRETRIEVESTRATEGY":{
+          "VALIDATION_MESSAGE": {
+            "required":"User Groups Retrieve Strategy cannot be empty"
+          }
+        },
+        "MEMBEROFLDAPATTRIBUTE":{
+          "VALIDATION_MESSAGE": {
+            "required":"Member of Ldap Attribute cannot be empty"
+          }
         }
+      },
+     "SAML":{
+       "HEADER": "SAML Provider",
+        "BODY": "<p>This page allows you to configure SAML Authentication providers such as Okta and Azure.</p> <p>Once this is enabled, the <b>Sign in with SAML</b> option will be available on the ISD login screen. All users configured in your SAML authentication provider will be able to access ISD. Super admin users will continue to be able to log in using their current user id and password.</p><p>Follow the below steps to enable SAML Provider.</p> <p> - Copy and Use the redirect URI as the ACS URL of the ISD application and Service Provider (Entity ID) while configuring your Identity Provider</p> <p> - Download the metadata XML from your Identity Provider and import it to ISD</p> <p>-  Single Sign-On service URL will get auto-populated from the metadata XML</p><p> - The group attribute helps ISD to identify the groups the user belongs to. You can add group attribute statements to the SAML assertion shared with ISD from your Identity Provider. The value entered here should match the name of the group attribute on your IDP. By default it's memberOf.</p> <p> - Click on the <b>Enabled</b> toggle and Save button at the bottom to enable the provider.</p>",
+        "PROVIDER":{
+         "VALIDATION_MESSAGE": {
+            "required":"Provider cannot be empty"
+          }
+        },
+        "REDIRECTURI":{
+          "VALIDATION_MESSAGE": {
+            "required":"Redirect URI cannot be empty"
+          }
+        },
+        "SERVICEPROVIDERENTITYID":{
+          "VALIDATION_MESSAGE": {
+            "required":"Service Provider Entity cannot be empty"
+          }
+        },
+        "SINGLESIGNONSERVICEURL":{
+        "VALIDATION_MESSAGE": {
+          "required":"Single Sign-On Service Url cannot be empty"
+          }
+        },
+        "IMPORTFROMURL":{
+          "VALIDATION_MESSAGE": {
+            "required":"Import from URL cannot be empty"
+          }
+        },
+        "IMPORTFROMFILE":{
+          "VALIDATION_MESSAGE": {
+            "required":"Import from File cannot be empty"
+          }
+        },
+        "GROUPATTRIBUTE":{
+          "VALIDATION_MESSAGE": {
+            "required":"Group Attribute cannot be empty"
+          }
+       }
+      }
+    }
       },
       "LOG_TEMPLATE": {
         "STRING_PATTERN": {
@@ -5546,7 +6173,7 @@ data:
       "CDINTEGRATION":{
       "NEW_ARGOCD":{
         "HEADER": "Create New Argo CD Instance",
-        "BODY": "<span><p><strong>Step 1</strong>:<span> Providing the following information to generate the manifest</span></p><ul><li><strong>Name</strong>: User Defined Name for this CD integration.</li><li><strong>Namespace</strong>: Namespace where argocd is installed. Usually it is 'argocd'</li><li><strong> Argo CD URL</strong>: URL of your ArgoCD instance. Providing this is optional. You can replace this value after downloading the agent manifest in the next step.</li><li><strong> Argo Rollouts URL</strong>: URL of your Argo Rollouts instance. Providing this is optional. You can replace this value after downloading the agent manifest in the next step.</li></ul><p><strong>step 2</strong>: If required, Modify the Manifest and Apply it to the target Cluster</p><ul><li>Download the Agent Manifest.</li><li>(Optional) Replace the following parameters with appropriate values. You can skip this if you have already given them in the first step.<div><ul><li>agentnamespace</li><li>argocdurl</li><li>argorolloutsurl</li></ul></div></li><li>Generate an ArgoCD API Token, encode it in base64 format and update it in the isd-argo-agent.yml. For more information, see How to Generate Argo CD API Token</li><li>Run the agent in the same cluster where argo cd is installed</li></span>",
+        "BODY": "<span><p>This installs OpsMx Enterprise for Argo (OEA - a security validated release of Argo from OpsMx) in the given namespace and automatically connects it with ISD.</p><p><strong>Step 1</strong>:<span> Providing the following information to generate the manifest</span></p><ul><li><strong>Name</strong>: User Defined Name for this integration.</li><li><strong>Namespace</strong>: Namespace where argocd is installed. You should create this namespace in your cluster.</li><li><strong> Argo CD URL</strong>: URL for your new Argo CD Instance. We will be creating an ngnix ingress with the provided url. This field is optional</li></ul><p><strong>step 2</strong>: Download and apply the manifest</p></span>",
         "ARGOCD_NAME": {
           "TOOLTIP" :"User Defined Name for this CD integration.",
           "VALIDATION_MESSAGE" : {
@@ -5555,16 +6182,12 @@ data:
         },
         "ARGOCD_NAMESPACE": {
           "TOOLTIP" :"Namespace where argocd needs to be installed. You should create this namespace in your target cluster.",
-          "VALIDATION_MESSAGE" : {
-          }
+            "VALIDATION_MESSAGE" : {
+              "required":"Namespace cannot be empty"
+            }
         },
         "ARGOCD_URL": {
-          "TOOLTIP" :"URL of your ArgoCD instance. Providing this is optional. You can replace this value after downloading the agent manifest in the next step.",
-          "VALIDATION_MESSAGE" : {
-          }
-        },
-        "ARGOCD_ROLLOUTSURL": {
-          "TOOLTIP" :"URL of your Argo Rollouts instance. Providing this is optional. You can replace this value after downloading the agent manifest in the next step.",
+          "TOOLTIP" :"URL for your new ArgoCD instance. Providing this is optional",
           "VALIDATION_MESSAGE" : {
           }
         },
@@ -5576,7 +6199,7 @@ data:
       },
       "EXISTING_ARGOCD":{
         "HEADER": "Connect An Existing Argo CD to ISD",
-          "BODY": "<span><p><strong>Step 1</strong>:<span> Providing the following information to generate the manifest</span></p><ul><li><strong>Name</strong>: User Defined Name for this CD integration.</li><li><strong>Namespace</strong>: Namespace where argocd is installed. Usually it is 'argocd'</li><li><strong> Argo CD URL</strong>: URL of your ArgoCD instance. Providing this is optional. You can replace this value after downloading the agent manifest in the next step.</li></ul><p><strong>step 2</strong>: If required, Modify the Manifest and Apply it to the target Cluster</p><ul><li>Download the Agent Manifest.</li><li>(Optional) Replace the following parameters with appropriate values. You can skip this if you have already given them in the first step.<div><ul><li>agentnamespace</li><li>argocdurl</li></ul></div></li><li>Generate an ArgoCD API Token, encode it in base64 format and update it in the isd-argo-agent.yml. For more information, see How to Generate Argo CD API Token</li><li>Run the agent in the same cluster where argo cd is installed</li></ul></span>",
+          "BODY": "<span><p><strong>Step 1</strong>:<span> Providing the following information to generate the manifest</span></p><ul><li><strong>Name</strong>: User Defined Name for this CD integration.</li><li><strong>Namespace</strong>: Namespace where argocd is installed. Usually it is 'argocd'</li><li><strong> Argo CD URL</strong>: URL of your ArgoCD instance, providing this is optional</li></ul><p><strong>step 2</strong>: Download and apply the manifest in the same namespace where Argo CD Is installed</p><ul><li>Download the Agent Manifest.</li><li>Generate an ArgoCD API Token, encode it in base64 format and update it in the isd-argo-agent.yml. For more information, see How to Generate Argo CD API Token</li><li>Apply the agent manifest in the same namespace where Argo CD Is installed</li></ul></span>",
           "ARGOCD_NAME": {
             "TOOLTIP" :"User Defined Name for this CD integration.",
             "VALIDATION_MESSAGE" : {
@@ -5586,10 +6209,11 @@ data:
           "ARGOCD_NAMESPACE": {
             "TOOLTIP" :"Namespace where argocd is installed. Usually it is 'argocd'",
             "VALIDATION_MESSAGE" : {
+              "required":"Namespace cannot be empty"
             }
           },
           "ARGOCD_URL": {
-            "TOOLTIP" :"URL of your ArgoCD instance. Providing this is optional. You can replace this value after downloading the agent manifest in the next step.",
+            "TOOLTIP" :"URL of your ArgoCD instance. Providing this is optiona",
             "VALIDATION_MESSAGE" : {
             }
           },
@@ -5601,6 +6225,7 @@ data:
         }
       }
     }
+  
 kind: ConfigMap
 metadata:
   name: oes-ui-config
@@ -5653,7 +6278,7 @@ data:
         include /etc/nginx/conf.d/*.conf;
   
         server {
-            listen       8080 default_server;
+            listen       8093 default_server;
             #listen       [::]:8080 default_server;
             server_name  _;
             root /var/www/html;
@@ -5666,7 +6291,7 @@ data:
             }
   
             location ^~ /application {
-              proxy_pass http://oes-ui:8080 ;
+              proxy_pass http://oes-ui:8093 ;
             }
   
             location ^~ /ui {
@@ -5687,6 +6312,25 @@ metadata:
   labels:
     app: oes
     component: ui
+    heritage: "Helm"
+    release: "isdargo"
+    chart: "isdargo-4.1.1"
+---
+# Source: isdargo/templates/vela/vela-configmap.yaml
+apiVersion: v1
+data:
+  vela-api.yaml: |
+    httpListenPort: 8092
+    carinaHost: http://oes-carina:8091/
+    rbacHost: http://oes-carina:8092/
+    jwtSecret: argo_navis
+    
+kind: ConfigMap
+metadata:
+  name: vela-config
+  labels:
+    app: oes
+    component: vela
     heritage: "Helm"
     release: "isdargo"
     chart: "isdargo-4.1.1"
@@ -30898,7 +31542,29 @@ spec:
     release: isdargo
     role: master
 ---
-# Source: isdargo/templates/carina/service.yaml
+# Source: isdargo/templates/carina/carina-instance-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: oes
+    component: carina-instance
+    heritage: "Helm"
+    release: "isdargo"
+    chart: "isdargo-4.1.1"
+  name: carina-instance
+spec:
+  ports:
+  - name: carina-instance
+    port: 8090
+    protocol: TCP
+    targetPort: 8090
+  selector:
+    app: oes
+    component: carina-instance
+  type: ClusterIP
+---
+# Source: isdargo/templates/carina/carina-manager-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -30915,6 +31581,10 @@ spec:
     port: 8091
     protocol: TCP
     targetPort: 8091
+  - name: carina-rbac
+    port: 8092
+    protocol: TCP
+    targetPort: 8092
   selector:
     app: oes
     component: carina
@@ -31206,10 +31876,10 @@ spec:
   ports:
   - name: "https"
     port: 443
-    targetPort: 8080
+    targetPort: 8093
   - name: "http"
-    port: 8080
-    targetPort: 8080
+    port: 8093
+    targetPort: 8093
   selector:
     app: oes
     component: ui
@@ -31278,6 +31948,28 @@ spec:
   selector:
     app: oes
     component: rabbitmq
+  type: ClusterIP
+---
+# Source: isdargo/templates/vela/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: oes
+    component: vela
+    heritage: "Helm"
+    release: "isdargo"
+    chart: "isdargo-4.1.1"
+  name: vela
+spec:
+  ports:
+  - name: vela
+    port: 8092
+    protocol: TCP
+    targetPort: 8092
+  selector:
+    app: oes
+    component: vela
   type: ClusterIP
 ---
 # Source: isdargo/charts/argo-cd/templates/argocd-applicationset/deployment.yaml
@@ -32325,7 +33017,7 @@ spec:
       app.kubernetes.io/instance: isdargo
   strategy:
     type: Recreate
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       annotations:
@@ -32341,7 +33033,6 @@ spec:
       containers:
       - image: "quay.io/argoproj/argo-rollouts:v1.3.1"
         args:
-        - --leader-elect
         imagePullPolicy: IfNotPresent
         name: argo-rollouts
         ports:
@@ -32592,7 +33283,57 @@ spec:
           persistentVolumeClaim:
             claimName: openldap
 ---
-# Source: isdargo/templates/carina/deployment.yaml
+# Source: isdargo/templates/carina/carina-instance-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: oes
+    component: carina-instance
+    heritage: "Helm"
+    release: "isdargo"
+    chart: "isdargo-4.1.1"
+  name: carina-instance
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oes
+      component: carina-instance
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: oes
+        component: carina-instance
+        heritage: "Helm"
+        release: "isdargo"
+        chart: "isdargo-4.1.1"
+      annotations:
+    spec:
+      containers:
+      - image: quay.io/opsmxpublic/carina-instance:v1.9.4
+        imagePullPolicy: IfNotPresent
+        name: carina-instance
+        ports:
+        - containerPort: 8090
+          protocol: TCP
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: argocd-server
+      serviceAccountName: argocd-server
+      terminationGracePeriodSeconds: 30
+---
+# Source: isdargo/templates/carina/carina-manager-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32624,10 +33365,10 @@ spec:
         release: "isdargo"
         chart: "isdargo-4.1.1"
       annotations:
-        checksum/secret: 3317d0843d09e8e86afa45102c110412f46f8d4715da5fdf1208733b21c1ff37
+        checksum/secret: fded78fb79f163122ee7400d331e474f1421c46e7b26570ece98a6ef0c014ddc
     spec:
       containers:
-      - image: quay.io/opsmxpublic/carina-manager:v1.9.1
+      - image: quay.io/opsmxpublic/carina-manager:v1.9.4
         imagePullPolicy: IfNotPresent
         name: oes-carina
         ports:
@@ -32748,7 +33489,7 @@ spec:
           - key: "configFile"
             path: "config.yaml"
 ---
-# Source: isdargo/templates/oes-audit/oes-audit-client.yaml
+# Source: isdargo/templates/oes-audit/oes-auditclient-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32779,8 +33520,20 @@ spec:
         release: "isdargo"
         chart: "isdargo-4.1.1"
     spec:
+      initContainers:
+      - name: db-check
+        image: quay.io/opsmxpublic/pgchecker:v1
+        command:
+          - sh
+          - -c
+          - |
+            echo 'Waiting for OES-DB to become ready...'
+            until printf "." && nc -z -w 2 oes-db 5432; do
+               sleep 2;
+            done;
+            echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.2-rc10
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
         env:
@@ -32836,7 +33589,7 @@ spec:
           name: standard-error-codes-config
         name: standard-error-conf
 ---
-# Source: isdargo/templates/oes-audit/oes-audit-service.yaml
+# Source: isdargo/templates/oes-audit/oes-auditservice-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32868,8 +33621,20 @@ spec:
         release: "isdargo"
         chart: "isdargo-4.1.1"
     spec:
+      initContainers:
+      - name: db-check
+        image: quay.io/opsmxpublic/pgchecker:v1
+        command:
+          - sh
+          - -c
+          - |
+            echo 'Waiting for OES-DB to become ready...'
+            until printf "." && nc -z -w 2 oes-db 5432; do
+               sleep 2;
+            done;
+            echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.1.2-rc10
         imagePullPolicy: IfNotPresent
         name: oes-audit
         env:
@@ -32986,10 +33751,18 @@ spec:
           name: standard-error-conf
       initContainers:
       - name: db-check
-        image: quay.io/opsmxpublic/postgres:9.6.5
-        command: ['/bin/bash', '-c', "sleep 30;echo Waiting for oes-db to be up and running; pg_isready -h oes-db -p 5432 && echo PostgreSQL DB is ready to receive connections"]
+        image: quay.io/opsmxpublic/pgchecker:v1
+        command:
+          - sh
+          - -c
+          - |
+            echo 'Waiting for OES-DB to become ready...'
+            until printf "." && nc -z -w 2 oes-db 5432; do
+               sleep 2;
+            done;
+            echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2-rc10
         imagePullPolicy: IfNotPresent
         name: oes-autopilot
         env:
@@ -33069,7 +33842,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.1.2-rc10
         name: oes-dashboard
         env:
         - name: JAVA_OPTS
@@ -33087,6 +33860,9 @@ spec:
         - mountPath: /opsmx/conf/standard-error-code.csv
           name: standard-error-conf
           subPath: standard-error-codes.csv
+        - mountPath: /opsmx/conf/feature.yml
+          name: isd-feature-flag-conf
+          subPath: feature.yml
         resources:
             {}
         readinessProbe:
@@ -33101,6 +33877,13 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 60
       volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: feature.yml
+            path: feature.yml
+          name: isd-feature-flag-config
+        name: isd-feature-flag-conf
       - name: dashboard-config
         configMap:
           name: oes-dashboard-config
@@ -33150,8 +33933,20 @@ spec:
         release: "isdargo"
         chart: "isdargo-4.1.1"
     spec:
+      initContainers:
+      - name: db-check
+        image: quay.io/opsmxpublic/pgchecker:v1
+        command:
+          - sh
+          - -c
+          - |
+            echo 'Waiting for OES-DB to become ready...'
+            until printf "." && nc -z -w 2 oes-db 5432; do
+               sleep 2;
+            done;
+            echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.1.2-rc10
         imagePullPolicy: IfNotPresent
         name: oes-datascience
         env:
@@ -33202,7 +33997,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secret: 1d69ce0384924d6e9b6a474fcf6dcc7dfb18bf8573bba70a4201f59e4e39144e
+        checksum/secret: 7d93e1ae580974d5960468d831ba15e402d4985a841abf5acd7a01bea4f610f9
         prometheus.io/scrape: "false"
         prometheus_io_path: /mgmt/prometheus
         prometheus_io_port: "8084"
@@ -33214,7 +34009,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-gate:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-gate:v4.1.2-rc10
         name: oes-gate
         env:
         - name: spring_profiles_active
@@ -33233,6 +34028,9 @@ spec:
         - mountPath: /opt/spinnaker/config/bootstrap.yml
           name: bootstrap-volume
           subPath: bootstrap.yml
+        - mountPath: /opt/spinnaker/config/feature.yml
+          name: isd-feature-flag-conf
+          subPath: feature.yml
         readinessProbe:
           tcpSocket:
             port: 8084
@@ -33245,6 +34043,13 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 60
       volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: feature.yml
+            path: feature.yml
+          name: isd-feature-flag-config
+        name: isd-feature-flag-conf
       - name: gate-volume
         secret:
           secretName: oes-gate-config
@@ -33277,7 +34082,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secret: 65123379f9cc434a9354a7791d60901ee3d0712d2924e89ddfada7e88e5b92f1
+        checksum/secret: bb726bc63c5a8f89dcf54c8c9e033f77feb0349955b989e630b74766a1b62a58
         prometheus.io/scrape: "true"
         prometheus_io_path: /mgmt/prometheus
         prometheus_io_port: "8095"
@@ -33290,10 +34095,18 @@ spec:
     spec:
       initContainers:
       - name: db-check
-        image: quay.io/opsmxpublic/postgres:9.6.5
-        command: ['/bin/bash', '-c', "sleep 30;echo Waiting for oes-db to be up and running; pg_isready -h oes-db -p 5432 && echo PostgreSQL DB is ready to receive connections"]
+        image: quay.io/opsmxpublic/pgchecker:v1
+        command:
+          - sh
+          - -c
+          - |
+            echo 'Waiting for OES-DB to become ready...'
+            until printf "." && nc -z -w 2 oes-db 5432; do
+               sleep 2;
+            done;
+            echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.1.2-rc10
         name: oes-platform
         env:
         - name: JAVA_OPTS
@@ -33365,7 +34178,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: 06ea526a8ce83f3514d23f21d577b82eacf0971e8faf05eba1c906c48967e509
+        checksum/configmap: 4ae0af121f2660206becc2a1276a6e7a2a3592268b1bac456e49938fb4ef9c34
         checksum/configmap: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
         prometheus.io/scrape: "true"
         prometheus_io_path: /mgmt/prometheus
@@ -33379,10 +34192,18 @@ spec:
     spec:
       initContainers:
       - name: db-check
-        image: quay.io/opsmxpublic/postgres:9.6.5
-        command: ['/bin/bash', '-c', "sleep 30;echo Waiting for oes-db to be up and running; pg_isready -h oes-db -p 5432 && echo PostgreSQL DB is ready to receive connections"]
+        image: quay.io/opsmxpublic/pgchecker:v1
+        command:
+          - sh
+          - -c
+          - |
+            echo 'Waiting for OES-DB to become ready...'
+            until printf "." && nc -z -w 2 oes-db 5432; do
+               sleep 2;
+            done;
+            echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.1.2-rc10
         name: oes-sapor
         env:
         - name: JAVA_OPTS
@@ -33477,7 +34298,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2-rc10
         name: oes-ui
         env:
         - name: JAVA_OPTS
@@ -33497,13 +34318,13 @@ spec:
           subPath: nginx-ap-only.conf
         readinessProbe:
           tcpSocket:
-            port: 8080
+            port: 8093
           initialDelaySeconds: 15
           periodSeconds: 5
         livenessProbe:
           httpGet:
             path: /ui/indexl.html
-            port: 8080
+            port: 8093
           initialDelaySeconds: 15
           periodSeconds: 5
       volumes:
@@ -33550,10 +34371,18 @@ spec:
     spec:
       initContainers:
       - name: db-check
-        image: quay.io/opsmxpublic/postgres:9.6.5
-        command: ['/bin/bash', '-c', "sleep 30;echo Waiting for oes-db to be up and running; pg_isready -h oes-db -p 5432 && echo PostgreSQL DB is ready to receive connections"]
+        image: quay.io/opsmxpublic/pgchecker:v1
+        command:
+          - sh
+          - -c
+          - |
+            echo 'Waiting for OES-DB to become ready...'
+            until printf "." && nc -z -w 2 oes-db 5432; do
+               sleep 2;
+            done;
+            echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.1.2-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.1.2-rc10
         name: oes-visibility
         env:
         - name: JAVA_OPTS
@@ -33647,6 +34476,67 @@ spec:
       restartPolicy: Always
       securityContext:
         fsGroup: 1000
+---
+# Source: isdargo/templates/vela/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: oes
+    component: vela
+    heritage: "Helm"
+    release: "isdargo"
+    chart: "isdargo-4.1.1"
+  name: vela
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oes
+      component: vela
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: oes
+        component: vela
+        heritage: "Helm"
+        release: "isdargo"
+        chart: "isdargo-4.1.1"
+      annotations:
+        checksum/secret: a990ce01e54e37afb27e95803a96fb3052a85df7955f6f42efceea10fc82f683
+    spec:
+      volumes:
+      - name: vela-volume
+        configMap:
+          name: vela-config
+          items:
+            - key: vela-api.yaml
+              path: vela-api.yaml
+          defaultMode: 420
+      containers:
+      - image: quay.io/opsmxpublic/vela-api:v1.0.0
+        imagePullPolicy: IfNotPresent
+        name: vela
+        ports:
+        - containerPort: 8092
+          protocol: TCP
+        volumeMounts:
+          - name: vela-volume
+            mountPath: /app/config/vela-api.yaml
+            subPath: vela-api.yaml
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
 ---
 # Source: isdargo/charts/argo-cd/templates/argocd-application-controller/statefulset.yaml
 apiVersion: apps/v1
@@ -34151,6 +35041,7 @@ metadata:
     "helm.sh/hook-weight": "5"
   labels:
     app: oes
+    autoconfig: oes
     heritage: "Helm"
     release: "isdargo"
     chart: "isdargo-4.1.1"
@@ -34222,15 +35113,15 @@ metadata:
     "helm.sh/hook": "post-install"
     "helm.sh/hook-delete-policy": "before-hook-creation"
     "helm.sh/hook-weight": "13"
-  name: app-of-apps
+  name: app-of-app
 spec:
   destination:
     name: in-cluster
     namespace: opsmx-argo
     server: ''
   source:
-    path: sampleapps-opsmxproj
-    repoURL: 'git@github.com:OpsMx/argo-sample-apps.git'
+    path: sampleapps
+    repoURL: 'https://github.com/opsmx/isd-sample-apps.git'
     targetRevision: HEAD
   project: opsmxproj
   syncPolicy:
@@ -34251,4 +35142,4 @@ metadata:
 spec:
   sources:
   - web:
-      url: https://github.com/OpsMx/rollout-extension/releases/download/v0.3.7/extension.tar
+      url: https://github.com/OpsMx/rollout-extension/releases/download/v0.3.11/extension.tar
