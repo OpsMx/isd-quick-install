@@ -33368,7 +33368,7 @@ spec:
         checksum/secret: fded78fb79f163122ee7400d331e474f1421c46e7b26570ece98a6ef0c014ddc
     spec:
       containers:
-      - image: quay.io/opsmxpublic/carina-manager:v1.9.4
+      - image: quay.io/opsmxpublic/carina-manager:v1.9.5
         imagePullPolicy: IfNotPresent
         name: oes-carina
         ports:
@@ -34520,7 +34520,7 @@ spec:
               path: vela-api.yaml
           defaultMode: 420
       containers:
-      - image: quay.io/opsmxpublic/vela-api:v1.0.0
+      - image: quay.io/opsmxpublic/vela-api:v1.0.1
         imagePullPolicy: IfNotPresent
         name: vela
         ports:
