@@ -13,7 +13,8 @@ minio/mc:RELEASE.2020-11-25T23-04-07Z
 quay.io/opsmxpublic/ubi8-oes-db:v3.0.0
 quay.io/opsmxpublic/ubi8-gate:v4.1.2-rc10
 minio/minio:RELEASE.2020-12-03T05-49-24Z
-quay.io/opsmxpublic/carina-manager:v1.9.4
+quay.io/opsmxpublic/carina-manager:v1.9.5
+quay.io/opsmxpublic/vela-api:v1.0.1
 quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2-rc10
 quay.io/opsmxpublic/forwarder-agent:v3.5.9
 quay.io/argoproj/kubectl-argo-rollouts:v1.3.1
