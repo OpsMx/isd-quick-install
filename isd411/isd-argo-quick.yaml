@@ -518,7 +518,7 @@ stringData:
         externalUrl: /ui/
       user: {}
     cors:
-      allowed-origins-pattern: ^https?://(?:localhost|isd1-rc13.ninja-test.opsmx.net|opsmx.com)(?::[1-9]\d*)?/?
+      allowed-origins-pattern: ^https?://(?:localhost|ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM|opsmx.com)(?::[1-9]\d*)?/?
     ldap:
       enabled: true
       url: ldap://openldap:389
@@ -565,7 +565,7 @@ stringData:
       token:
         durationInSeconds: 36000
     vela:
-      bounceUrl: https://isd.vela1-rc13.ninja-test.opsmx.net/bounce
+      bounceUrl: https://isd.VELA.REPLACE.THIS.WITH.YOURCOMPANY.COM/bounce
     
     logging:
       level:
@@ -654,20 +654,20 @@ stringData:
       auditclient:
         url: http://oes-audit-client:8098
       policyGate:
-        url: "https://isd1-rc13.ninja-test.opsmx.net/gate"
+        url: "https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate"
         path: /v1/data/
       ui:
       # Ex: "https://oes-poc.dev.opsmx.org/"
-        url: "https://isd1-rc13.ninja-test.opsmx.net/ui"
+        url: "https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/ui"
       gate:
         url: http://oes-gate:8084
       carinamanager:
         url: "http://oes-carina:8092"
       approvalGate:
-        apiUrl: https://isd1-rc13.ninja-test.opsmx.net/gate/visibilityservice/v5/approvalGates/{id}/trigger
+        apiUrl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate/visibilityservice/v5/approvalGates/{id}/trigger
     
       verificationGate:
-        apiUrl: https://isd1-rc13.ninja-test.opsmx.net/gate/autopilot/api/v3/registerCanary
+        apiUrl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate/autopilot/api/v3/registerCanary
     
     logging:
       level:
@@ -739,7 +739,7 @@ stringData:
         url: "http://oes-audit-service:8097"
       dashboard:
         url: http://oes-dashboard:8094
-      commongateurl: https://isd1-rc13.ninja-test.opsmx.net/gate
+      commongateurl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate
     spinnaker:
       encrypt:
         enabled: false
@@ -854,7 +854,7 @@ stringData:
     
     ui:
       approval:
-        url: https://isd1-rc13.ninja-test.opsmx.net/ui/application/visibility/{applicationId}/{serviceId}/{approvalGateId}
+        url: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/ui/application/visibility/{applicationId}/{serviceId}/{approvalGateId}
     
     gate:
       url: http://oes-gate:8084
@@ -1036,7 +1036,7 @@ data:
   server.rbac.log.enforce.enable: "false"
   timeout.hard.reconciliation: 0s
   timeout.reconciliation: 180s
-  url: https://argo1-rc13.ninja-test.opsmx.net
+  url: https://ARGOCD.REPLACE.THIS.WITH.YOURCOMPANY.COM
 ---
 # Source: isdargo/charts/argo-cd/templates/argocd-configs/argocd-cmd-params-cm.yaml
 apiVersion: v1
@@ -1103,7 +1103,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
 data:
   context: |
-    argocdUrl: "argo1-rc13.ninja-test.opsmx.net"
+    argocdUrl: "ARGOCD.REPLACE.THIS.WITH.YOURCOMPANY.COM"
   service.email.gmail: |
     username: $email-username
     password: $email-password
