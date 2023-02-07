@@ -518,7 +518,7 @@ stringData:
         externalUrl: /ui/
       user: {}
     cors:
-      allowed-origins-pattern: ^https?://(?:localhost|ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM|opsmx.com)(?::[1-9]\d*)?/?
+      allowed-origins-pattern: ^https?://(?:localhost|isd1-rc13.ninja-test.opsmx.net|opsmx.com)(?::[1-9]\d*)?/?
     ldap:
       enabled: true
       url: ldap://openldap:389
@@ -556,421 +556,6 @@ stringData:
     security:
       contentSecurityPolicy: "object-src 'none'; script-src 'unsafe-eval' 'unsafe-inline' https: http:;"
     
-    
-    keycloak:
-      realmName: isd
-      ldapName: ldap
-      samlName: saml
-      clientId: isd-client
-      serverUrl: https://KEYCLOAK.REPLACE.THIS.WITH.YOURCOMPANY.COM/auth/
-      username: admin
-      password: opsmxadmin123
-      ldap:
-        props:
-          connectionTimeout: ""
-          customUserSearchFilter: ""
-          readTimeout: ""
-          batchSizeForSync: ""
-          startTls: "false"
-          useTruststoreSpi: "never"
-          connectionPooling: "false"
-          searchScope: ""
-          pagination: "false"
-          importEnabled: "true"
-          syncRegistrations: "true"
-          allowKerberosAuthentication: "false"
-          useKerberosForPasswordAuthentication: "false"
-          cachePolicy: "DEFAULT"
-          usePasswordModifyExtendedOp: "false"
-          validatePasswordPolicy: "false"
-          trustEmail: "false"
-          changedSyncPeriod: "-1"
-          fullSyncPeriod: "-1"
-      auth:
-        providers:
-          - name: ldap
-            display: LDAP
-            type: label
-            helpText: "This page allows you to configure LDAP Authentication providers such as Active Directory and OpenLDAP. Once this is enabled, ISD will import all users and groups from your LDAP and users will be able to login to ISD using their LDAP user id and password. Super admin users will continue to be able to log in using their current user id and password.Follow the below steps to enable LDAP Provider.
-            - Select your LDAP Vendor, enter your LDAP Connection URL and click on 'Test Connection' to verify the connectivity between ISD and LDAP
-            - Select the Bind Type, enter Bind DN, Credential (Password) and click on 'Test Authentication'
-            - The details you enter in the User Search Settings and Group Search Settings sections will be used to search for users and groups in your LDAP
-            - Most of the values are auto-populated based on the selected Provider.
-            - Click on the 'Enabled' toggle and click the Save button at the bottom."
-            sections:
-              - name: toggleSettings
-                display:
-                type:
-                helpText:
-                inputparameters:
-                  - name: enabled
-                    display: Enabled
-                    inputType: toggle
-                    required: true
-                    helpText: Enabled
-                    readonly: false
-                    placeholder:
-                    defaultValue: false
-                    loadValues: []
-    
-              - name: connectionSettings
-                display: Connection Settings
-                type: label
-                helpText: Connection Settings
-                inputparameters:
-                  - name: vendor
-                    display: Vendor
-                    inputType: dropdown
-                    required: true
-                    helpText: Choose your LDAP Vendor (Provider)
-                    readonly: false
-                    placeholder:
-                    defaultValue:
-                    loadValues:
-                      - Active Directory
-                      - Red Hat Directory Server
-                      - Tivoli
-                      - Novell eDirectory
-                      - Other
-    
-                  - name: connectionUrl
-                    display: Connection URL
-                    inputType: url
-                    required: true
-                    helpText: Connection URL to your LDAP Server
-                    readonly: false
-                    placeholder: LDAP connection URL
-                    defaultValue:
-                    loadValues: []
-    
-                  - name: authType
-                    display: Bind Type
-                    inputType: dropdown
-                    required: true
-                    helpText: Type of the authentication method used during LDAP bind operation. It is used in most of the requests sent to the LDAP server. Currently only 'none' (anonymous LDAP authentication) or 'simple' (bind credential + bind password authentication) mechanisms are available
-                    readonly: false
-                    placeholder:
-                    defaultValue: simple
-                    loadValues:
-                      - none
-                      - simple
-    
-                  - name: bindDn
-                    display: Bind DN
-                    inputType: text
-                    required: true
-                    helpText: Distinguished Name of the LDAP admin, which will be used by ISD to access LDAP server
-                    readonly: false
-                    placeholder: cn=Administrator,CN=Users,DC=example,DC=com
-                    defaultValue:
-                    loadValues: []
-    
-                  - name: bindCredential
-                    display: Bind Credential
-                    inputType: password
-                    required: true
-                    helpText: Password of LDAP admin.
-                    readonly: false
-                    placeholder: Password associated with the Bind DN
-                    defaultValue:
-                    loadValues: []
-    
-              - name: userSearchSettings
-                display: User Search Settings
-                type: label
-                helpText: User Search Settings
-                inputparameters:
-                  - name: userObjectClasses
-                    display: User Object Classes
-                    inputType: text
-                    required: true
-                    helpText: "All values of LDAP objectClass attribute for users in LDAP, divided by commas. For example: 'inetOrgPerson, organizationalPerson'. LDAP user records are found just if they contain all those object classes."
-                    readonly: false
-                    placeholder: inetOrgPerson, organizationalPerson
-                    defaultValue:
-                    loadValues: []
-    
-                  - name: usersDn
-                    display: Users DN
-                    inputType: text
-                    required: true
-                    helpText: Full DN of LDAP tree where your users are. This DN is the parent of LDAP users. It could be for example 'ou=users,dc=example,dc=com' assuming that your typical user will have DN like 'uid='john',ou=users,dc=example,dc=com
-                    readonly: false
-                    placeholder: ou=users,dc=example,dc=com
-                    defaultValue:
-                    loadValues: []
-    
-                nestedSections:
-                  - name: advancedOptions
-                    display: Advanced Options
-                    type: accordian
-                    helpText: Advanced Options
-                    inputparameters:
-                      - name: editMode
-                        display: Edit Mode
-                        inputType: dropdown
-                        required: true
-                        helpText: The mode of communication between ISD and LDAP. This is always READ_ONLY.
-                        readonly: false
-                        placeholder:
-                        defaultValue: READ_ONLY
-                        loadValues:
-                          - READ_ONLY
-    
-                      - name: usernameLDAPAttribute
-                        display: Username LDAP attribute
-                        inputType: text
-                        required: true
-                        helpText: Name of the LDAP attribute, which is mapped as ISD username. For many LDAP server vendors it can be 'uid'. For Active directory it can be 'sAMAccountName' or 'cn'. The attribute should be filled for all LDAP user records you want to import from LDAP.
-                        readonly: false
-                        placeholder: LDAP attribute name for username
-                        defaultValue:
-                        loadValues: []
-    
-                      - name: rdnLDAPAttribute
-                        display: RDN LDAP attribute
-                        inputType: text
-                        required: true
-                        helpText: Name of the LDAP attribute, which is used as a unique object identifier (UUID) for objects in LDAP. For many LDAP server vendors, it is 'entryUUID'; however some are different. For example, for Active directory it should be 'objectGUID'. If your LDAP server does not support the notion of UUID, you can use any other attribute that is supposed to be unique among LDAP users in tree. For example 'uid' or 'entryDN'.
-                        readonly: false
-                        placeholder: LDAP attribute name for user RDN
-                        defaultValue:
-                        loadValues: []
-    
-                      - name: uuidLDAPAttribute
-                        display: UUID LDAP attribute
-                        inputType: text
-                        required: true
-                        helpText: UUID LDAP attribute
-                        readonly: false
-                        placeholder: LDAP attribute name for UUID
-                        defaultValue:
-                        loadValues: []
-    
-                      - name: customUserSearchFilter
-                        display: User LDAP Filter
-                        inputType: text
-                        required: false
-                        helpText: Additional LDAP filter for filtering searched users. Leave this empty if you don't need an additional filter. Make sure that it starts with '(' and ends with ')'.
-                        readonly: false
-                        placeholder:
-                        defaultValue:
-                        loadValues: []
-    
-              - name: groupSearchSettings
-                display: Group Search Settings
-                type: label
-                helpText: Group Search Settings
-                inputparameters:
-                  - name: groupsDn
-                    display: Group DN
-                    inputType: text
-                    required: true
-                    helpText: LDAP DN where are groups of this tree saved. For example 'ou=groups,dc=example,dc=org'
-                    readonly: false
-                    placeholder: ou=groups,dc=example,dc=org
-                    defaultValue:
-                    loadValues: []
-    
-                  - name: groupNameLdapAttribute
-                    display: Group Role Name Attribute
-                    inputType: text
-                    required: true
-                    helpText: Name of LDAP attribute, which is used in group objects for name and RDN of group. Usually it will be 'cn' . In this case typical group/role object may have DN like 'cn=Group1,ou=groups,dc=example,dc=org'
-                    readonly: false
-                    placeholder:
-                    defaultValue: cn
-                    loadValues: []
-    
-                nestedSections:
-                  - name: advancedOptions
-                    display: Advanced Options
-                    type: accordian
-                    helpText: Advanced Options
-                    inputparameters:
-                      - name: membershipLdapAttribute
-                        display: Membership LDAP Attribute
-                        inputType: text
-                        required: true
-                        helpText: Name of LDAP attribute on group, which is used for membership mappings. Usually it will be 'member' .However when 'Membership Attribute Type' is 'UID' then 'Membership LDAP Attribute' could be typically 'memberUid'
-                        readonly: false
-                        placeholder:
-                        defaultValue: member
-                        loadValues: []
-    
-                      - name: groupObjectClasses
-                        display: Group Object Classes
-                        inputType: text
-                        required: false
-                        helpText: Object class (or classes) of the group object. It's divided by comma if more classes needed. In typical LDAP deployment it could be 'groupOfNames' . In Active Directory it's usually 'group'
-                        readonly: false
-                        placeholder:
-                        defaultValue: groupOfNames
-                        loadValues: []
-    
-                      - name: membershipUserLdapAttribute
-                        display: Membership User LDAP Attribute
-                        inputType: text
-                        required: false
-                        helpText: "Used just if Membership Attribute Type is UID. It is name of LDAP attribute on user, which is used for membership mappings. Usually it will be 'uid' . For example if value of 'Membership User LDAP Attribute' is 'uid' and LDAP group has 'memberUid: john', then it is expected that particular LDAP user will have attribute 'uid: john' ."
-                        readonly: false
-                        placeholder:
-                        defaultValue: uid
-                        loadValues: []
-    
-                      - name: membershipAttributeType
-                        display: Membership Attribute Type
-                        inputType: dropdown
-                        required: false
-                        helpText: "DN means that LDAP group has it's members declared in form of their full DN. For example 'member: uid=john,ou=users,dc=example,dc=com' . UID means that LDAP group has it's members declared in form of pure user uids. For example 'memberUid: john'"
-                        readonly: false
-                        placeholder:
-                        defaultValue: DN
-                        loadValues:
-                          - DN
-                          - UID
-    
-                      - name: mode
-                        display: Mode
-                        inputType: dropdown
-                        required: false
-                        helpText: LDAP_ONLY means that all group mappings of users are retrieved from LDAP and saved into LDAP. READ_ONLY is Read-only LDAP mode where group mappings are retrieved from both LDAP and DB and merged together. New group joins are not saved to LDAP but to DB. IMPORT is Read-only LDAP mode where group mappings are retrieved from LDAP just at the time when user is imported from LDAP and then they are saved to local ISD DB.
-                        readonly: false
-                        placeholder:
-                        defaultValue: READ_ONLY
-                        loadValues:
-                          - READ_ONLY
-                          - LDAP_ONLY
-                          - IMPORT
-    
-                      - name: userRolesRetrieveStrategy
-                        display: User Groups Retrieve Strategy
-                        inputType: dropdown
-                        required: false
-                        helpText: Specify how to retrieve groups of user. LOAD_GROUPS_BY_MEMBER_ATTRIBUTE means that roles of user will be retrieved by sending LDAP query to retrieve all groups where 'member' is our user. GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE means that groups of user will be retrieved from 'memberOf' attribute of our user. Or from the other attribute specified by 'Member-Of LDAP Attribute' .
-                        readonly: false
-                        placeholder:
-                        defaultValue: LOAD_GROUPS_BY_MEMBER_ATTRIBUTE
-                        loadValues:
-                          - LOAD_GROUPS_BY_MEMBER_ATTRIBUTE
-                          - GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE
-    
-                      - name: memberofLdapAttribute
-                        display: Member-Of LDAP Attribute
-                        inputType: text
-                        required: false
-                        helpText: "Used just when 'User Roles Retrieve Strategy' is GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE . It specifies the name of the LDAP attribute on the LDAP user, which contains the groups, which the user is member of. Usually it will be 'memberOf' and that's also the default value."
-                        readonly: false
-                        placeholder:
-                        defaultValue: memberOf
-                        loadValues: []
-    
-                      - name: groupsLdapFilter
-                        display: LDAP Filter
-                        inputType: text
-                        required: false
-                        helpText: LDAP Filter adds additional custom filter to the whole query for retrieve LDAP groups. Leave this empty if no additional filtering is needed and you want to retrieve all groups from LDAP. Otherwise make sure that filter starts with '(' and ends with ')'
-                        readonly: false
-                        placeholder:
-                        defaultValue:
-                        loadValues: []
-    
-          - name: saml
-            display: SAML
-            type: label
-            helpText: "This page allows you to configure SAML Authentication providers such as Okta and Azure. Once this is enabled, the 'Sign in with SAML' option will be available on the ISD login screen. All users configured in your SAML authentication provider will be able to access ISD. Super admin users will continue to be able to log in using their current user id and password.
-            Follow the below steps to enable SAML Provider. 
-            - Copy and Use the redirect URI as the ACS URL of the ISD application and Service Provider (Entity ID) while configuring your Identity Provider
-            - Download the metadata XML from your Identity Provider and import it to ISD
-            - Single Sign-On service URL will get auto-populated from the metadata XML
-            - The group attribute helps ISD to identify the groups the user belongs to. You can add group attribute statements to the SAML assertion shared with ISD from your Identity Provider. The value entered here should match the name of the group attribute on your IDP. By default it's memberOf
-            - Click on the 'Enabled' toggle and Save button at the bottom to enable the provider."
-            sections:
-              - name: toggleSettings
-                display:
-                type:
-                helpText:
-                inputparameters:
-                  - name: enabled
-                    display: Enabled
-                    inputType: toggle
-                    required: true
-                    helpText: Enabled
-                    readonly: false
-                    placeholder:
-                    defaultValue: false
-                    loadValues: []
-    
-              - name: idpSettings
-                display:
-                type:
-                helpText:
-                inputparameters:
-                  - name: redirectURI
-                    display: Redirect URI
-                    inputType: url
-                    required: true
-                    helpText: The redirect uri to use when configuring the identity provider.
-                    readonly: true
-                    placeholder:
-                    defaultValue: https://KEYCLOAK.REPLACE.THIS.WITH.YOURCOMPANY.COM/auth/realms/isd/broker/saml/endpoint
-                    loadValues: []
-    
-              - name: identityProviderMetadata
-                display: Identity Provider Metadata
-                type: label
-                helpText: Identity Provider Metadata
-                inputparameters:
-                  - name: importFromFile
-                    display: Import from file
-                    inputType: file
-                    required: false
-                    helpText: Import from file
-                    readonly: false
-                    placeholder:
-                    defaultValue:
-                    loadValues: []
-    
-                  - name: serviceProviderEntityId
-                    display: Service Provider Entity ID
-                    inputType: url
-                    required: true
-                    helpText: The Entity ID that will be used by your IDP to uniquely identify this SAML Service Provider (ISD).
-                    readonly: false
-                    placeholder:
-                    defaultValue: https://KEYCLOAK.REPLACE.THIS.WITH.YOURCOMPANY.COM/auth/realms/isd
-                    loadValues: []
-    
-                  - name: importFromFile
-                    display: Import Identity Provider Metadata
-                    inputType: file
-                    required: false
-                    helpText: Upload Metadata XML From the Identity Provider
-                    readonly: false
-                    placeholder:
-                    defaultValue:
-                    loadValues: []
-    
-                  - name: singleSignOnServiceUrl
-                    display: Single Sign-On Service URL
-                    inputType: url
-                    required: true
-                    helpText: The url that must be used to send authentication requests (SAML AuthnRequest).
-                    readonly: true
-                    placeholder:
-                    defaultValue:
-                    loadValues: []
-    
-                  - name: groupAttribute
-                    display: Group Attribute
-                    inputType: text
-                    required: false
-                    helpText: The group attribute helps ISD to identify the groups the user belongs to. You can add group attribute statements to the SAML assertion shared with ISD from your Identity Provider. The value entered here should match the name of the group attribute on your IDP. By default it's memberOf.
-                    readonly: false
-                    placeholder:
-                    defaultValue: memberOf
-                    loadValues: []
-    
     allowUnauthenticatedAccess:
       agentAPI: false
       webhooks: true
@@ -980,7 +565,7 @@ stringData:
       token:
         durationInSeconds: 36000
     vela:
-      bounceUrl: https://VELA.REPLACE.THIS.WITH.YOURCOMPANY.COM/bounce
+      bounceUrl: https://isd.vela1-rc13.ninja-test.opsmx.net/bounce
     
     logging:
       level:
@@ -1069,20 +654,20 @@ stringData:
       auditclient:
         url: http://oes-audit-client:8098
       policyGate:
-        url: "https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate"
+        url: "https://isd1-rc13.ninja-test.opsmx.net/gate"
         path: /v1/data/
       ui:
       # Ex: "https://oes-poc.dev.opsmx.org/"
-        url: "https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/ui"
+        url: "https://isd1-rc13.ninja-test.opsmx.net/ui"
       gate:
         url: http://oes-gate:8084
       carinamanager:
         url: "http://oes-carina:8092"
       approvalGate:
-        apiUrl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate/visibilityservice/v5/approvalGates/{id}/trigger
+        apiUrl: https://isd1-rc13.ninja-test.opsmx.net/gate/visibilityservice/v5/approvalGates/{id}/trigger
     
       verificationGate:
-        apiUrl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate/autopilot/api/v3/registerCanary
+        apiUrl: https://isd1-rc13.ninja-test.opsmx.net/gate/autopilot/api/v3/registerCanary
     
     logging:
       level:
@@ -1154,7 +739,7 @@ stringData:
         url: "http://oes-audit-service:8097"
       dashboard:
         url: http://oes-dashboard:8094
-      commongateurl: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/gate
+      commongateurl: https://isd1-rc13.ninja-test.opsmx.net/gate
     spinnaker:
       encrypt:
         enabled: false
@@ -1269,7 +854,7 @@ stringData:
     
     ui:
       approval:
-        url: https://ISD.REPLACE.THIS.WITH.YOURCOMPANY.COM/ui/application/visibility/{applicationId}/{serviceId}/{approvalGateId}
+        url: https://isd1-rc13.ninja-test.opsmx.net/ui/application/visibility/{applicationId}/{serviceId}/{approvalGateId}
     
     gate:
       url: http://oes-gate:8084
@@ -1451,7 +1036,7 @@ data:
   server.rbac.log.enforce.enable: "false"
   timeout.hard.reconciliation: 0s
   timeout.reconciliation: 180s
-  url: https://ARGO.REPLACE.THIS.WITH.YOURCOMPANY.COM
+  url: https://argo1-rc13.ninja-test.opsmx.net
 ---
 # Source: isdargo/charts/argo-cd/templates/argocd-configs/argocd-cmd-params-cm.yaml
 apiVersion: v1
@@ -1518,7 +1103,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
 data:
   context: |
-    argocdUrl: "ARGO.REPLACE.THIS.WITH.YOURCOMPANY.COM"
+    argocdUrl: "argo1-rc13.ninja-test.opsmx.net"
   service.email.gmail: |
     username: $email-username
     password: $email-password
@@ -2514,14 +2099,14 @@ data:
               credentials:
                 type: bearer
                 token: xxxx
+            annotations:
+              description: argocd via agent
+              uiUrl: http://localhost:8099
           - name: argocd
             type: carinainstance
             enabled: true
             config:
               url: http://carina-instance:8090
-            annotations:
-              description: argocd via agent
-              uiUrl: http://localhost:8099
     EOF
     wait_period=0
     while true
@@ -2624,7 +2209,7 @@ data:
   feature.yml: |
      feature:
        auth-provider:
-         flag: true
+         flag: false
          jira: OP-18050
 kind: ConfigMap
 metadata:
@@ -33317,7 +32902,7 @@ spec:
       annotations:
     spec:
       containers:
-      - image: quay.io/opsmxpublic/carina-instance:v1.9.4
+      - image: quay.io/opsmxpublic/carina-instance:v1.9.6
         imagePullPolicy: IfNotPresent
         name: carina-instance
         ports:
@@ -33368,7 +32953,7 @@ spec:
         checksum/secret: fded78fb79f163122ee7400d331e474f1421c46e7b26570ece98a6ef0c014ddc
     spec:
       containers:
-      - image: quay.io/opsmxpublic/carina-manager:v1.9.5
+      - image: quay.io/opsmxpublic/carina-manager:v1.9.6
         imagePullPolicy: IfNotPresent
         name: oes-carina
         ports:
@@ -33533,7 +33118,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.2-rc13
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
         env:
@@ -33634,7 +33219,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.1.2-rc13
         imagePullPolicy: IfNotPresent
         name: oes-audit
         env:
@@ -33762,7 +33347,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2-rc13
         imagePullPolicy: IfNotPresent
         name: oes-autopilot
         env:
@@ -33842,7 +33427,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.1.2-rc13
         name: oes-dashboard
         env:
         - name: JAVA_OPTS
@@ -33946,7 +33531,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.1.2-rc13
         imagePullPolicy: IfNotPresent
         name: oes-datascience
         env:
@@ -33997,7 +33582,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secret: 7d93e1ae580974d5960468d831ba15e402d4985a841abf5acd7a01bea4f610f9
+        checksum/secret: 79a575b7b9f82aab4ef5289b50c662089eb12841b3ed27f3f6102203fdf98807
         prometheus.io/scrape: "false"
         prometheus_io_path: /mgmt/prometheus
         prometheus_io_port: "8084"
@@ -34009,7 +33594,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-gate:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-gate:v4.1.2-rc13
         name: oes-gate
         env:
         - name: spring_profiles_active
@@ -34106,7 +33691,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.1.2-rc13
         name: oes-platform
         env:
         - name: JAVA_OPTS
@@ -34203,7 +33788,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.1.2-rc13
         name: oes-sapor
         env:
         - name: JAVA_OPTS
@@ -34298,7 +33883,7 @@ spec:
         chart: "isdargo-4.1.1"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2-rc13
         name: oes-ui
         env:
         - name: JAVA_OPTS
@@ -34382,7 +33967,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.1.2-rc10
+      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.1.2-rc13
         name: oes-visibility
         env:
         - name: JAVA_OPTS
@@ -34520,7 +34105,7 @@ spec:
               path: vela-api.yaml
           defaultMode: 420
       containers:
-      - image: quay.io/opsmxpublic/vela-api:v1.0.1
+      - image: quay.io/opsmxpublic/vela-api:v1.1.3
         imagePullPolicy: IfNotPresent
         name: vela
         ports:
