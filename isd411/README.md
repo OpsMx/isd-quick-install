@@ -11,13 +11,13 @@ Windows -   netstat -aof | findstr "LISTENING"
 
 Please download the images into the local machine by running the below command
 
-- `curl -o images.sh https://raw.githubusercontent.com/saitejaopsmx/isd-quick-install/vela/isd411/images.sh && chmod 777 images.sh && ./images.sh`
+- `curl -o images.sh https://raw.githubusercontent.com/opsmx/isd-quick-install/main/isd411/images.sh && chmod 777 images.sh && ./images.sh`
 
 It will take 20-30 min depending on the network speed to download the images into the local machine
 
 
 Issue the following commands (copy paste in a terminal window)
-- `kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/saitejaopsmx/isd-quick-install/vela/isd411/isd-argo-quick.yaml`
+- `kubectl -n opsmx-argo apply -f https://raw.githubusercontent.com/opsmx/isd-quick-install/main/isd411/isd-argo-quick.yaml`
 
 If you see any error at the end of the command output, please wait for a few seconds and reissue the command above. 
 
