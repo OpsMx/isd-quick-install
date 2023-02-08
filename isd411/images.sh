@@ -3,7 +3,7 @@
 rm -rf imglist.txt
 cat >> /tmp/imglist.txt <<EOL
 alpine:3.8
-osixia/openldap:1.2.4 
+osixia/openldap:1.2.4
 ghcr.io/dexidp/dex:v2.35.3
 quay.io/argoproj/argocd:v2.5.4
 quay.io/opsmxpublic/busybox:1.28
