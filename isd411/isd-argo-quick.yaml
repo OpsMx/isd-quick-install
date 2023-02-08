@@ -275,7 +275,7 @@ metadata:
     component: carina
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-carina-config
 ---
 # Source: isdargo/templates/oes-audit/oes-audit-client-secret.yaml
@@ -320,7 +320,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-audit-client-config
 ---
 # Source: isdargo/templates/oes-audit/oes-audit-service-secret.yaml
@@ -369,7 +369,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-audit-service-config
 ---
 # Source: isdargo/templates/oes-autopilot/oes-autopilot-secret.yaml
@@ -434,7 +434,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/oes-datascience/oes-datascience-secret.yaml
 apiVersion: v1
@@ -584,7 +584,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/oes-gate/oes-gate-secret.yaml
 apiVersion: v1
@@ -688,7 +688,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/oes-sapor/oes-sapor-secret.yaml
 apiVersion: v1
@@ -805,7 +805,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/oes-visibility/oes-visibility-secret.yaml
 apiVersion: v1
@@ -910,7 +910,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/sampleapps/sample-repo-ssh.yaml
 apiVersion: v1
@@ -955,7 +955,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/secrets/opsmx-profile.yaml
 apiVersion: v1
@@ -998,7 +998,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/secrets/secret.yaml
 apiVersion: v1
@@ -2073,7 +2073,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 data:
   datasource-api.sh: |-
     #!/bin/bash
@@ -2300,7 +2300,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 data:
   configFile: |
     serviceHostname: opsmx-controller-controller1
@@ -2364,7 +2364,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/oes-ui/oes-ui-configmap.yaml
 apiVersion: v1
@@ -5819,7 +5819,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/oes-ui/oes-ui-nginxconf.yaml
 apiVersion: v1
@@ -5899,7 +5899,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/templates/vela/vela-configmap.yaml
 apiVersion: v1
@@ -5918,7 +5918,7 @@ metadata:
     component: vela
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 ---
 # Source: isdargo/charts/minio/templates/pvc.yaml
 apiVersion: v1
@@ -31136,7 +31136,7 @@ metadata:
     component: carina-instance
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: carina-instance
 spec:
   ports:
@@ -31158,7 +31158,7 @@ metadata:
     component: carina
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-carina
 spec:
   ports:
@@ -31185,7 +31185,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -31211,7 +31211,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -31230,7 +31230,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -31249,7 +31249,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-audit-client
 spec:
   ports:
@@ -31271,7 +31271,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-audit-service
 spec:
   ports:
@@ -31293,7 +31293,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-autopilot
 spec:
   type: ClusterIP
@@ -31317,7 +31317,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-dashboard
 spec:
   type: ClusterIP
@@ -31339,7 +31339,7 @@ metadata:
     component: datascience
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-datascience
 spec:
   ports:
@@ -31361,7 +31361,7 @@ metadata:
     component: db
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-db
 spec:
   type: ClusterIP
@@ -31383,7 +31383,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-gate
 spec:
   type: ClusterIP
@@ -31411,7 +31411,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-platform
 spec:
   type: ClusterIP
@@ -31433,7 +31433,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-sapor
 spec:
   type: ClusterIP
@@ -31454,7 +31454,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-ui
 spec:
   type: ClusterIP
@@ -31478,7 +31478,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-visibility
 spec:
   type: ClusterIP
@@ -31499,7 +31499,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 spec:
   selector:
     app: opa
@@ -31518,7 +31518,7 @@ metadata:
     component: rabbitmq
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: rabbitmq-service
 spec:
   ports:
@@ -31544,7 +31544,7 @@ metadata:
     component: vela
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: vela
 spec:
   ports:
@@ -32877,7 +32877,7 @@ metadata:
     component: carina-instance
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: carina-instance
 spec:
   progressDeadlineSeconds: 600
@@ -32898,7 +32898,7 @@ spec:
         component: carina-instance
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
       annotations:
     spec:
       containers:
@@ -32927,7 +32927,7 @@ metadata:
     component: carina
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-carina
 spec:
   progressDeadlineSeconds: 600
@@ -32948,7 +32948,7 @@ spec:
         component: carina
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
       annotations:
         checksum/secret: fded78fb79f163122ee7400d331e474f1421c46e7b26570ece98a6ef0c014ddc
     spec:
@@ -33005,7 +33005,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 spec:
   replicas: 1
   selector:
@@ -33019,7 +33019,7 @@ spec:
         agent.opsmx.com/role: controller
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
       annotations:
         pullversion: "16"
         checksum/configmap: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
@@ -33083,7 +33083,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-audit-client
 spec:
   replicas: 1
@@ -33103,7 +33103,7 @@ spec:
         component: auditclient
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       initContainers:
       - name: db-check
@@ -33118,7 +33118,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.1.2
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
         env:
@@ -33184,7 +33184,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-audit-service
 spec:
   replicas: 1
@@ -33204,7 +33204,7 @@ spec:
         component: auditservice
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       initContainers:
       - name: db-check
@@ -33219,7 +33219,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.1.2
         imagePullPolicy: IfNotPresent
         name: oes-audit
         env:
@@ -33288,7 +33288,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
 spec:
   replicas: 1
   selector:
@@ -33302,7 +33302,7 @@ spec:
         component: autopilot
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
       annotations:
         configmap/checksum: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
         prometheus.io/scrape: "true"
@@ -33347,7 +33347,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.1.2
         imagePullPolicy: IfNotPresent
         name: oes-autopilot
         env:
@@ -33403,7 +33403,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-dashboard
 spec:
   replicas: 1
@@ -33424,10 +33424,10 @@ spec:
         component: dashboard
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.1.2
         name: oes-dashboard
         env:
         - name: JAVA_OPTS
@@ -33496,7 +33496,7 @@ metadata:
     component: datascience
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-datascience
 spec:
   replicas: 1
@@ -33516,7 +33516,7 @@ spec:
         component: datascience
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       initContainers:
       - name: db-check
@@ -33531,7 +33531,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.1.2
         imagePullPolicy: IfNotPresent
         name: oes-datascience
         env:
@@ -33571,7 +33571,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-gate
 spec:
   replicas: 1
@@ -33591,10 +33591,10 @@ spec:
         component: gate
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-gate:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-gate:v4.1.2
         name: oes-gate
         env:
         - name: spring_profiles_active
@@ -33655,7 +33655,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-platform
 spec:
   replicas: 1
@@ -33676,7 +33676,7 @@ spec:
         component: platform
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       initContainers:
       - name: db-check
@@ -33691,7 +33691,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.1.2
         name: oes-platform
         env:
         - name: JAVA_OPTS
@@ -33752,7 +33752,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-sapor
 spec:
   replicas: 1
@@ -33773,7 +33773,7 @@ spec:
         component: sapor
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       initContainers:
       - name: db-check
@@ -33788,7 +33788,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.1.2
         name: oes-sapor
         env:
         - name: JAVA_OPTS
@@ -33863,7 +33863,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-ui
 spec:
   replicas: 1
@@ -33880,10 +33880,10 @@ spec:
         component: ui
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.1.2
         name: oes-ui
         env:
         - name: JAVA_OPTS
@@ -33931,7 +33931,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-visibility
 spec:
   replicas: 1
@@ -33952,7 +33952,7 @@ spec:
         component: visibility
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       initContainers:
       - name: db-check
@@ -33967,7 +33967,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.1.2-rc13
+      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.1.2
         name: oes-visibility
         env:
         - name: JAVA_OPTS
@@ -34029,7 +34029,7 @@ metadata:
     component: rabbitmq
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: rabbitmq
 spec:
   replicas: 1
@@ -34045,7 +34045,7 @@ spec:
         component: rabbitmq
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       containers:
       - image: quay.io/opsmxpublic/rabbitmq:3.11.4-management
@@ -34071,7 +34071,7 @@ metadata:
     component: vela
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: vela
 spec:
   progressDeadlineSeconds: 600
@@ -34092,7 +34092,7 @@ spec:
         component: vela
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
       annotations:
         checksum/secret: a990ce01e54e37afb27e95803a96fb3052a85df7955f6f42efceea10fc82f683
     spec:
@@ -34490,7 +34490,7 @@ metadata:
     component: db
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-db
 spec:
   podManagementPolicy: OrderedReady
@@ -34508,7 +34508,7 @@ spec:
         component: db
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-db:v3.0.0
@@ -34629,7 +34629,7 @@ metadata:
     autoconfig: oes
     heritage: "Helm"
     release: "isdargo"
-    chart: "isdargo-4.1.1"
+    chart: "isdargo-4.1.2"
   name: oes-autoconfigure
 spec:
   template:
@@ -34638,7 +34638,7 @@ spec:
         app: oes
         heritage: "Helm"
         release: "isdargo"
-        chart: "isdargo-4.1.1"
+        chart: "isdargo-4.1.2"
     spec:
       serviceAccountName: oes-auto-configure-opsmx-argo
       containers:
