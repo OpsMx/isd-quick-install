@@ -19,11 +19,11 @@ Now, open your browser and navigate to http://localhost:8080
 
 Execute the following command to retrieve the password
 
-- kubectl -n opsmx-argo get secret openldap -o jsonpath='{.data.LDAP_ADMIN_PASSWORD}'| base64 -d
+- kubectl -n opsmx-isd get secret openldap -o jsonpath='{.data.LDAP_ADMIN_PASSWORD}'| base64 -d
 
 In case "base64 command not found": Please execute the below command.
 
-- kubectl -n opsmx-argo get secret openldap -o jsonpath='{.data.LDAP_ADMIN_PASSWORD}'
+- kubectl -n opsmx-isd get secret openldap -o jsonpath='{.data.LDAP_ADMIN_PASSWORD}'
 
 After executing the above command, copy the output and decode it using any online decoding site such as https://www.base64decode.org/.
 
