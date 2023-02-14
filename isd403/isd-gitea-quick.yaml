@@ -70,7 +70,7 @@ metadata:
   namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "YnNOcnpHTWk3UQ=="
+  postgresql-postgres-password: "UllhVUJ0MXUxMA=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
@@ -1285,6 +1285,23 @@ metadata:
     release: "isd"
     chart: "oes-4.0.8"
 ---
+# Source: oes/templates/secrets/opsmx-gitops-secret.yaml
+apiVersion: v1
+stringData:
+  # Repo uri to fetch halyard configuration
+  gitcloneparam: https://git/stash_username:git%2Fstash_token@github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/YOUR_REPO_NAME.git
+
+  # Repo details to fetch dynamic configuration
+  dynamicaccountsgituri: https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/SAME_AS_REPOSITORY_ABOVE.git
+  gituser: git/stash_username
+  gittoken: git/stash_token
+  dynamicAccRepository: SAME_AS_REPOSITORY_ABOVE
+
+kind: Secret
+metadata:
+  name: opsmx-gitops-auth
+type: Opaque
+---
 # Source: oes/templates/secrets/sapor-bootstrap-secret.yaml
 apiVersion: v1
 stringData:
@@ -2162,13 +2179,10 @@ data:
     # Wait for the Hal daemon to be ready
     export DAEMON_ENDPOINT='curl http://isd-spinnaker-halyard:8064/health'
     export HAL_COMMAND="$DAEMON_ENDPOINT"
-    until $HAL_COMMAND ; do sleep 10 ; done
-
-    bash -xe /opt/halyard/scripts/config.sh # if-additionalScipts # end of if not gitops
+    until $HAL_COMMAND ; do sleep 10 ; done # end of if not gitops
 
     # This is performed by post-start script in halyard pod
     # in case gitopsHalyard is enabled
-    $HAL_COMMAND deploy apply
   clean.sh: |
     export HAL_COMMAND='hal --daemon-endpoint http://isd-spinnaker-halyard:8064'
     if $HAL_COMMAND --ready; then
@@ -2244,9 +2258,6 @@ data:
 
 
     # Use Deck to route to Gate
-    # Configure override urls in halyard config
-    $HAL_COMMAND config security ui edit --no-validate --override-base-url http://spin.example.ops.com
-    $HAL_COMMAND config security api edit --no-validate --override-base-url http://oes-gate.example.ops.com
 ---
 # Source: oes/charts/spinnaker/templates/configmap/halyard-init-script.yaml
 apiVersion: v1
@@ -2260,22 +2271,142 @@ metadata:
     chart: "spinnaker-2.2.3"
 data:
   init.sh: |
-    #!/bin/bash
-    set -x
-    # Override Halyard daemon's listen address
-    cp /opt/halyard/config/* /tmp/config
+
+    echo \"Checking for Gitea services\"
+    wait_period=0
+    while true
+    do
+    kubectl get po -n opsmx-isd -o jsonpath='{range .items[*]}{..metadata.name}{"\t"}{..containerStatuses..ready}{"\n"}{end}' > /tmp/inst.status
+    GITEA=$(grep gitea-0 /tmp/inst.status |grep -v deck | awk '{print $2}')
+
+    wait_period=$(($wait_period+10))
+    if [ "$GITEA" == "true" ];
+    then
+        echo \"Gitea Pod is ready\"
+        break
+    else
+        if [ $wait_period -gt 1800 ];
+        then
+            echo \"Script is timed out as the Gitea is not ready in 30 min.......\"
+            break
+        else
+            echo \"Waiting for Gitea to be ready\"
+            sleep 1m
+        fi
+    fi
+    done
+    rm -rf /tmp/spinnaker/repo.json
+    gitea_user=`echo $GITEA_USER | sed 's/ *$//g'`
+    gitea_pass=`echo $GITEA_PASS | sed 's/ *$//g'`
+    basic_auth=$(echo -n $gitea_user:$gitea_pass |base64)
+    DYNAMIC_ACCOUNTS_REPO=http://isd-gitea-http.$SPINNAKER_NAMESPACE:3000/$gitea_user/gitea-standard-repo.git
+    GIT_USER=$gitea_user
+    GIT_TOKEN=$gitea_pass
+
+    echo "Checking if the local gitea repo exists....." 
+    curl -k -X GET "http://isd-gitea-http.$SPINNAKER_NAMESPACE:3000/api/v1/users/$gitea_user/repos" >/tmp/spinnaker/repo.json
+    checkrepo=$(cat /tmp/spinnaker/repo.json | jq '.[] | select(.name=="gitea-standard-repo")')
+
+        if [ -z "$checkrepo" ]
+        then
+                echo "Creating a New Local Gitea Repo gitea-standard-repo......."
+                curl -k -X POST "http://isd-gitea-http.$SPINNAKER_NAMESPACE:3000/api/v1/user/repos" -H "content-type: application/json" -H "Authorization: Basic $basic_auth" --data '{"name":"'gitea-standard-repo'"}'
+                git clone https://github.com/OpsMx/standard-gitops-repo.git -b v4.0.3 /tmp/spinnaker/test/standard-gitops-repo/
+                git clone http://$gitea_user:$gitea_pass@isd-gitea-http.$SPINNAKER_NAMESPACE:3000/$gitea_user/gitea-standard-repo.git /tmp/spinnaker/test/gitea-standard-repo/
+                cp -pr /tmp/spinnaker/test/standard-gitops-repo/* /tmp/spinnaker/test/gitea-standard-repo/
+                cd /tmp/spinnaker/test/gitea-standard-repo/
+                git status
+                git add .
+                git config user.email support@opsmx.com
+                git config user.name $gitea_user
+                git commit -m "cloned standard-gitops-repo content"
+                git push
+                cd
+                rm -rf /tmp/spinnaker/test/gitea-standard-repo
+                rm -rf /tmp/spinnaker/test/standard-gitops-repo
+                rm -rf /tmp/spinnaker/test
+                git clone http://$gitea_user:$gitea_pass@isd-gitea-http.$SPINNAKER_NAMESPACE:3000/$gitea_user/gitea-standard-repo.git /tmp/spinnaker/test/
+
+        else
+                echo "Local Repo exits...."
+                rm -rf /tmp/spinnaker/test/gitea-standard-repo
+                git clone http://$gitea_user:$gitea_pass@isd-gitea-http.$SPINNAKER_NAMESPACE:3000/$gitea_user/gitea-standard-repo.git /tmp/spinnaker/test
+        fi
+        #override the repotye to gitea in order to support pipelin-promotion
+        sed -i  s/repo_type=git/repo_type=gitea/ /tmp/spinnaker/test/pipeline-promotion/pipe-promot-config-cm.yaml
+        sed -i  s/git_user=/git_user=${GIT_USER}/ /tmp/spinnaker/test/pipeline-promotion/pipe-promot-config-cm.yaml
+        sed -i  s/root_folder=/root_folder=pipeline-promotion/ /tmp/spinnaker/test/pipeline-promotion/pipe-promot-config-cm.yaml
+    #!/bin/bash -x
+    rm -rf /tmp/spinnaker/.hal
+    cp -r /tmp/spinnaker/test// /tmp/spinnaker/.hal
+    if [ -d "/tmp/spinnaker/test/pipeline-promotion/" ]
+    then
+       cp -r /tmp/spinnaker/test/pipeline-promotion /tmp/spinnaker/pipeline-promotion
+    fi
+    if [ -d "/tmp/spinnaker/test/clusterconfig/" ]
+    then
+       cp -r /tmp/spinnaker/test/clusterconfig /tmp/spinnaker/clusterconfig
+    fi
+    ## If BOM file present in gitops repo consider bom file and replace images in the service-setting folder to the respective services
+    if [ -r "/tmp/spinnaker/test/bom" ]
+    then
+      cp -r /tmp/spinnaker/test/bom /tmp/spinnaker/bom
+      rm -rf /tmp/spinnaker/.hal/bom
+      ## Updated the halyard config version
+      crthalversion=$(yq e '.deploymentConfigurations.[].version' /tmp/spinnaker/.hal/config)
+      halversion=$(yq e '.version' /tmp/spinnaker/bom)
+      echo "INFO: Updating the halyard version from VERSION $crthalversion to VERSION $halversion"
+      yq -i e '.deploymentConfigurations.[].version = "'$halversion'"' /tmp/spinnaker/.hal/config
+      ## Read service  as asingle line comma saperated
+      echo "INFO: Updating the spinnaker images of service-settings folder using bom file in gitops"
+      halservices=$(yq e '(.services | keys)[]' /tmp/spinnaker/bom | xargs | sed -e 's/ /,/g')
+      IFS=","
+      for i in $halservices
+      do
+        svcimg=$(yq e '.services.'$i'.image' /tmp/spinnaker/bom)
+        svcn=$(find /tmp/spinnaker/.hal/default/service-settings/ -name "$i"* | awk -F"/" '{print $NF}' | xargs | sed -e 's/ /,/g')
+        if [[ "$svcn" != "" ]];
+        then
+          IFS=","
+          for svcfile in $svcn
+          do
+            yq -i e '.artifactId = "'$svcimg'"' /tmp/spinnaker/.hal/default/service-settings/$svcfile
+          done
+        else
+          echo "WARNING: Service file $i is not located in default/service-settings/ to override the artifact image from bom"
+        fi
+      done
+    else
+      echo "WARNING: Not specified bom in gitops repo overidden images will be  taken from default/service-settings"
+    fi
+    rm -rf /tmp/spinnaker/test
+    DYNAMIC_ACCOUNTS_REPO=`echo $DYNAMIC_ACCOUNTS_REPO | sed 's/ *$//g'`
+    sed -i  s/SPINNAKER_NAMESPACE/${SPINNAKER_NAMESPACE}/ /tmp/spinnaker/.hal/config
+    sed -i  s/RELEASE_NAME/isd/g /tmp/spinnaker/.hal/config
+    BRANCH=master
+    sed -i s/BRANCH/${BRANCH}/ /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
+    KEY=Q7udUkHPuA3VnNlOtksSgQ
+    sed -i s/KEY/${KEY}/ /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
+    sed -i  s/GIT_USER/${GIT_USER}/g /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
+    sed -i  s/GIT_TOKEN/${GIT_TOKEN}/g /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
+    sed -i  's|DYNAMIC_ACCOUNTS_REPO|'"${DYNAMIC_ACCOUNTS_REPO}"'|' /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
+    sed -i  s%DYN_ACCNT_CONFG_PATH%/%g /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
+    sed -i  s/RELEASE_NAME/isd/g /tmp/spinnaker/.hal/default/profiles/rosco-local.yml
+    sed -i  s/RELEASE_NAME/isd/g /tmp/spinnaker/.hal/default/service-settings/redis.yml
+    yq -i e '.deploymentConfigurations.[].security.authz.enabled = "false"' /tmp/spinnaker/.hal/config
+    if [ -f /tmp/spinnaker/.hal/default/profiles/fiat-local.yml ]; then
+    sed -i  s/RELEASE_NAME/isd/g /tmp/spinnaker/.hal/default/profiles/fiat-local.yml
+    fi
+    sed -i  s/SPINNAKER_NAMESPACE/${SPINNAKER_NAMESPACE}/ /tmp/spinnaker/.hal/default/profiles/orca-local.yml
     printf 'server.address: 0.0.0.0\n' > /tmp/config/halyard-local.yml
-
-    # Use Redis deployed via the dependent Helm chart
-    rm -rf /tmp/spinnaker/.hal/default/service-settings
-    mkdir -p /tmp/spinnaker/.hal/default/service-settings
-    cp /tmp/service-settings/* /tmp/spinnaker/.hal/default/service-settings/
-
-    rm -rf /tmp/spinnaker/.hal/default/profiles
-    mkdir -p /tmp/spinnaker/.hal/default/profiles
-    cp /tmp/additionalProfileConfigMaps/* /tmp/spinnaker/.hal/default/profiles/
-
-    rm -rf /tmp/spinnaker/.hal/.boms  # Enabled  # End of S3
+    if [ -f /tmp/spinnaker/.hal/halyard.yaml ]; then
+    cp /tmp/spinnaker/.hal/halyard.yaml /tmp/config
+    fi
+    yq -i e '.deploymentConfigurations.[].security.authn.saml.enabled = "false"' /tmp/spinnaker/.hal/config
+    rm -rf /tmp/spinnaker/.hal/default/profiles/orca-overrides.yml
+    rm -rf /tmp/spinnaker/.hal/default/profiles/fiat-overrides.yml
+    rm -rf /tmp/spinnaker/.hal/default/profiles/gate-overrides.yml
+    rm -rf /tmp/spinnaker/.hal/default/profiles/spinnaker.yml  # git or stash  # Enabled  # End of S3
 
     # The decrypt token extract
     kubectl get secret bootstrap -o jsonpath='{.data.bootstrap\.yml}' -n ${SPINNAKER_NAMESPACE} | base64 -d > /tmp/decryptkry.txt
@@ -2359,6 +2490,8 @@ apiVersion: v1
 data:
   call_overrides.sh: |
     echo $SPINNAKER_NAMESPACE
+    sh /tmp/autoconfig/config_overrideurl.sh spin-gate-overrideurl-gitops
+    sh /tmp/autoconfig/config_overrideurl.sh spin-deck-overrideurl-gitops
   config_overrideurl.sh: |
     #!/bin/bash -x
 
@@ -2499,6 +2632,69 @@ data:
 kind: ConfigMap
 metadata:
   name: isd-spinnaker-halyard-overrideurl
+---
+# Source: oes/charts/spinnaker/templates/configmap/secret-decoder.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: isd-spinnaker-spin-secret-decoder
+  labels:
+    app: "isd-spinnaker"
+    heritage: "Helm"
+    release: "isd"
+    chart: "spinnaker-2.2.3"
+data:
+  run.sh: |-
+    #!/bin/bash
+    echo "##########Replacing Secret#########"
+    grep -ir encrypted: /tmp/spinnaker/.hal | sort -t: -u -k1,1 |cut -d : -f1 > tmp.list
+    while IFS= read -r file; do
+    grep encrypted: $file > tmp1.list
+    while read line ; do
+    echo ${line#*encrypted:} ;
+    done < tmp1.list > secret-strings.list
+    while read secret ; do
+    secretName=${secret%%:*}
+    echo "---------$secretName---"
+    keyName=${secret#*:}
+    keyName=${keyName%%\"*}
+    keyName=${keyName%% *}
+    echo "----------$keyName--"
+    #echo "secret Name= $secretName and key is = $keyName"
+    #kubectl get secret -o jis
+    #echo kubectl --kubeconfig /home/srini/ibm-cloud/staging/ibmstaging.config -n ninja-srini get secret $secretName -o json  jq -r ".data.$keyName"
+    jqParam=".data.\"$keyName\""
+    value=$(kubectl get secret $secretName -o json | jq -r $jqParam | base64 -d)
+    value=$(echo $value | sed -e 's`[][\\/.*^$]`\\&`g')
+    #echo "-----------$value---"
+    #echo "secret Name= $secretName and key is = $keyName and value is $value"
+    sed -i s/encrypted:$secretName:$keyName/$value/g $file
+    done < secret-strings.list
+    done < tmp.list
+
+    echo "########### Replacing Kubeconfigs ############"
+    grep encryptedFile /tmp/spinnaker/.hal/config > tmp.list
+    while read line ; do
+    echo ${line#*encryptedFile:} ;
+    done < tmp.list  > secret-files.list
+
+    while read secret ; do
+    secretName=${secret%%:*}
+    keyName=${secret#*:}
+    keyName=${keyName%%\"*}
+    keyName=${keyName%% *}
+    echo "secret Name= $secretName and key is = $keyName"
+    jqParam=".data.\"$keyName\""
+    mkdir -p /tmp/spinnaker/kubeconfigdir
+    kubectl get secret $secretName -o json | jq -r $jqParam | base64 -d > /tmp/spinnaker/kubeconfigdir/$keyName
+    #echo "secret Name= $secretName and key is = $keyName and value is in $keyName"
+    old_value="encryptedFile:$secretName:$keyName"
+    new_value="/home/spinnaker/kubeconfigdir/$keyName"
+    #echo $old_value
+    #echo $new_value
+    sed -i "s/${old_value}/$(echo $new_value | sed 's_/_\\/_g')/g" /tmp/spinnaker/.hal/config
+    done < secret-files.list
+    rm -rf secret-files.list secret-strings.list tmp.list
 ---
 # Source: oes/charts/spinnaker/templates/configmap/service-settings.yaml
 apiVersion: v1
@@ -2741,7 +2937,84 @@ data:
             curl --header 'Content-Type: application/json' --header 'x-spinnaker-user: admin' --request POST http://oes-sapor:8085/oes/v2/policy/save --data '{"name":"AppMustHaveRbac","type":"Static","accountType":"OPA","accountName":"OPA","description":"Enforce Application in Spinnakr to have Roles defined.","status":"INACTIVE","rego":"# Static Policy to enforce assigning roles when creating an application\n# Once enforced, it is not possible to create an application that is visible to all\n# by mistake\n\npackage opsmx.spinnaker.authorization\n\ndeny[\"Permissions must be specified\"] {\n   not(appHasWritePermissions)\n   input.new.job[_].type==\"updateApp\"\n }{\n   not(appHasWritePermissions)\n   input.new.job[_].type==\"createApp\"\n}\nappHasWritePermissions {\n  count(input.new.job[0].application.permissions.WRITE) > 0\n}"}'
             curl --header 'Content-Type: application/json' --header 'x-spinnaker-user: admin' --request POST http://oes-sapor:8085/oes/v2/policy/save --data '{"name":"StageLevelRBAC","type":"Static","accountType":"OPA","accountName":"OPA","description":"Restrict a group of users from modifying certain stages","status":"INACTIVE","rego":"package opsmx.spinnaker.stage_rbac\nimport future.keywords.in\n\n# The permissions json is to be defined to restrict some users from making changes to a specific stage\n# in the pipeline. The parameters for each stage are \"name\" of the pipeline, \"type\" of the pipeline and \"grant\" privilege\n# which can hold 2 values: allow and deny\npermissions = {\n  \"role_grants\": {\n    \"demo-users\": [\n      {\n        \"name\": \"Build\",\n        \"type\": \"jenkins\",\n        \"grant\": \"deny\"\n      },\n      { \n        \"name\": \"Deploy \",\n        \"type\": \"deployManifest\",\n        \"grant\": \"deny\"\n      },\n      { \n        \"name\": \"Manual Judgment \",\n        \"type\": \"manualJudgment\",\n        \"grant\": \"deny\"\n      },\n      {\n        \"name\": \"Wait\",\n        \"type\": \"wait\",\n        \"grant\": \"deny\"\n      }\n    ]\n  }\n}\n\n\n# modified_stages is the set of stages which carry \"modified\", \"new\" and \"deleted\" stageStatus. \n# only the stages with stageStatus = unmodified are excluded.\n\nmodified_stages = [input.pipeline.stages[idx] | input.pipeline.stages[idx].stageStatus != \"unmodified\"]\n#modified_stage_name = [input.pipeline.stages[idx].name | input.pipeline.stages[idx].stageStatus != \"unmodified\"]\n\n\n# The operation is denied if there is no modified/new/deleted stage in the pipeline\ndeny[\"No modified stages found\"]{\n  count(input.pipeline.stages) > 0         # only because we still have fron50 plugin; this will be removed in 3.12.x release\n  count(modified_stages) <= 0\n}\n\n# If there are modifications in the pipeline, the privileges of users to operate on a set of stages\n# is evaluated on the basis of\n\n# 1. If the user is admin, allow the user to do anything\n# 2. If the permissions json does not carry definition of privileges for any group assigned to the user,\n# then the user is to be allowed to make any changes\n# 3. If there are no denials in the permissions definition, then the user is to be allowed to make any changes\n# 4. If there are denials for some stages in any of the role assigned to user, then\n#\t4a. Checking if the same stages is allowed for any other role assigned to user\n#   4b. If a respective allow privilege is available, then allow.\n#   4c. If not then deny\n# 5. If there are any denials w.r.t. modified stages, simply deny the user from saving.\n# Rule 4 and 5 are contradicting, one of them is to be enabled. Comment line 92-100 to disable rule 4.\n\ndeny[msg]{\n  #not user_is_admin\n  \n  some i\n  role_def = permissions.role_grants[i]\n  role_def_flag = i in input.pipeline.user.groups\n  role_def_flag == true\n  \n  denial_set = user_is_denied\n  denial_size = count(denial_set) \n  to_number(denial_size) > 0\n\n# Comment rest of the statements in this rule if rule 4 is to be enabled\n  acceptance_set = user_is_allowed\n\n  some j\n  accepted_stages = [acceptance_set[j].name | acceptance_set[j].grant == \"allow\"]\n  \n  some k\n  denied_stages = [denial_set[k].name | denial_set[k].grant == \"deny\"; not denial_set[k].name in accepted_stages]\n  denial_size_after_acceptance = count(denied_stages)\n  denial_size_after_acceptance > 0\n  \n  denial_stage_msg = concat(\",\" , denied_stages)\n  msg = sprintf(\"Denied for stages: %v\", [denial_stage_msg])\n}\n\n\n# Check if user is admin\n#user_is_admin {\n # \"admin\" in input.pipeline.user.groups\n#}\n\n# Obtain list of denied and allowed stages for the groups assigned to user\nmake_grant_decision{  \n  some grant_idx\n  user_is_denied[grant_idx]\n\n  some grant_idx2\n  user_is_allowed[grant_idx2]\n}\n\nuser_is_denied[grant_idx] {\n  some stage in modified_stages\n  some role in input.pipeline.user.groups\n  some grant_idx in permissions.role_grants[role]\n  \n  grant_idx.name == stage.name\n  grant_idx.type == stage.type\n  grant_idx.grant == \"deny\" \n}\n\nuser_is_allowed[grant_idx2] {\n  some stage in modified_stages\n  some role in input.pipeline.user.groups\n  some grant_idx2 in permissions.role_grants[role]\n  \n  grant_idx2.name == stage.name\n  grant_idx2.type == stage.type\n  grant_idx2.grant == \"allow\" \n}"}'
             curl --header 'Content-Type: application/json' --header 'x-spinnaker-user: admin' --request POST http://oes-sapor:8085/oes/v2/policy/save --data '{"name":"BlackOutWindow","type":"Runtime","accountType":"OPA","accountName":"OPA","description":"Policy to Prevent deployment during a specified date/time range.","status":"INACTIVE","rego":"# Sample Runtime policy\n  # This policy blocks deployments in the blackout window period\n  \n  package opsmx.blackoutwindow\n  \n  deny[\"No deploys between 25th - 31st Dec 2020\"] {\n    [year, month, day] := time.date([time.now_ns(), \"America/Los_Angeles\"])\n    year == 2020\n    month == 12\n    day >= 25\n    day <= 31\n  }"}'
-            break
+
+            STORAGE_TYPE=gitea
+            GITEA_USERNAME=opsmx
+            GITEA_PASSWORD=opsmxadmin123
+            USERNAME=admin
+            PASSWORD=saporadmin
+            response=$(curl -s http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker)
+            name=$(echo $response | jq '.[].name')
+            if [ -z "$name" ];
+            then
+              if [[ "$STORAGE_TYPE"  ==  "gitea" ]];
+              then
+
+              curl -X POST -H "Content-Type: application/json"  -k -d '{"name":"'"$GITEA_USERNAME"'"}' -u $GITEA_USERNAME:$GITEA_PASSWORD http://isd-gitea-http.opsmx-isd:3000/api/v1/users/$GITEA_USERNAME/tokens >token.json
+              TOKEN=$(cat token.json | jq '.sha1' -r)
+
+              response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v6/datasource --data '{"datasourceType": "GITHUB", "name": "gitops", "spinEnabled": "false", "configurationFields": {"token": "'$TOKEN'", "username": "", "hostUrl": "http://isd-gitea-http:3000", "url": "http://isd-gitea-http:3000/api/v1/users/opsmx" } }')
+
+              id=$(echo $response | jq '.id')
+              curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":true,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITHUB","config":{"bucketName":"","region":"","endPoint":"http://isd-gitea-http:3000/'$GITEA_USERNAME'/gitea-standard-repo.git","sourcePath":""}},"pipelinePromotionConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITHUB","config":{"bucketName":"","region":"","endPoint":"http://isd-gitea-http:3000/'$GITEA_USERNAME'/gitea-standard-repo.git","sourcePath":""}},"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
+
+              sleep 5
+              kubectl delete po isd-spinnaker-halyard-0 -n opsmx-isd
+              #curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":false,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITHUB","config":{"bucketName":"","region":"","endPoint":"http://isd-gitea-http:3000/'$GITEA_USERNAME'/gitea-standard-repo.git","sourcePath":""}},"pipelinePromotionConfiguration":null,"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
+                 break
+              fi
+            fi
+
+            STORAGE_TYPE=git
+            BASEURL_HOST=github.com
+            USERNAME=admin
+            PASSWORD=saporadmin
+            TOKEN=$(echo -n "$USERNAME":"$PASSWORD" | base64)
+            response=$(curl -s http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker)
+            name=$(echo $response | jq '.[].name')
+            if [ -z "$name" ];
+            then
+              if [[ "$STORAGE_TYPE"  ==  "git" && "$BASEURL_HOST" == "github.com" ]];
+              then
+              response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v6/datasource --data '{"datasourceType": "GITHUB", "name": "gitops", "spinEnabled": "false", "configurationFields": {"token": "git/stash_token", "username": "git/stash_username", "hostUrl": "https://github.com/", "url": "https://api.github.com" } }')
+              id=$(echo $response | jq '.id')
+              curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":false,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITHUB","config":{"bucketName":"","region":"","endPoint":"https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/YOUR_REPO_NAME.git","sourcePath":""}},"pipelinePromotionConfiguration":null,"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
+              #curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://oes-gate.example.ops.com", "authenticationType": "LDAP", "token": "'"${TOKEN}"'", "externalAccountFlag": "true","pipelinePromotionFlag": "false","syncAccountFlag": "false", "externalAccountConfiguration": {"accountId": "'"${id}"'","accountName": "gitops", "provider": "GITHUB", "config": {"bucketName": "", "region": "","endPoint": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/YOUR_REPO_NAME.git", "sourcePath": "" }}}'
+                  break
+              fi
+              if [[ "$STORAGE_TYPE"  ==  "git" && "$BASEURL_HOST" == "gitlab.com" ]];
+              then
+              response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v6/datasource --data '{"datasourceType": "GITLAB", "name": "gitops", "spinEnabled": "false", "configurationFields": {"token": "git/stash_token", "hostUrl": "https://gitlab.com/" } }')
+              id=$(echo $response | jq '.id')
+              curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":false,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITLAB","config":{"bucketName":"","region":"","endPoint":"https://gitlab.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/YOUR_REPO_NAME.git","sourcePath":""}},"pipelinePromotionConfiguration":null,"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
+                  break
+              fi
+              if [[ "$STORAGE_TYPE"  ==  "stash" ]];
+              then
+                if [[ "" ]]
+                then
+                  response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v2/datasources --data '{"datasourceType": "BITBUCKET", "name": "gitops-bitbucket", "spinEnabled": "false", "configurationFields": {"authType":"bearer","username": "git/stash_username","token": "git/stash_token","read":"","write":"",  "hostUrl": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG//YOUR_REPO_NAME.git", "url": "https://api.bitbucket.org/2.0/" } }')
+                  id=$(echo $response | jq '.id')
+                   curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://sapor-gate:8084", "authenticationType": "LDAP", "token": "'"${TOKEN}"'", "externalAccountFlag": "true", "pipelinePromotionFlag": "false","syncAccountFlag": "false", externalAccountConfiguration": {"accountId": "'"${id}"'","accountName": "gitops-bitbucket", "provider": "BITBUCKET", "config": {"bucketName": "", "region": "","endPoint": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG//YOUR_REPO_NAME.git", "sourcePath": " " }}}'
+
+                  break
+                else
+                  response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v2/datasources --data '{"datasourceType": "BITBUCKET", "name": "gitops-bitbucket", "spinEnabled": "false", "configurationFields": {"authType":"bearer","username": "git/stash_username","token": "git/stash_token","read":"","write":"", "hostUrl": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG//YOUR_REPO_NAME.git", "url": "https://api.bitbucket.org/2.0/" } }')
+                  id=$(echo $response | jq '.id')
+                  curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://sapor-gate:8084", "authenticationType": "LDAP", "token": "'"${TOKEN}"'", "externalAccountFlag": "true", "pipelinePromotionFlag":"false","syncAccountFlag":"false", externalAccountConfiguration": {"accountId": "'"${id}"'","accountName": "gitops-bitbucket", "provider": "BITBUCKET", "config": {"bucketName": "", "region": "","endPoint": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG//YOUR_REPO_NAME.git", "sourcePath": "" }}}'
+                  break
+                fi
+              fi
+              if [[ "$STORAGE_TYPE"  ==  "s3" ]];
+              then
+                 curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v2/datasources --data '{"datasourceType":"AMAZONS3","name":"gitops-s3","configurationFields":{"access_id":"AWS_ACCESS_KEY_ID","secret_key":"AWS_SECRET_ACCESS_KEY"},"spinnakerNames":[""],"spinEnabled": "false"} }'
+                 curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://sapor-gate:8084", "authenticationType": "LDAP", "token": "'"${TOKEN}"'" , "externalAccountFlag": "true", "pipelinePromotionFlag":"false", "syncAccountFlag":"false", externalAccountConfiguration": {"accountName": "gitops-s3","config":{"bucketName":"bucket name.e.g-testbucket","region":"regionofbucket","endPoint":""},"provider": "AMAZONS3"}}'
+              fi
+            else
+              echo "Spinnaker is already Integrated"
+              break
+            fi
+        
 
     else
         if [ $wait_period -gt 2000 ];
@@ -9961,7 +10234,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: e49a8f0184adb4149305e269f7321a534523f5b2557d954a4bb248bfea37a1b0
+        checksum/configmap: 0970c07fba6bd2e538e65da75b4e528ec8ae8fcfe87bef4040065cdcf6fccd27
         moniker.spinnaker.io/application: spin
       labels:
         app: "isd-spinnaker"
@@ -9976,10 +10249,25 @@ spec:
         runAsUser: 1000
       initContainers:
       - name: "create-halyard-local"
-        image: quay.io/opsmxpublic/ubi8-spin-halyard:1.28.1-v4.0.2
+        image: quay.io/opsmxpublic/awsgit:v3-js
         command:
-        - bash
+        - sh
         - /tmp/initscript/init.sh
+        env:
+        - name: SPINNAKER_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: GITEA_USER
+          valueFrom:
+            secretKeyRef:
+              name: gitea-secret
+              key: username
+        - name: GITEA_PASS
+          valueFrom:
+            secretKeyRef:
+              name: gitea-secret
+              key: password
         volumeMounts:
         - name: halyard-config
           mountPath: /tmp/config
@@ -9991,7 +10279,53 @@ spec:
           mountPath: /tmp/additionalProfileConfigMaps
         - name: halyard-initscript
           mountPath: /tmp/initscript
+      - name: "halyardconfig-update"
+        command:
+        - sh
+        - /tmp/akv2k8s/run.sh
+        image: quay.io/opsmxpublic/k8s-decoder:hal
+        imagePullPolicy: IfNotPresent
+        resources: {}
+        volumeMounts:
+        - name: halyard-home
+          mountPath: /tmp/spinnaker
+        - name: secret-decoder
+          mountPath: /tmp/akv2k8s
+      - name: "halyard-overrideurl"
+        command:
+        - sh
+        - /tmp/autoconfig/call_overrides.sh
+        env:
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        image: quay.io/opsmxpublic/bitnami-kubectl:1.18.5
+        imagePullPolicy: IfNotPresent
+        resources: {}
+        volumeMounts:
+        - name: halyard-config
+          mountPath: /tmp/config
+        - name: service-settings
+          mountPath: /tmp/service-settings
+        - name: halyard-home
+          mountPath: /tmp/spinnaker
+        - name: additional-profile-config-maps
+          mountPath: /tmp/additionalProfileConfigMaps
+        - name: halyard-initscript
+          mountPath: /tmp/initscript
+        - mountPath: /tmp/autoconfig
+          name: halyard-overrideurl
       volumes:
+      - name: halyard-home
+        emptyDir: {}
+      - name: halyard-overrideurl
+        configMap:
+          name: isd-spinnaker-halyard-overrideurl
+      - name: secret-decoder
+        configMap:
+          name: isd-spinnaker-spin-secret-decoder
       - name: reg-secrets
         secret:
           secretName: isd-spinnaker-registry
@@ -10009,6 +10343,10 @@ spec:
       containers:
       - name: halyard
         image: quay.io/opsmxpublic/ubi8-spin-halyard:1.28.1-v4.0.2
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "until curl http://localhost:8064/health; do sleep 10 ;done;hal deploy apply"]
         ports:
         - containerPort: 8064
           name: daemon
@@ -10019,18 +10357,6 @@ spec:
           mountPath: /opt/halyard/config
         - name: reg-secrets
           mountPath: /opt/registry/passwords
-  volumeClaimTemplates:
-  - metadata:
-      name: halyard-home
-      labels:
-        app: "isd-spinnaker"
-        heritage: "Helm"
-        release: "isd"
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 10Gi
 ---
 # Source: oes/templates/statefulsets/oes-db-statefulset.yaml
 apiVersion: apps/v1
@@ -10160,53 +10486,6 @@ spec:
        restartPolicy: Never
        serviceAccount: create-controller-secret
 ---
-# Source: oes/charts/minio/templates/post-install-create-bucket-job.yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: isd-minio-make-bucket-job
-  labels:
-    app: minio-make-bucket-job
-    chart: minio-8.0.9
-    release: isd
-    heritage: Helm
-  annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
-spec:
-  template:
-    metadata:
-      labels:
-        app: minio-job
-        release: isd
-    spec:
-      restartPolicy: OnFailure      
-      volumes:
-        - name: minio-configuration
-          projected:
-            sources:
-            - configMap:
-                name: isd-minio
-            - secret:
-                name: isd-minio
-      serviceAccountName: "isd-minio"
-      containers:
-      - name: minio-mc
-        image: "minio/mc:RELEASE.2020-11-25T23-04-07Z"
-        imagePullPolicy: IfNotPresent
-        command: ["/bin/sh", "/config/initialize"]
-        env:
-          - name: MINIO_ENDPOINT
-            value: isd-minio
-          - name: MINIO_PORT
-            value: "9000"
-        volumeMounts:
-          - name: minio-configuration
-            mountPath: /config
-        resources:
-          requests:
-            memory: 128Mi
----
 # Source: oes/charts/spinnaker/templates/hooks/install-using-hal.yaml
 apiVersion: batch/v1
 kind: Job
@@ -10225,7 +10504,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 184cfc57e1149ebe640895b8460158224c1d58ecd9e18afe13d3636c25364aa4
+        checksum/config: b9f024c5a50e164ebc0950cf85a3fb7a12c5d63d5ca8ad7023000c7e3aad2b22
         moniker.spinnaker.io/application: spin
       labels:
         app: "isd-spinnaker"
