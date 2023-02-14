@@ -16,7 +16,12 @@ Once all pods show "Running" or "Completed" status, wait for a couple of minutes
 Wait for about 5 min. The halyard pod might restart during this period.
 
 Now, open your browser and navigate to http://localhost:8080
-Login with username admin and password opsmxadmin123
+
+Execute the following command to retrieve the password
+
+- kubectl -n opsmx-argo get secret openldap -o jsonpath='{.data.LDAP_ADMIN_PASSWORD}'| base64 -d
+
+Login with username admin and password xxxxxxxxxxxxx
 
 This link provides starting steps for developers:
 
