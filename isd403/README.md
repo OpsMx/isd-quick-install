@@ -23,7 +23,7 @@ Execute the following command to retrieve the password
 
 In case "base64 command not found": Please execute the below command.
 
-- kubectl -n opsmx-isd get secret openldap -o jsonpath='{.data.LDAP_ADMIN_PASSWORD}'
+- kubectl -n opsmx-isd get secret isd-openldap -o jsonpath='{.data.LDAP_ADMIN_PASSWORD}'
 
 After executing the above command, copy the output and decode it using any online decoding site such as https://www.base64decode.org/.
 
