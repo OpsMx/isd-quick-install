@@ -70,7 +70,7 @@ metadata:
   namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "WXVwZ2EwNDAzWA=="
+  postgresql-postgres-password: "alpLSnFmOEhZZg=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
