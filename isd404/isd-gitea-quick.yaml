@@ -70,7 +70,7 @@ metadata:
   namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "alpLSnFmOEhZZg=="
+  postgresql-postgres-password: "Y2x3Mm54YnRjWg=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
@@ -2306,7 +2306,7 @@ data:
         then
                 echo "Creating a New Local Gitea Repo gitea-standard-repo......."
                 curl -k -X POST "http://isd-gitea-http.$SPINNAKER_NAMESPACE:3000/api/v1/user/repos" -H "content-type: application/json" -H "Authorization: Basic $basic_auth" --data '{"name":"'gitea-standard-repo'"}'
-                git clone https://github.com/OpsMx/standard-gitops-repo.git -b v4.0.3 /tmp/spinnaker/test/standard-gitops-repo/
+                git clone https://github.com/OpsMx/standard-gitops-repo.git -b v4.0.4 /tmp/spinnaker/test/standard-gitops-repo/
                 git clone http://$gitea_user:$gitea_pass@isd-gitea-http.$SPINNAKER_NAMESPACE:3000/$gitea_user/gitea-standard-repo.git /tmp/spinnaker/test/gitea-standard-repo/
                 cp -pr /tmp/spinnaker/test/standard-gitops-repo/* /tmp/spinnaker/test/gitea-standard-repo/
                 cd /tmp/spinnaker/test/gitea-standard-repo/
@@ -10751,7 +10751,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: 5431908915f35ce493a285af0bc944fc7d3e6eec401a7dbc764e53c4d3de03e1
+        checksum/configmap: 8c4410b28dd5bfcf7acdb033caf7aebaa19ff3de09014d1c72768b7f8f9e8e61
         moniker.spinnaker.io/application: spin
       labels:
         app: "isd-spinnaker"
