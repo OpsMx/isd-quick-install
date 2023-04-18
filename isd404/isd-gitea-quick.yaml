@@ -70,7 +70,7 @@ metadata:
   namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "NUVGV0hPa21oTg=="
+  postgresql-postgres-password: "eFQyNXVGRmRURg=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
@@ -452,18 +452,6 @@ stringData:
 kind: Secret
 metadata:
   name: updatepr-secrets
-type: Opaque
----
-# Source: oes/templates/pipeline-promotion/git-token-secret.yaml
-apiVersion: v1
-stringData:
-  # Git token to access repo where pipeline stuff is stored
-  git_secret_token: git/stash_token
-  git_secret_sshkey: ""
-  git_pr_token: token
-kind: Secret
-metadata:
-  name: git-token
 type: Opaque
 ---
 # Source: oes/templates/pipeline-promotion/local-spin-cli-config-secret.yaml
@@ -1010,14 +998,6 @@ stringData:
       - visibility
     userGroup:
       superAdminGroups: admin
-    fixedDelay:
-      in:
-        milliseconds: 120000
-    initialDelay:
-      in:
-        milliseconds: 300000
-    scheduler:
-      workerThreads: 50
     user:
       source: ldap
     ldap:
@@ -1028,7 +1008,22 @@ stringData:
       groupSearchFilter: member={0}
       groupRoleAttributes: cn
       userDnPattern: cn={0},dc=example,dc=org
-    
+    dashboard:
+      scheduler:
+        enable: false
+        fixedDelay:
+          in:
+            milliseconds: 120000
+        initialDelay:
+          in:
+            milliseconds: 300000
+        workerThreads: 50
+    database:
+      cleanup:
+        scheduler:
+          enabled: true
+          daysInterval: 30
+          cron: 0 0 0 * * *
     oes:
       sapor:
         url: http://oes-sapor:8085
@@ -1043,6 +1038,8 @@ stringData:
       policyGate:
         url: http://oes-gate:8084
         path: /v1/data/
+      auditservice:
+        url: "http://oes-audit-service:8097"
       ui:
       # Ex: "https://oes-poc.dev.opsmx.org/"
         url: "http://oes.example.ops.com/ui"
@@ -1130,7 +1127,7 @@ stringData:
         username:  git/stash_username
         token: git/stash_token
         branch: master
-        cloneUrl: https://git/stash_username:git/stash_token@github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG//YOUR_REPO_NAME
+        cloneUrl: https://git/stash_username:git/stash_token@github.com/OpsMx//standard-gitops-repo
       amazonS3:
         
         enabled: false
@@ -1289,13 +1286,13 @@ metadata:
 apiVersion: v1
 stringData:
   # Repo uri to fetch halyard configuration
-  gitcloneparam: https://git/stash_username:git%2Fstash_token@github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/YOUR_REPO_NAME.git
+  gitcloneparam: https://git/stash_username:git%2Fstash_token@github.com/OpsMx/standard-gitops-repo.git
 
   # Repo details to fetch dynamic configuration
-  dynamicaccountsgituri: https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/SAME_AS_REPOSITORY_ABOVE.git
+  dynamicaccountsgituri: https://github.com/OpsMx/standard-gitops-repo.git
   gituser: git/stash_username
   gittoken: git/stash_token
-  dynamicAccRepository: SAME_AS_REPOSITORY_ABOVE
+  dynamicAccRepository: standard-gitops-repo
 
 kind: Secret
 metadata:
@@ -2954,30 +2951,30 @@ data:
               then
               response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v6/datasource --data '{"datasourceType": "GITHUB", "name": "gitops", "spinEnabled": "false", "configurationFields": {"token": "git/stash_token", "username": "git/stash_username", "hostUrl": "https://github.com/", "url": "https://api.github.com" } }')
               id=$(echo $response | jq '.id')
-              curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":false,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITHUB","config":{"bucketName":"","region":"","endPoint":"https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/YOUR_REPO_NAME.git","sourcePath":""}},"pipelinePromotionConfiguration":null,"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
-              #curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://oes-gate.example.ops.com", "authenticationType": "LDAP", "token": "'"${TOKEN}"'", "externalAccountFlag": "true","pipelinePromotionFlag": "false","syncAccountFlag": "false", "externalAccountConfiguration": {"accountId": "'"${id}"'","accountName": "gitops", "provider": "GITHUB", "config": {"bucketName": "", "region": "","endPoint": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/YOUR_REPO_NAME.git", "sourcePath": "" }}}'
+              curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":false,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITHUB","config":{"bucketName":"","region":"","endPoint":"https://github.com/OpsMx/standard-gitops-repo.git","sourcePath":""}},"pipelinePromotionConfiguration":null,"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
+              #curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://oes-gate.example.ops.com", "authenticationType": "LDAP", "token": "'"${TOKEN}"'", "externalAccountFlag": "true","pipelinePromotionFlag": "false","syncAccountFlag": "false", "externalAccountConfiguration": {"accountId": "'"${id}"'","accountName": "gitops", "provider": "GITHUB", "config": {"bucketName": "", "region": "","endPoint": "https://github.com/OpsMx/standard-gitops-repo.git", "sourcePath": "" }}}'
                   break
               fi
               if [[ "$STORAGE_TYPE"  ==  "git" && "$BASEURL_HOST" == "gitlab.com" ]];
               then
               response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v6/datasource --data '{"datasourceType": "GITLAB", "name": "gitops", "spinEnabled": "false", "configurationFields": {"token": "git/stash_token", "hostUrl": "https://gitlab.com/" } }')
               id=$(echo $response | jq '.id')
-              curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":false,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITLAB","config":{"bucketName":"","region":"","endPoint":"https://gitlab.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG/YOUR_REPO_NAME.git","sourcePath":""}},"pipelinePromotionConfiguration":null,"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
+              curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":false,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITLAB","config":{"bucketName":"","region":"","endPoint":"https://gitlab.com/OpsMx/standard-gitops-repo.git","sourcePath":""}},"pipelinePromotionConfiguration":null,"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
                   break
               fi
               if [[ "$STORAGE_TYPE"  ==  "stash" ]];
               then
                 if [[ "" ]]
                 then
-                  response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v2/datasources --data '{"datasourceType": "BITBUCKET", "name": "gitops-bitbucket", "spinEnabled": "false", "configurationFields": {"authType":"bearer","username": "git/stash_username","token": "git/stash_token","read":"","write":"",  "hostUrl": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG//YOUR_REPO_NAME.git", "url": "https://api.bitbucket.org/2.0/" } }')
+                  response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v2/datasources --data '{"datasourceType": "BITBUCKET", "name": "gitops-bitbucket", "spinEnabled": "false", "configurationFields": {"authType":"bearer","username": "git/stash_username","token": "git/stash_token","read":"","write":"",  "hostUrl": "https://github.com/OpsMx//standard-gitops-repo.git", "url": "https://api.bitbucket.org/2.0/" } }')
                   id=$(echo $response | jq '.id')
-                   curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://sapor-gate:8084", "authenticationType": "LDAP", "token": "'"${TOKEN}"'", "externalAccountFlag": "true", "pipelinePromotionFlag": "false","syncAccountFlag": "false", externalAccountConfiguration": {"accountId": "'"${id}"'","accountName": "gitops-bitbucket", "provider": "BITBUCKET", "config": {"bucketName": "", "region": "","endPoint": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG//YOUR_REPO_NAME.git", "sourcePath": " " }}}'
+                   curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://sapor-gate:8084", "authenticationType": "LDAP", "token": "'"${TOKEN}"'", "externalAccountFlag": "true", "pipelinePromotionFlag": "false","syncAccountFlag": "false", externalAccountConfiguration": {"accountId": "'"${id}"'","accountName": "gitops-bitbucket", "provider": "BITBUCKET", "config": {"bucketName": "", "region": "","endPoint": "https://github.com/OpsMx//standard-gitops-repo.git", "sourcePath": " " }}}'
 
                   break
                 else
-                  response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v2/datasources --data '{"datasourceType": "BITBUCKET", "name": "gitops-bitbucket", "spinEnabled": "false", "configurationFields": {"authType":"bearer","username": "git/stash_username","token": "git/stash_token","read":"","write":"", "hostUrl": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG//YOUR_REPO_NAME.git", "url": "https://api.bitbucket.org/2.0/" } }')
+                  response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v2/datasources --data '{"datasourceType": "BITBUCKET", "name": "gitops-bitbucket", "spinEnabled": "false", "configurationFields": {"authType":"bearer","username": "git/stash_username","token": "git/stash_token","read":"","write":"", "hostUrl": "https://github.com/OpsMx//standard-gitops-repo.git", "url": "https://api.bitbucket.org/2.0/" } }')
                   id=$(echo $response | jq '.id')
-                  curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://sapor-gate:8084", "authenticationType": "LDAP", "token": "'"${TOKEN}"'", "externalAccountFlag": "true", "pipelinePromotionFlag":"false","syncAccountFlag":"false", externalAccountConfiguration": {"accountId": "'"${id}"'","accountName": "gitops-bitbucket", "provider": "BITBUCKET", "config": {"bucketName": "", "region": "","endPoint": "https://github.com/YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG//YOUR_REPO_NAME.git", "sourcePath": "" }}}'
+                  curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v3/spinnaker --data '{"name": "preview-saas", "url": "http://sapor-gate:8084", "authenticationType": "LDAP", "token": "'"${TOKEN}"'", "externalAccountFlag": "true", "pipelinePromotionFlag":"false","syncAccountFlag":"false", externalAccountConfiguration": {"accountId": "'"${id}"'","accountName": "gitops-bitbucket", "provider": "BITBUCKET", "config": {"bucketName": "", "region": "","endPoint": "https://github.com/OpsMx//standard-gitops-repo.git", "sourcePath": "" }}}'
                   break
                 fi
               fi
@@ -3003,6 +3000,23 @@ data:
         fi
     fi
     done
+---
+# Source: oes/templates/configmaps/isd-feature-flag-config.yml
+apiVersion: v1
+data:
+  feature.yml: |
+     feature:
+       auth-provider:
+         flag: true
+         jira: OP-18050
+       db-cleanup:
+         flag: false
+         jira: OP-19921         
+kind: ConfigMap
+metadata:
+  labels:
+    app: oes
+  name: isd-feature-flag-config
 ---
 # Source: oes/templates/configmaps/oes-dashboard-configmap.yaml
 apiVersion: v1
@@ -5396,17 +5410,17 @@ data:
 
     # Common Stuff
     repo_type=git
-    repo_name=YOUR_REPO_NAME
+    repo_name=repo_name
     root_folder=pipeline/
     #S3 Specific
     export AWS_ACCESS_KEY_ID=access_key
     export AWS_SECRET_ACCESS_KEY=secret_key
 
     #git mandatory patameters
-    git_url=github.com
-    git_project=YOUR_ORG_NAME_OR_YOUR_USER_NAME_IF_NO_ORG
-    git_user=git/stash_username
-    git_branch=master
+    git_url=example.repo.com
+    git_project=project_name
+    git_user=username
+    git_branch=samplerepo
     #git_password=
     #API
     git_api_url=https://api.github.com/repos  # bitbucket
@@ -7727,7 +7741,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.0.4.b2
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.0.4.b3
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
         env:
@@ -7948,7 +7962,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.0.4.b2
+        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.0.4.b3
           imagePullPolicy: IfNotPresent
           name: oes-autopilot
           env:
@@ -8019,7 +8033,7 @@ spec:
         chart: "oes-4.0.9"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.0.4.b2
+      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.0.4.b3
         name: oes-dashboard
         env:
         ports:
@@ -8114,7 +8128,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.0.3
+      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.0.4.b3
         imagePullPolicy: IfNotPresent
         name: oes-datascience
         env:
@@ -8239,7 +8253,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secret: b31d775df09bdd28a2c765b4f9178fd898b56ccbf0de28b6f75ca63f7ffe031c
+        checksum/secret: 852bff67a07bfad84cef0c60ce58dbadec11a11554f24dfb4205067ee6741a07
         moniker.spinnaker.io/application: isd
         prometheus.io/scrape: "true"
         prometheus_io_path: /mgmt/prometheus
@@ -8264,7 +8278,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.0.4.b2
+      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.0.4.b3
         name: oes-platform
         ports:
         - containerPort: 8095
@@ -8293,6 +8307,9 @@ spec:
         - mountPath: /opsmx/conf/standard-error-code.csv
           name: standard-error-conf
           subPath: standard-error-codes.csv
+        - mountPath: /opsmx/conf/feature.yml
+          name: isd-feature-flag-conf
+          subPath: feature.yml
       volumes:
       - name: platform-config-volume
         secret:
@@ -8310,6 +8327,13 @@ spec:
             path: standard-error-codes.csv
           name: standard-error-codes-config
         name: standard-error-conf
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: feature.yml
+            path: feature.yml
+          name: isd-feature-flag-config
+        name: isd-feature-flag-conf
 ---
 # Source: oes/templates/deployments/oes-rabbitmq-deployment.yaml
 apiVersion: apps/v1
@@ -8402,7 +8426,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.0.4.b2
+      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.0.4.b3
         name: oes-sapor
         env:
         ports:
@@ -8498,7 +8522,7 @@ spec:
         chart: "oes-4.0.9"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.0.4.b2
+      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.0.4.b3
         name: oes-ui
         env:
         ports:
@@ -8583,7 +8607,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.0.3
+      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.0.4.b3
         name: oes-visibility
         ports:
         - containerPort: 8096
@@ -9565,7 +9589,7 @@ spec:
     spec:
        containers:
        - name: create-secret-container
-         image: quay.io/opsmxpublic/create-secret:v20211127T140816
+         image: quay.io/opsmxpublic/create-controller-secret:v4.0.4.b2
          env:
          - name: NAMESPACE
            valueFrom:
