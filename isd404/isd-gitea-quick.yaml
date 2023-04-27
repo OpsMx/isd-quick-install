@@ -70,7 +70,7 @@ metadata:
   namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "eFQyNXVGRmRURg=="
+  postgresql-postgres-password: "SjFYdWFjeXBMQw=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
@@ -1021,8 +1021,8 @@ stringData:
     database:
       cleanup:
         scheduler:
-          enabled: true
-          daysInterval: 30
+          enabled: false
+          daysInterval: 180
           cron: 0 0 0 * * *
     oes:
       sapor:
@@ -3010,7 +3010,7 @@ data:
          flag: true
          jira: OP-18050
        db-cleanup:
-         flag: false
+         flag: true
          jira: OP-19921         
 kind: ConfigMap
 metadata:
@@ -7741,7 +7741,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.0.4.b3
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.0.4.b4-rc1
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
         env:
@@ -7842,7 +7842,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.0.3
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.0.4.b4-rc1
         imagePullPolicy: IfNotPresent
         name: oes-audit
         env:
@@ -7962,7 +7962,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.0.4.b3
+        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.0.4.b4-rc1
           imagePullPolicy: IfNotPresent
           name: oes-autopilot
           env:
@@ -8128,7 +8128,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.0.4.b3
+      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.0.4.b4-rc1
         imagePullPolicy: IfNotPresent
         name: oes-datascience
         env:
@@ -8191,7 +8191,7 @@ spec:
         chart: "oes-4.0.9"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-gate:v4.0.4.b2
+      - image: quay.io/opsmxpublic/ubi8-gate:v4.0.4.b4-rc1
         name: oes-gate
         env:
         - name: spring_profiles_active
@@ -8253,7 +8253,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secret: 852bff67a07bfad84cef0c60ce58dbadec11a11554f24dfb4205067ee6741a07
+        checksum/secret: 4f4f82026e7ecf0811b74948d22600bacccd47052e0bdfaec6367253f2f1a9dc
         moniker.spinnaker.io/application: isd
         prometheus.io/scrape: "true"
         prometheus_io_path: /mgmt/prometheus
@@ -8278,7 +8278,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.0.4.b3
+      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.0.4.b4-rc1
         name: oes-platform
         ports:
         - containerPort: 8095
@@ -8522,7 +8522,7 @@ spec:
         chart: "oes-4.0.9"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.0.4.b3
+      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.0.4.b4-rc1
         name: oes-ui
         env:
         ports:
@@ -8607,7 +8607,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.0.4.b3
+      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.0.4.b4-rc1
         name: oes-visibility
         ports:
         - containerPort: 8096
@@ -8685,7 +8685,7 @@ spec:
     spec:
       containers:
         - name: opa
-          image: openpolicyagent/opa:latest
+          image: quay.io/opsmxpublic/opa:v0.47.0
           args:
             - "run"
             - "--server"
@@ -9589,7 +9589,7 @@ spec:
     spec:
        containers:
        - name: create-secret-container
-         image: quay.io/opsmxpublic/create-controller-secret:v4.0.4.b2
+         image: quay.io/opsmxpublic/create-secret:v4.0.4
          env:
          - name: NAMESPACE
            valueFrom:
