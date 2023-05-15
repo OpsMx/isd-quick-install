@@ -70,7 +70,7 @@ metadata:
   namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "aDQ0MmlGd01uNA=="
+  postgresql-postgres-password: "elZQV2ZEdGVKTw=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
@@ -4892,7 +4892,7 @@ metadata:
 # Source: oes/templates/configmaps/oes-ui-nginxconf.yaml
 apiVersion: v1
 data:
-  nginx.conf: |
+  nginx-quick-install.conf: |
     # For more information on configuration, see:
     #   * Official English Documentation: http://nginx.org/en/docs/
     #   * Official Russian Documentation: http://nginx.org/ru/docs/
@@ -4941,7 +4941,6 @@ data:
   
             location ^~ /deck/gate/ {
               proxy_pass http://oes-gate:8084/ ;
-              proxy_set_header Host $host;
             }
   
             location ^~ /deck {
@@ -4954,23 +4953,19 @@ data:
   
             location ^~ /gate/ {
               proxy_pass http://oes-gate:8084/ ;
-              proxy_set_header Host $host;
             }
   
             location ^~ /application {
               proxy_pass http://oes-ui:8080 ;
-              proxy_set_header Host $host;
             }
   
             location ^~ /ui {
               try_files $uri $uri/ /ui/index.html;
-              proxy_set_header Host $host;
             }
   
             # Go to Gate if you don't know what to do
             location / {
               proxy_pass http://oes-gate:8084/ ;
-              proxy_set_header Host $host;
             }
   
   
@@ -8490,7 +8485,7 @@ spec:
           subPath: help-text.json
         - mountPath: /etc/nginx/nginx.conf
           name: nginx-config
-          subPath: nginx.conf
+          subPath: nginx-quick-install.conf
         readinessProbe:
           tcpSocket:
             port: 8080
