@@ -1,4 +1,10 @@
 ---
+#
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: opsmx-isd
+---
 # Source: oes/charts/gitea/charts/memcached/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
