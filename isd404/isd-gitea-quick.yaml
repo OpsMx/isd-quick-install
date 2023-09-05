@@ -1,9 +1,4 @@
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: opsmx-isd
----
 # Source: oes/charts/gitea/charts/memcached/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -70,7 +65,7 @@ metadata:
   namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "SjFYdWFjeXBMQw=="
+  postgresql-postgres-password: "RWNqREdENWl2eQ=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
@@ -540,7 +535,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/secrets/gitea-secret.yaml
 apiVersion: v1
@@ -595,7 +590,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-audit-client-config
 ---
 # Source: oes/templates/secrets/oes-audit-service-secret.yaml
@@ -636,6 +631,9 @@ stringData:
           url: http://oes-visibility:8096
         dashboard:
           url: http://oes-dashboard:8094
+    db:
+      migration:
+        enabled: true
     
 kind: Secret
 metadata:
@@ -644,7 +642,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-audit-service-config
 ---
 # Source: oes/templates/secrets/oes-autopilot-secret.yaml
@@ -703,7 +701,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/secrets/oes-datascience-secret.yaml
 apiVersion: v1
@@ -754,6 +752,9 @@ metadata:
 apiVersion: v1
 stringData:
   gate.yml: |
+    ok-http-client:
+      interceptor:
+        skipHeaderCheck: true
     retrofit:
       connectTimeout: 60000
       readTimeout: 60000
@@ -872,7 +873,7 @@ stringData:
         port: 8087
         baseUrl: http://spin-rosco:8087
         enabled: true
-      user: {}
+    user: {}
     cors:
       allowed-origins-pattern: ^https?://(?:localhost|oes.example.ops.com|spin.example.ops.com|opsmx.com)(?::[1-9]\d*)?/?
       
@@ -933,7 +934,7 @@ stringData:
             opsmx-repo:
               url: file:///opt/spinnaker/plugins/plugins.json
               #url: https://raw.githubusercontent.com/OpsMx/spinnakerPluginRepository/v3.10.0/plugins.json
-    
+    spring.cloud.vault.enabled: false
     allowUnauthenticatedAccess:
       agentAPI: false
       webhooks: true
@@ -955,7 +956,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/secrets/oes-gate-secret.yaml
 apiVersion: v1
@@ -969,7 +970,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/secrets/oes-platform-configmap.yaml
 apiVersion: v1
@@ -991,6 +992,10 @@ stringData:
     datasource:
       secretManagement:
         source: db
+      httpClient:
+        connectTimeout: 10000
+        connectionRequestTimeout: 10000
+        socketTimeout: 10000
     rbacEnabled: false
     supportedFeatures:
       - deployment_verification
@@ -1068,7 +1073,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/secrets/oes-sapor-configmap.yaml
 apiVersion: v1
@@ -1098,7 +1103,7 @@ stringData:
       encryption: true
     oes:
       rbac:
-        enabled: true
+        enabled: false
       admin:
         user: admin
       platform:
@@ -1108,6 +1113,9 @@ stringData:
       auditservice:
         enabled: true
         url: "http://oes-audit-service:8097"
+      auditclientservice:
+        name: auditclient
+        url: "http://oes-audit-client:8098"
       dashboard:
         url: http://oes-dashboard:8094
       commongateurl: http://oes-gate:8084
@@ -1176,29 +1184,50 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/secrets/oes-visibility-secret.yaml
 apiVersion: v1
 stringData:
   visibility-local.yml: |
+    message-broker:
+      enabled: true
+      username: 'rabbitmq'
+      password: 'Networks123'
+      host: rabbitmq-service
+      port: 5672
+      endpoint:
+        name: rabbitmq
     spring:
       datasource:
         url: jdbc:postgresql://oes-db:5432/visibilitydb
         username: 'postgres'
         password: 'networks123'
         #sslmode: require
-      visiblity:
-        connectors:
-          configured: JIRA,GIT,AUTOPILOT,SONARQUBE,JENKINS,AQUAWAVE
-      logging:
-        level:
-          io:
-            swagger:
-              models:
-                parameters:
-                  AbstractSerializableParameter: ERROR
-    
+    logging:
+      level:
+        io:
+          swagger:
+            models:
+              parameters:
+                AbstractSerializableParameter: ERROR
+    visiblity:
+      connectors:
+        configured:
+          - name: "JIRA"
+            displayName: "Jira"
+          - name: "GITHUB"
+            displayName: "GitHub"
+          - name: "AUTOPILOT"
+            displayName: "Autopilot"
+          - name: "SONARQUBE"
+            displayName: "SonarQube"
+          - name: "JENKINS"
+            displayName: "Jenkins"
+          - name: "AQUAWAVE"
+            displayName: "Aqua Wave"
+          - name: "APPSCAN"
+            displayName: "HCL AppScan"
     management:
       endpoints:
         web:
@@ -1280,7 +1309,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/secrets/opsmx-gitops-secret.yaml
 apiVersion: v1
@@ -1329,7 +1358,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/charts/minio/templates/configmap.yaml
 apiVersion: v1
@@ -2188,7 +2217,7 @@ data:
   config.sh: |
     # Spinnaker version
     
-    $HAL_COMMAND config version edit --version 1.26.6
+    $HAL_COMMAND config version edit --version 1.30.1
     
 
     # Storage
@@ -2379,6 +2408,8 @@ data:
     sed -i s/BRANCH/${BRANCH}/ /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
     KEY=Q7udUkHPuA3VnNlOtksSgQ
     sed -i s/KEY/${KEY}/ /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
+    CDName=preview-saas
+    sed -i s/CDName/${CDName}/ /tmp/spinnaker/.hal/default/profiles/echo-local.yml
     sed -i  s/GIT_USER/${GIT_USER}/g /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
     sed -i  s/GIT_TOKEN/${GIT_TOKEN}/g /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
     sed -i  's|DYNAMIC_ACCOUNTS_REPO|'"${DYNAMIC_ACCOUNTS_REPO}"'|' /tmp/spinnaker/.hal/default/profiles/spinnakerconfig.yml
@@ -2465,16 +2496,31 @@ data:
         if [ -r "/tmp/spinnaker/clusterconfig/jira-secret.yaml" ]
         then
            #### Extracting the JIRA information from secret ####
-           JIRA_USER=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_USERNAME}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
-           JIRA_DNS=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_URL}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
-           JIRA_TOKN=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_TOKEN}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
-           JIRA_BASE64_USR_PASSWD=$(echo -n "$JIRA_USER:$JIRA_TOKN" | base64)
-           sed -i s%JIRA_URL%${JIRA_DNS}%g /tmp/spinnaker/.hal/default/profiles/orca-local.yml
-           sed -i  s/JIRA_BASE64_USR_PASSWD/${JIRA_BASE64_USR_PASSWD}/g /tmp/spinnaker/.hal/default/profiles/orca-local.yml
+           JIRA_TYPE=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_TYPE}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
+           if [ "$JIRA_TYPE" == "onPremJira" ];then
+             echo "Using the Jira On Prem Details"
+             JIRA_USER=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_USERNAME}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
+             JIRA_DNS=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_URL}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
+             JIRA_TOKN=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_TOKEN}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
+             JIRA_BASE64_USR_PASSWD=$JIRA_TOKN
+             sed -i s%JIRA_URL%${JIRA_DNS}%g /tmp/spinnaker/.hal/default/profiles/orca-local.yml
+             sed -i 's/Basic JIRA_BASE64_USR_PASSWD/Bearer TOKEN/g' /tmp/spinnaker/.hal/default/profiles/orca-local.yml
+             sed -i s/TOKEN/${JIRA_TOKN}/g /tmp/spinnaker/.hal/default/profiles/orca-local.yml
+           else
+             if [ "$JIRA_TYPE" == "cloudJira" ];then
+               echo "Using the Jira Cloud Details"
+               JIRA_USER=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_USERNAME}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
+               JIRA_DNS=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_URL}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
+               JIRA_TOKN=$(kubectl get secret jira-secret -o jsonpath='{.data.JIRA_TOKEN}' -n ${SPINNAKER_NAMESPACE} | base64 -d)
+               JIRA_BASE64_USR_PASSWD=$(echo -n "$JIRA_USER:$JIRA_TOKN" | base64 )
+               sed -i s%JIRA_URL%${JIRA_DNS}%g /tmp/spinnaker/.hal/default/profiles/orca-local.yml
+               sed -i s/JIRA_BASE64_USR_PASSWD/${JIRA_BASE64_USR_PASSWD}/g /tmp/spinnaker/.hal/default/profiles/orca-local.yml
+             fi
+           fi
         else
-           echo "Not able to find the ServiceNow secret file"
+          echo "Not able to find the JIRA secret file"
         fi
-     fi
+      fi
     fi
 ---
 # Source: oes/charts/spinnaker/templates/configmap/halyard-overrideurl.yaml
@@ -2640,11 +2686,13 @@ data:
     #!/bin/bash
     echo "##########Replacing Secret#########"
     grep -ir encrypted: /tmp/spinnaker/.hal | sort -t: -u -k1,1 |cut -d : -f1 > tmp.list
+    cat tmp.list | grep -v "oes\|install\|upgrade\|MISC\|SAMPLES\|values.yaml\|values-openldap.yaml" > tmp1.list
+    echo tmp1.list
     while IFS= read -r file; do
-    grep encrypted: $file > tmp1.list
+    grep encrypted: $file > tmp2.list
     while read line ; do
     echo ${line#*encrypted:} ;
-    done < tmp1.list > secret-strings.list
+    done < tmp2.list > secret-strings.list
     while read secret ; do
     secretName=${secret%%:*}
     echo "---------$secretName---"
@@ -2662,7 +2710,7 @@ data:
     #echo "secret Name= $secretName and key is = $keyName and value is $value"
     sed -i s/encrypted:$secretName:$keyName/$value/g $file
     done < secret-strings.list
-    done < tmp.list
+    done < tmp1.list
 
     echo "########### Replacing Kubeconfigs ############"
     grep encryptedFile /tmp/spinnaker/.hal/config > tmp.list
@@ -2686,7 +2734,7 @@ data:
     #echo $new_value
     sed -i "s/${old_value}/$(echo $new_value | sed 's_/_\\/_g')/g" /tmp/spinnaker/.hal/config
     done < secret-files.list
-    rm -rf secret-files.list secret-strings.list tmp.list
+    rm -rf secret-files.list secret-strings.list tmp.list tmp1.list tmp2.list
 ---
 # Source: oes/charts/spinnaker/templates/configmap/service-settings.yaml
 apiVersion: v1
@@ -2771,14 +2819,9 @@ data:
     if [ $READY == 1 ];
     then
         echo "Spinnaker and OES is Installed and ready"
-        mkdir -p /tmp/config/git/
-        git -c http.sslVerify=false clone https://github.com/OpsMx/sample-pipelines.git /tmp/config/git/
-        if [[ $? != 0 ]]; then
-        echo "ERROR: Failed while cloning the repo https://github.com/OpsMx/sample-pipelines.git"
-          exit 1
-        fi
         echo "processing.........."
         sleep 100
+        cp -r sample-pipelines/* /tmp/config/git/
         cd /tmp/config/git
         cp -p /tmp/config/spin/config .
         ### remove commected line in file
@@ -2859,7 +2902,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 data:
   datasource-api.sh: |-
     #!/bin/bash
@@ -3011,7 +3054,7 @@ data:
          jira: OP-18050
        db-cleanup:
          flag: true
-         jira: OP-19921         
+         jira: OP-19921
 kind: ConfigMap
 metadata:
   labels:
@@ -3049,7 +3092,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/configmaps/oes-ui-configmap.yaml
 apiVersion: v1
@@ -3127,27 +3170,33 @@ data:
     button to create an account for your cloud provider. You can create multiple accounts
     for the same provider.</p> <p>Click on <b>Sync Accounts</b> button to sync Cloud
     target accounts with CD Tool</p></div>\"\n  },\n    \"CLOUDPROVIDER_CREATION\":
-    {\n      \"HEADER\": \"Cloud Target\",\n      \"BODY\": \"<p>In this page, you can
-    create & manage Cloud Target Accounts</p>\",\n      \"AGENT_NAME\": {\n        \"TOOLTIP\":
-    \"\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\": \"Agent name cannot
-    be empty\",\n          \"cannotContainSpace\": \"Agent name cannot contain space\",\n
-    \         \"noSpecialCharacters\": \"Allowed special character are ',-'\"\n        }\n
-    \     },\n      \"CLOUD_PROVIDER\": {\n        \"TOOLTIP\": \"The Cloud Target type
-    for which you want to add the account\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\":
-    \"Please select Cloud Target\"\n        }\n      },\n      \"SPINNAKER\": {\n        \"TOOLTIP\":
-    \"The Spinnaker instance with which this account would be tied to\",\n        \"VALIDATION_MESSAGE\":
-    {\n          \"required\": \"Please select Spinnaker\"\n        }\n      },\n      \"ENVIRONMENT\":
-    {\n        \"TOOLTIP\": \"The environment name for the account. Many accounts can
-    share the same environment (e.g. dev, test, prod)\",\n        \"VALIDATION_MESSAGE\":
-    {\n          \"required\": \"Please select Environment\"\n        }\n      },\n
-    \     \"CUSTOM_ENVIRONMENT\": {\n        \"TOOLTIP\": \"\",\n        \"VALIDATION_MESSAGE\":
-    {\n          \"noSpecialCharacters\": \"Environment Name cannot contain special
-    characters\",\n          \"cannotContainSpace\": \"Environment Name cannot contain
-    space\",\n          \"required\": \"Environment Name cannot be empty\",\n          \"startingFromNumber\":
-    \"Environment Name cannot start with number\",\n          \"maxlength\": \"Environment
-    name should not have more than 63 characters!\",\n          \"exists\": \"Environment
-    name already exists\"\n        }\n      },\n      \"ACCOUNT_NAME\": {\n        \"TOOLTIP\":
-    \"Name of the account to operate on\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\":
+    {\n      \"HEADER\": \"Cloud Target\",\n      \"BODY\": \"<div><p>Cloud Targets
+    are integrations to cloud platforms you deploy your applications to. In this section,
+    you’ll register credentials for your cloud platforms. Those credentials are known
+    as accounts. ISD allows you to create & manage accounts for different cloud providers
+    such as AWS, GCP, Kubernetes, etc.</p><p>You can create multiple accounts for the
+    same provider.</p> <p>After saving this configuration, click on 'Sync Accounts'
+    button to sync cloud target accounts with CD Tool.</p></div>\",\n      \"AGENT_NAME\":
+    {\n        \"TOOLTIP\": \"\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\":
+    \"Agent name cannot be empty\",\n          \"cannotContainSpace\": \"Agent name
+    cannot contain space\",\n          \"noSpecialCharacters\": \"Allowed special character
+    are ',-'\"\n        }\n      },\n      \"CLOUD_PROVIDER\": {\n        \"TOOLTIP\":
+    \"The Cloud Target type for which you want to add the account\",\n        \"VALIDATION_MESSAGE\":
+    {\n          \"required\": \"Please select Cloud Target\"\n        }\n      },\n
+    \     \"SPINNAKER\": {\n        \"TOOLTIP\": \"The Spinnaker instance with which
+    this account would be tied to\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\":
+    \"Please select Spinnaker\"\n        }\n      },\n      \"ENVIRONMENT\": {\n        \"TOOLTIP\":
+    \"The environment name for the account. Many accounts can share the same environment
+    (e.g. dev, test, prod)\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\":
+    \"Please select Environment\"\n        }\n      },\n      \"CUSTOM_ENVIRONMENT\":
+    {\n        \"TOOLTIP\": \"\",\n        \"VALIDATION_MESSAGE\": {\n          \"noSpecialCharacters\":
+    \"Environment Name cannot contain special characters\",\n          \"cannotContainSpace\":
+    \"Environment Name cannot contain space\",\n          \"required\": \"Environment
+    Name cannot be empty\",\n          \"startingFromNumber\": \"Environment Name cannot
+    start with number\",\n          \"maxlength\": \"Environment name should not have
+    more than 63 characters!\",\n          \"exists\": \"Environment name already exists\"\n
+    \       }\n      },\n      \"ACCOUNT_NAME\": {\n        \"TOOLTIP\": \"Name of the
+    account to operate on\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\":
     \"Account name cannot be empty\",\n          \"cannotContainSpace\": \"Account name
     cannot contain space\",\n          \"noSpecialCharacters\": \"Allowed special character
     is '-'\",\n          \"startingFromNumber\": \"Account Name cannot start with numbers\"\n
@@ -3232,14 +3281,17 @@ data:
     \"Packer Storage Account cannot contain space\"\n        }\n      },\n      \"SSH_PUBLIC_KEY\":
     {\n        \"TOOLTIP\": \"Whether to use SSH public key to provision the linux vm.
     The default value is true which means using the ssh public key.\",\n        \"VALIDATION_MESSAGE\":
-    {\n        }\n      },\n      \"GCP_FILE\": {\n        \"TOOLTIP\": \"The path to
-    a JSON service account that Spinnaker will use as credentials. This is only needed
-    if Spinnaker is not deployed on a Google Compute Engine VM, or needs permissions
-    not afforded to the VM it is running on. Refer https://cloud.google.com/compute/docs/access/service-accounts
-    for more information\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\":
+    {\n        }\n      },\n      \"GCP_FILE\": {\n        \"TOOLTIP\": \"Upload the
+    kubeconfig file. By default, it will be under the user’s home directory in the typical
+    .kube/config location\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\":
     \"File cannot be empty\"\n        }\n      },\n      \"AWS_ACCOUNT_NAME\": {\n        \"TOOLTIP\":
-    \"\",\n        \"VALIDATION_MESSAGE\": {\n          \"required\": \"Please Select
-    AWS Account\"\n        }\n      }\n    },\n  \"SPINNAKER_LISTING\": {\n    \"HEADER\":
+    \"Please select a valid AWS account. Do note that the Amazon ECS account will use
+    credentials from the corresponding AWS account. If you do not see a valid AWS account
+    in the dropdown, please create one from Cloud targets -> New Account\",\n        \"VALIDATION_MESSAGE\":
+    {\n          \"required\": \"Please Select AWS Account\"\n        }\n      },\n
+    \     \"PROJECT_NAME\": {\n        \"TOOLTIP\": \"Name of your Google Cloud project\",\n
+    \       \"VALIDATION_MESSAGE\": {\n          \"required\": \"Project Name cannot
+    be empty\"\n        }\n      }\n    },\n  \"SPINNAKER_LISTING\": {\n    \"HEADER\":
     \"No Spinnaker Configured!\",\n    \"BODY\": \"<div><p>CD Integration page allows
     you to connect to a CD instance. This enables ML based verification, Policy enforcement,
     Informed Approvals, etc.</p><p>Click on the <b>New CD Integration</b> button to
@@ -3374,9 +3426,10 @@ data:
     to specific usergroups</li></ul>\",\n    \"NAME\": {\n      \"TOOLTIP\": \"Policy
     Name\",\n      \"VALIDATION_MESSAGE\": {\n        \"required\": \"Name cannot be
     empty\",\n        \"cannotContainSpace\": \"Name cannot contain space\",\n        \"exists\":
-    \"Name already exists\"\n      }\n    },\n    \"POLICY_DETAILS\": {\n      \"TOOLTIP\":
-    \"Define your policy using the rego language\",\n      \"VALIDATION_MESSAGE\": {\n
-    \       \"required\": \"Policy Details cannot be empty\"\n      }\n    },\n    \"POLICY_ENGINE\":
+    \"Name already exists\",\n        \"enablerestriction\": \"Keywords 'allow' and
+    'deny' cannot be used as policy name.\"\n      }\n    },\n    \"POLICY_DETAILS\":
+    {\n      \"TOOLTIP\": \"Define your policy using the rego language\",\n      \"VALIDATION_MESSAGE\":
+    {\n        \"required\": \"Policy Details cannot be empty\"\n      }\n    },\n    \"POLICY_ENGINE\":
     {\n      \"TOOLTIP\": \"Supported Policy Account Types\",\n      \"VALIDATION_MESSAGE\":
     {\n        \"required\": \"Please select Policy Account Type\"\n      }\n    },\n
     \   \"POLICY_ENGINE_ACCOUNT\": {\n      \"TOOLTIP\": \"Policy Account Names\",\n
@@ -3693,7 +3746,11 @@ data:
     for S3 connectivity.</li><li><strong>Region</strong>: AWS region where the AWS S3
     bucket is located</li><li><strong>API Region</strong>: AWS S3 API region, only required
     when using an S3 clone such as Minio</li><li><strong>API Endpoint</strong>: AWS
-    S3 API endpoint, only required when using an S3 clone such as Minio</li><li><strong>Connect
+    S3 API endpoint, only required when using an S3 clone such as Minio</li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li><li><strong>Connect
     to CD</strong>: Toggle on to propagate the change into the CD Tool.</li><li><strong>Permissions</strong>:
     Enable/disable access to the Amazon S3 account in Autopilot to specific user groups</li></ul></span>\",\n
     \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your AWS S3
@@ -3718,21 +3775,29 @@ data:
     when using an S3 clone such as Minio\",\n    \"VALIDATION_MESSAGE\":{\n    }\n  },\n
     \ \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Switch On this toggle to configure the
     resource in a gitops enabled Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ }\n},\n\"ARTIFACTORY\":{\n  \"HEADER\": \"Artifactory\",\n  \"BODY\":\"<span><p>JFrog
-    Artifactory integration can be used as an Artifact source in Spinnaker and also
-    a Data source for Approval-Gate.</p><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
-    Name</strong>: User-defined account name for your Jfrog Artifactory access. The
-    account name appears in Spinnaker as an Artifactory trigger type input.</li><li><strong>Endpoint</strong>:
-    The base URL of your Artifactory search is reachable at. <span class='noBr'>(Example:
-    https://xyz.my-jfrog.com)</span></li><li><strong>Repo</strong>: The Artifactory
-    repo which needs to be searched</li><li><strong>Repo Type</strong>: The package
-    type of repo in your Artifactory is to be searched. Default is Maven.</li><li><strong>Group
+    \ },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This button controls the validation
+    of the configuration. If it is on, ISD will check the configuration for errors before
+    saving it. If it is off, ISD will save the configuration as it is, without any validation.
+    We recommend keeping the button on unless you are sure that the configuration is
+    correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"ARTIFACTORY\":{\n
+    \ \"HEADER\": \"Artifactory\",\n  \"BODY\":\"<span><p>JFrog Artifactory integration
+    can be used as an Artifact source in Spinnaker and also a Data source for Approval-Gate.</p><p><strong>Fields</strong>:</p><ul
+    class='helpTextUl'><li><strong>Account Name</strong>: User-defined account name
+    for your Jfrog Artifactory access. The account name appears in Spinnaker as an Artifactory
+    trigger type input.</li><li><strong>Endpoint</strong>: The base URL of your Artifactory
+    search is reachable at. <span class='noBr'>(Example: https://xyz.my-jfrog.com)</span></li><li><strong>Repo</strong>:
+    The Artifactory repo which needs to be searched</li><li><strong>Repo Type</strong>:
+    The package type of repo in your Artifactory is to be searched. Default is Maven.</li><li><strong>Group
     Id</strong>: The group id in your Artifactory is to be searched</li><li><strong>Username</strong>:
     The Artifactory user's username for authentication</li><li><strong>Password</strong>:
     The Artifactory user's password for authentication</li><li><strong>Token</strong>:
     Artifactory personal access token. You can find <a href='https://www.jfrog.com/confluence/display/JFROG/Access+Tokens'
     target='_blank'>here</a> how to generate personal access tokens. <span class='autolinebreak'>(Example:
-    ZlQDAwMFwvdXNlcnNcL21hZGh1a2FyIiwic2NwIjoiYXBwbGllZC1wZXJtaXNzaW9uc1wvYWRtaW4gYXBpOioiLCJhdWQiOlsiamZydEAqIiwiamZhY0AqIiwiamZldnmbWRAKiJdLCJpc3MiOiJqZmZlQDAAzNzY3MiwiaWF0IjoxNjI5ODY0ODcyLCJqdGkiOiI1ZWFiNjlhYi1hZDY0LTRjOGItOTMyZC0wMDAxMWZiZWU5YWIifQ.tzBgL3fQgZ1dwlLLS2UAT7G)</span></li><li><strong>Connect
+    ZlQDAwMFwvdXNlcnNcL21hZGh1a2FyIiwic2NwIjoiYXBwbGllZC1wZXJtaXNzaW9uc1wvYWRtaW4gYXBpOioiLCJhdWQiOlsiamZydEAqIiwiamZhY0AqIiwiamZldnmbWRAKiJdLCJpc3MiOiJqZmZlQDAAzNzY3MiwiaWF0IjoxNjI5ODY0ODcyLCJqdGkiOiI1ZWFiNjlhYi1hZDY0LTRjOGItOTMyZC0wMDAxMWZiZWU5YWIifQ.tzBgL3fQgZ1dwlLLS2UAT7G)</span></li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li><li><strong>Connect
     to Spinnaker</strong>: Toggle on to propagate the change into the CD Tool.</li><li><strong>Permissions</strong>:
     Enable or disable specific user groups' access to the Artifactory account in ISD.</li></ul></span>\",\n
     \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your Jfrog
@@ -3759,9 +3824,14 @@ data:
     \   \"TOOLTIP\":\"The Artifactory user's password for authentication\",\n    \"VALIDATION_MESSAGE\":{\n
     \     \"required\":\"Password cannot be empty\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
     \   \"TOOLTIP\":\"Toggle on to propagate the change into the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ }\n},\n\"BITBUCKET\":{\n  \"HEADER\": \"Bitbucket Cloud\",\n  \"BODY\":\"<span><p>BitBucket
-    Cloud integration can be used as a datasource for Approval Gate as well as to configure
-    Spinnaker for BitBucket Cloud.</p><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
+    \ },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This button controls the validation
+    of the configuration. If it is on, ISD will check the configuration for errors before
+    saving it. If it is off, ISD will save the configuration as it is, without any validation.
+    We recommend keeping the button on unless you are sure that the configuration is
+    correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"BITBUCKET\":{\n
+    \ \"HEADER\": \"Bitbucket Cloud\",\n  \"BODY\":\"<span><p>BitBucket Cloud integration
+    can be used as a datasource for Approval Gate as well as to configure Spinnaker
+    for BitBucket Cloud.</p><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
     Name</strong>: User-defined account name for your BitBucket Cloud access. <span
     class='noBr'>(Example: opsmx-bitbucket)</span></li><li><strong>Host URL</strong>:
     BitBucket Cloud (SaaS) Web URL. <span class='noBr'>It is usually https://bitbucket.org
@@ -3774,7 +3844,11 @@ data:
     Name</strong>: The BitBucket Cloud Service username </li><li><strong>Token</strong>:
     The user's username and access token This token is obtained from the Bitbucket user
     profile page here. <span class='noBr'>(Example: xCPkVZfxaE9iULmfYYkK)</span></li>
-    <li><strong>Password</strong>: The BitBucket Cloud Service password</li><li><strong>Connect
+    <li><strong>Password</strong>: The BitBucket Cloud Service password</li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li><li><strong>Connect
     to Spinnaker</strong>: Toggle on to propagate the change into the CD Tool.</li><li><strong>Permissions</strong>:
     Enable/disable access to the Bitbucket Account in Autopilot to specific user groups</li></ul></span>\",\n
     \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your BitBucket
@@ -3801,7 +3875,12 @@ data:
     \ \"PASSWORD\":{\n    \"TOOLTIP\":\"The BitBucket Cloud Service password\",\n    \"VALIDATION_MESSAGE\":{\n
     \     \"required\":\"Password cannot be empty\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
     \   \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops enabled
-    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"BITBUCKET_SERVER\":{\n
+    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"VALIDATETOGGLE\":{\n
+    \   \"TOOLTIP\":\"This button controls the validation of the configuration. If it
+    is on, ISD will check the configuration for errors before saving it. If it is off,
+    ISD will save the configuration as it is, without any validation. We recommend keeping
+    the button on unless you are sure that the configuration is correct and does not
+    need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"BITBUCKET_SERVER\":{\n
     \ \"HEADER\": \"Bitbucket Server\",\n  \"BODY\":\"<span><p>BitBucket Server integration
     can be used as a datasource for Approval Gate as well as to configure Spinnaker
     for BitBucket Server.</p><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
@@ -3852,11 +3931,15 @@ data:
     repositories from the registries _catalog endpoint. <span class='noBr'> Example:
     library/ubuntu (Public repositories are prefixed with library/)</span></li><li><strong>Group
     Membership</strong>: Select an authentication type that corresponds to the connection
-    credential parameter.</li><li><strong>Connect to Spinnaker</strong>: Toggle on to
-    propagate the change into the CD Tool.</li></ul></span>\",\n  \"ACCOUNTNAME\":{\n
-    \   \"TOOLTIP\":\"User-defined account name for your Docker registry access.\",\n
-    \   \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account Name cannot
-    contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    credential parameter.</li><li><strong>Validate</strong>: This button controls the
+    validation of the configuration. If it is on, ISD will check the configuration for
+    errors before saving it. If it is off, ISD will save the configuration as it is,
+    without any validation. We recommend keeping the button on unless you are sure that
+    the configuration is correct and does not need validation.</li><li><strong>Connect
+    to Spinnaker</strong>: Toggle on to propagate the change into the CD Tool.</li></ul></span>\",\n
+    \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your Docker
+    registry access.\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"URL\":{\n    \"TOOLTIP\":\"The registry URL from which you want to pull
@@ -3882,7 +3965,12 @@ data:
     Host URL\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Host URL cannot
     be empty\",\n      \"invalidUrl\": \"Host URL is invalid\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
     \   \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops enabled
-    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"OCR\":{\n  \"HEADER\":
+    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"VALIDATETOGGLE\":{\n
+    \   \"TOOLTIP\":\"This button controls the validation of the configuration. If it
+    is on, ISD will check the configuration for errors before saving it. If it is off,
+    ISD will save the configuration as it is, without any validation. We recommend keeping
+    the button on unless you are sure that the configuration is correct and does not
+    need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"OCR\":{\n  \"HEADER\":
     \"Generic Docker Registries (ACR, Quay, JFrog)\",\n  \"BODY\":\"<span><p><strong>Fields</strong>:</p><ul
     class='helpTextUl'><li><strong>Account Name</strong>: User-defined account name
     for your GCR Docker registry access.</li><li><strong>Registry URL</strong>: The
@@ -3894,11 +3982,15 @@ data:
     repositories from the registries _catalog endpoint. <span class='noBr'> Example:
     library/ubuntu (Public repositories are prefixed with library/)</span></li><li><strong>Authentication
     Type</strong>: Select an authentication type that corresponds to the connection
-    credential parameter.</li><li><strong>Connect to Spinnaker</strong>: Toggle on to
-    propagate the change into the CD Tool.</li></ul></span>\",\n  \"ACCOUNTNAME\":{\n
-    \   \"TOOLTIP\":\"User-defined account name for your GCR Docker registry access.\",\n
-    \   \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account Name cannot
-    contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    credential parameter.</li><li><strong>Validate</strong>: This button controls the
+    validation of the configuration. If it is on, ISD will check the configuration for
+    errors before saving it. If it is off, ISD will save the configuration as it is,
+    without any validation. We recommend keeping the button on unless you are sure that
+    the configuration is correct and does not need validation.</li><li><strong>Connect
+    to Spinnaker</strong>: Toggle on to propagate the change into the CD Tool.</li></ul></span>\",\n
+    \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your GCR Docker
+    registry access.\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"REPOSITORIES\":{\n    \"TOOLTIP\":\"An optional list of repositories to
@@ -3928,19 +4020,28 @@ data:
     \ \"HOSTURL\":{\n    \"TOOLTIP\":\"Container Registry Host URL\",\n    \"VALIDATION_MESSAGE\":{\n
     \     \"required\":\"Host URL cannot be empty\",\n      \"invalidUrl\": \"Host URL
     is invalid\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Toggle on
-    to propagate the change into the CD Tool.\"\n  }\n},\n\"GITHUB\":{\n  \"HEADER\":
-    \"GitHub\",\n  \"BODY\":\"<span><p>GITHUB integration can be used as a datasource
-    for Approval Gate as well as to configure Spinnaker for GitHub.</p><p><strong>Fields</strong>:</p><ul
-    class='helpTextUl'><li><strong>Account Name</strong>: User-defined account name
-    for your GitHub access.<span class='noBr'>(Example: opsmx-github)</span></li><li><strong>URL</strong>:
-    Github's host address, such as https://github.com</li><li><strong>API URL</strong>:
-    Github's API endpoint host address, <span class='noBr'>such as https://api.github.com</span></li><li><strong>Token</strong>:
+    to propagate the change into the CD Tool.\"\n  },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This
+    button controls the validation of the configuration. If it is on, ISD will check
+    the configuration for errors before saving it. If it is off, ISD will save the configuration
+    as it is, without any validation. We recommend keeping the button on unless you
+    are sure that the configuration is correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n
+    \ }\n},\n\"GITHUB\":{\n  \"HEADER\": \"GitHub\",\n  \"BODY\":\"<span><p>GITHUB integration
+    can be used as a datasource for Approval Gate as well as to configure Spinnaker
+    for GitHub.</p><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
+    Name</strong>: User-defined account name for your GitHub access.<span class='noBr'>(Example:
+    opsmx-github)</span></li><li><strong>URL</strong>: Github's host address, such as
+    https://github.com</li><li><strong>API URL</strong>: Github's API endpoint host
+    address, <span class='noBr'>such as https://api.github.com</span></li><li><strong>Token</strong>:
     GitHub personal access token. You can find <a href='https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token'
     target='_blank'>here</a> how to generate personal access tokens. <span class='noBr'>(Example:
     ghp_ln1eJK4yuomnY6JREp72IDJC4Hq6Sm)</span></li><li><strong>User Name</strong>: The
-    GitHub username</li><li><strong>Connect to Spinnaker</strong>: Toggle to configure
-    Spinnaker for GitHub</li><li><strong>Permissions</strong>: Enable/disable access
-    to the GITHUB account in Autopilot to specific user groups</li></ul></span>\",\n
+    GitHub username</li><li><strong>Validate</strong>: This button controls the validation
+    of the configuration. If it is on, ISD will check the configuration for errors before
+    saving it. If it is off, ISD will save the configuration as it is, without any validation.
+    We recommend keeping the button on unless you are sure that the configuration is
+    correct and does not need validation.</li><li><strong>Connect to Spinnaker</strong>:
+    Toggle to configure Spinnaker for GitHub</li><li><strong>Permissions</strong>: Enable/disable
+    access to the GITHUB account in Autopilot to specific user groups</li></ul></span>\",\n
     \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your GitHub
     access.\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account
     Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
@@ -3959,33 +4060,52 @@ data:
     \     \"required\":\"User Name cannot be empty\",\n      \"startingFromNumber\":
     \"User Name cannot start with numbers\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
     \   \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops enabled
-    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"GITLAB\":{\n  \"HEADER\":
-    \"GitLab\",\n  \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
+    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"VALIDATETOGGLE\":{\n
+    \   \"TOOLTIP\":\"This button controls the validation of the configuration. If it
+    is on, ISD will check the configuration for errors before saving it. If it is off,
+    ISD will save the configuration as it is, without any validation. We recommend keeping
+    the button on unless you are sure that the configuration is correct and does not
+    need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"GITLAB\":{\n  \"HEADER\":
+    \"GitLab\",\n  \"BODY\":\"<span><ul><li><strong>Account Name</strong>: User-defined
     account name for your GitLab access.</li><li><strong>Host URL</strong>: GitLab's
-    host address, such as https://gitlab.com</li><li><strong>Username</strong>: The
-    GitLab server username </li><li><strong>Token</strong>: The user's personal access
-    token. Please refer <a href='https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html'
-    target='_blank'>this document</a> for generating tokens.</li></span>\",\n  \"ACCOUNTNAME\":{\n
-    \   \"TOOLTIP\":\"User-defined account name for your GitLab access.\",\n    \"VALIDATION_MESSAGE\":{\n
-    \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
-    other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
-    \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
-    \"Account Name cannot start with numbers\"\n    }\n  },\n  \"HOSTURL\":{\n    \"TOOLTIP\":\"GitLab's
-    host address, such as https://gitlab.com\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Host
-    URL cannot be empty\",\n      \"invalidUrl\": \"Host URL is invalid\"\n    }\n  },\n
-    \ \"APIBASEURL\":{\n    \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"API
-    URL cannot be empty\",\n      \"invalidUrl\": \"API URL is invalid\"\n    }\n  },\n
+    host address, such as https://gitlab.com</li><li><strong>Token</strong>: The user's
+    personal access token. Please refer <a href='https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html'
+    target='_blank'>this document</a> for generating tokens.</li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li><li><strong>Connect
+    to CD</strong>: Switch On this toggle to configure the resource in a gitops enabled
+    Spinnaker instance</li><li><strong>Permissions</strong>: Configure specific user
+    groups’ access to this integration.</li></ul></span>\",\n  \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined
+    account name for your GitLab access.\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
+    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
+    \ },\n  \"HOSTURL\":{\n    \"TOOLTIP\":\"GitLab's host address, such as https://gitlab.com\",\n
+    \   \"VALIDATION_MESSAGE\":{\n      \"required\":\"Host URL cannot be empty\",\n
+    \     \"invalidUrl\": \"Host URL is invalid\"\n    }\n  },\n  \"APIBASEURL\":{\n
+    \   \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"API URL
+    cannot be empty\",\n      \"invalidUrl\": \"API URL is invalid\"\n    }\n  },\n
     \ \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select how the external resource confirms
     the user credentials\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"GitLab
     token\",\n    \"VALIDATION_MESSAGE\":{\n      \"required\":\"Token cannot be empty\"\n
     \   }\n  },\n  \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Switch On this toggle to
     configure the resource in a gitops enabled Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"The GitLab server username\"\n  }\n},\n\"GITREPO\":{\n
+    \ },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This button controls the validation
+    of the configuration. If it is on, ISD will check the configuration for errors before
+    saving it. If it is off, ISD will save the configuration as it is, without any validation.
+    We recommend keeping the button on unless you are sure that the configuration is
+    correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"GITREPO\":{\n
     \ \"HEADER\": \"Git Repo\",\n  \"BODY\": \"<span><li><strong>Account Name</strong>:
     User-defined account name for your Git Repo access.</li><li><strong>API URL</strong>:
     The API URL of the Git repository URL.<p><strong>Examples</strong>:</p><ul><li>https://api.github.com</li><li>https://api.bitbucket.org/2.0/respositories</li><li>https://gitlab.com/api/v4/</li></ul></li><li><strong>Authentication
     Type</strong>: Select an authentication type that corresponds to the connection
-    credential parameter. Recommended using the user token method.</li></span>\",\n
+    credential parameter. Recommended using the user token method.</li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li></span>\",\n
     \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your Git Repo
     access.\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account
     Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
@@ -4011,11 +4131,20 @@ data:
     \     \"required\":\"User Name cannot be empty\",\n      \"startingFromNumber\":
     \"User Name cannot start with numbers\"\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
     \   \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops enabled
-    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"HELM\":{\n  \"HEADER\":
+    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"VALIDATETOGGLE\":{\n
+    \   \"TOOLTIP\":\"This button controls the validation of the configuration. If it
+    is on, ISD will check the configuration for errors before saving it. If it is off,
+    ISD will save the configuration as it is, without any validation. We recommend keeping
+    the button on unless you are sure that the configuration is correct and does not
+    need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"HELM\":{\n  \"HEADER\":
     \"Helm\",\n  \"BODY\": \"<span><li><strong>Account Name</strong>: User-defined account
     name for target Helm repository access.</li><li><strong>Repository</strong>: Helm
     Chart Repository’s HTTP endpoint.</li><li><strong>Authentication Type</strong>:
-    Select an authentication type that corresponds to the connection credential parameter.</li><li><strong>Connect
+    Select an authentication type that corresponds to the connection credential parameter.</li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li><li><strong>Connect
     to Spinnaker</strong>: Toggle ON to propagate the change to Spinnaker Toggle on
     to propagate the change into the CD Tool.</li></span>\",\n  \"ACCOUNTNAME\":{\n
     \   \"TOOLTIP\":\"User-defined account name for target Helm repository access\",\n
@@ -4027,7 +4156,7 @@ data:
     \   \"VALIDATION_MESSAGE\":{\n      \"required\":\"Repository cannot be empty\",\n
     \     \"invalidUrl\": \"Repository URL is invalid\"\n    }\n  },\n  \"DEPLOYMENT\":{\n
     \   \"TOOLTIP\":\"This Halyard deployment will be used for Account creation / update\",\n
-    \   \"VALIDATION_MESSAGE\":{\n    }\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select
+    \   \"VALIDATION_MESSAGE\":{\n    \n    }\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select
     an authentication type that corresponds to the connection credential parameter.\",\n
     \   \"VALIDATION_MESSAGE\":{}\n  },\n  \"TOKEN\":{\n    \"TOOLTIP\":\"\",\n    \"VALIDATION_MESSAGE\":{\n
     \     \"required\":\"Token cannot be empty\"\n    }\n  },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"User
@@ -4042,10 +4171,19 @@ data:
     {\n    \"TOOLTIP\": \"The path to a file containing your docker password in plaintext
     (not a docker/config.json file)\",\n    \"VALIDATION_MESSAGE\": {\n    }\n  },\n
     \ \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Toggle on to propagate the change into
-    the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"HTTP\":{\n  \"HEADER\":
-    \"Http\",\n  \"BODY\": \"<span><li><strong>Account Name</strong>: User-defined account
-    name for HTTP protocol-based artifacts</li><li><strong>Authentication Type</strong>:
-    Select an authentication type that corresponds to the connection credential parameter.</li><li><strong>Connect
+    the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This
+    button controls the validation of the configuration. If it is on, ISD will check
+    the configuration for errors before saving it. If it is off, ISD will save the configuration
+    as it is, without any validation. We recommend keeping the button on unless you
+    are sure that the configuration is correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n
+    \ }\n},\n\"HTTP\":{\n  \"HEADER\": \"Http\",\n  \"BODY\": \"<span><li><strong>Account
+    Name</strong>: User-defined account name for HTTP protocol-based artifacts</li><li><strong>Authentication
+    Type</strong>: Select an authentication type that corresponds to the connection
+    credential parameter.</li><li><strong>Validate</strong>: This button controls the
+    validation of the configuration. If it is on, ISD will check the configuration for
+    errors before saving it. If it is off, ISD will save the configuration as it is,
+    without any validation. We recommend keeping the button on unless you are sure that
+    the configuration is correct and does not need validation.</li><li><strong>Connect
     to Spinnaker</strong>: Toggle on to propagate the change into the CD Tool.</li></span>\",\n
     \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for HTTP protocol-based
     artifacts\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account
@@ -4061,19 +4199,28 @@ data:
     Name cannot contain space\",\n      \"required\":\"User Name cannot be empty\",\n
     \     \"startingFromNumber\": \"User Name cannot start with numbers\"\n    }\n  },\n
     \ \"PASSWORD\": {\n    \"TOOLTIP\": \"Password\",\n    \"VALIDATION_MESSAGE\":{\n
-    \     \"required\" : \"Password cannot be empty\"      \n    }\n  },\n  \"PASSWORDCOMMAND\":
+    \     \"required\" : \"Password cannot be empty\"\n    }\n  },\n  \"PASSWORDCOMMAND\":
     {\n    \"TOOLTIP\": \"Command to retrieve docker token/password, commands must be
     available in environment\",\n    \"VALIDATION_MESSAGE\":{\n    }\n  },\n  \"FILE\":
     {\n    \"TOOLTIP\": \"The path to a file containing your docker password in plaintext
     (not a docker/config.json file)\",\n    \"VALIDATION_MESSAGE\": {\n    }\n  },\n
     \ \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Toggle on to propagate the change into
-    the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"GCS\":{\n  \"HEADER\":
-    \"GCS\",\n  \"BODY\": \"<span><p><strong>Fields</strong>:</p><ul class='helpTextUl'></ul><li><strong>Account
-    Name</strong>: User-defined account name for your Google Cloud Storage access.</li><li><strong>Authentication
-    Type</strong>: Select an authentication type that corresponds to the connection
-    credential parameter. </li><li><strong>Json-Key file</strong>: Configures Google
-    service account’s json file </li><li><strong>Connect to Spinnaker</strong>: Toggle
-    on to propagate the change into the CD Tool. </li></ul></span>\",\n  \"ACCOUNTNAME\":{\n
+    the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This
+    button controls the validation of the configuration. If it is on, ISD will check
+    the configuration for errors before saving it. If it is off, ISD will save the configuration
+    as it is, without any validation. We recommend keeping the button on unless you
+    are sure that the configuration is correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n
+    \ }\n},\n\"GCS\":{\n  \"HEADER\": \"GCS\",\n  \"BODY\": \"<span><p><strong>Fields</strong>:</p><ul
+    class='helpTextUl'></ul><li><strong>Account Name</strong>: User-defined account
+    name for your Google Cloud Storage access.</li><li><strong>Authentication Type</strong>:
+    Select an authentication type that corresponds to the connection credential parameter.
+    </li><li><strong>Json-Key file</strong>: Configures Google service account’s json
+    file </li><li><strong>Validate</strong>: This button controls the validation of
+    the configuration. If it is on, ISD will check the configuration for errors before
+    saving it. If it is off, ISD will save the configuration as it is, without any validation.
+    We recommend keeping the button on unless you are sure that the configuration is
+    correct and does not need validation.</li><li><strong>Connect to Spinnaker</strong>:
+    Toggle on to propagate the change into the CD Tool. </li></ul></span>\",\n  \"ACCOUNTNAME\":{\n
     \   \"TOOLTIP\":\"User-defined account name for your Google Cloud Storage access.\",\n
     \   \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account Name cannot
     contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
@@ -4084,22 +4231,30 @@ data:
     \ },\n  \"FILE\": {\n    \"TOOLTIP\": \"Configures Google service account’s json
     file\",\n    \"VALIDATION_MESSAGE\": {\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Toggle
     on to propagate the change into the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ }\n},\n\"ECR\":{\n  \"HEADER\": \"ECR\",\n  \"BODY\": \"<span><p><strong>Fields</strong>:</p><ul
-    class='helpTextUl'><li><strong>Account Name</strong>: User-defined account name
-    for your ECR Docker registry access.</li><li><strong>Registry URL</strong>: The
-    registry URL from which you want to pull and deploy images. <span class='noBr'>
-    For example:https://aws_account_id.dkr.ecr.region.amazonaws.com</span></li><li><strong>Email</strong>:
+    \ },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This button controls the validation
+    of the configuration. If it is on, ISD will check the configuration for errors before
+    saving it. If it is off, ISD will save the configuration as it is, without any validation.
+    We recommend keeping the button on unless you are sure that the configuration is
+    correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"ECR\":{\n
+    \ \"HEADER\": \"ECR\",\n  \"BODY\": \"<span><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
+    Name</strong>: User-defined account name for your ECR Docker registry access.</li><li><strong>Registry
+    URL</strong>: The registry URL from which you want to pull and deploy images. <span
+    class='noBr'> For example:https://aws_account_id.dkr.ecr.region.amazonaws.com</span></li><li><strong>Email</strong>:
     Users docker registry email. If no value is specified, the default value of fake.email@spinnaker.io
     will be used.</li><li><strong>Repositories</strong>: An optional list of repositories
     to cache images from. If not provided, Spinnaker will try to read the list of accessible
     repositories from the registries _catalog endpoint. <span class='noBr'> Example:
     library/ubuntu (Public repositories are prefixed with library/)</span></li><li><strong>Authentication
     Type</strong>: Select an authentication type that corresponds to the connection
-    credential parameter.</li><li><strong>Connect to Spinnaker</strong>: Toggle on to
-    propagate the change into the CD Tool.</li></ul></span>\",\n  \"ACCOUNTNAME\":{\n
-    \   \"TOOLTIP\":\"User-defined account name for your ECR Docker registry access.\",\n
-    \   \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account Name cannot
-    contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    credential parameter.</li><li><strong>Validate</strong>: This button controls the
+    validation of the configuration. If it is on, ISD will check the configuration for
+    errors before saving it. If it is off, ISD will save the configuration as it is,
+    without any validation. We recommend keeping the button on unless you are sure that
+    the configuration is correct and does not need validation.</li><li><strong>Connect
+    to Spinnaker</strong>: Toggle on to propagate the change into the CD Tool.</li></ul></span>\",\n
+    \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your ECR Docker
+    registry access.\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"REPOSITORIES\":{\n    \"TOOLTIP\":\"Users docker registry email. If no
@@ -4133,64 +4288,114 @@ data:
     {\n    \"TOOLTIP\": \"The path to a file containing your docker password in plaintext
     (not a docker/config.json file)\",\n    \"VALIDATION_MESSAGE\": {\n    }\n  },\n
     \ \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Toggle on to propagate the change into
-    the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"PUBSUB\":{\n  \"HEADER\":
-    \"PUBSUB\",\n  \"BODY\": \"<span><li><strong>Account Name</strong>: User-defined
-    account name for your Google Cloud Pub/Sub access.</li></span>\",\n  \"ACCOUNTNAME\":{\n
-    \   \"TOOLTIP\":\"User-defined account name for your Google Cloud Pub/Sub access.\",\n
-    \   \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account Name cannot
-    contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This
+    button controls the validation of the configuration. If it is on, ISD will check
+    the configuration for errors before saving it. If it is off, ISD will save the configuration
+    as it is, without any validation. We recommend keeping the button on unless you
+    are sure that the configuration is correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n
+    \ }\n},\n\"PUBSUB\":{\n  \"HEADER\": \"PUBSUB\",\n  \"BODY\": \"<span><li><strong>Account
+    Name</strong>: User-defined account name for your Google Cloud Pub/Sub access.</li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li></span>\",\n
+    \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your Google
+    Cloud Pub/Sub access.\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"PROJECTNAME\": {\n    \"TOOLTIP\": \"The name of the GCP project your
     subscription lives in\",\n    \"VALIDATION_MESSAGE\":{\n      \"cannotContainSpace\":\"Project
     Name cannot contain space\",\n      \"required\":\"Project Name cannot be empty\"\n
     \   }\n  },\n  \"SUBSCRIPTIONNAME\": {\n    \"TOOLTIP\": \"The name of the subscription
-    to listen to. This identifier does not include the name of the project, and must
-    already be configured for Spinnaker to work.\",\n    \"VALIDATION_MESSAGE\":{\n
-    \     \"cannotContainSpace\":\"Subscription Name cannot contain space\",\n      \"required\":\"Subscription
-    Name cannot be empty\"\n    }\n  },\n  \"MESSAGEFORMAT\": {\n    \"TOOLTIP\":\"Supporting
-    Message Formats: GCB,GCS,GCR,CUSTOM\",\n    \"VALIDATION_MESSAGE\": {}\n  },\n  \"TEMPLATEFILE\":
-    {\n    \"TOOLTIP\":\"Applicable only for CUSTOM message format\",\n    \"VALIDATION_MESSAGE\":
-    {}\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select how the external
-    resource confirms the user credentials\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n
-    \ \"FILE\": {\n    \"TOOLTIP\": \"JSON service account that Spinnaker will use as
-    credentials\",\n    \"VALIDATION_MESSAGE\": {\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
+    to listen to and it should have PubsSub Viewer and PubSub Subscriber Roles as mandatory.
+    This identifier does not include the name of the project, and must already be configured
+    for Spinnaker to work.\",\n    \"VALIDATION_MESSAGE\":{\n      \"cannotContainSpace\":\"Subscription
+    Name cannot contain space\",\n      \"required\":\"Subscription Name cannot be empty\"\n
+    \   }\n  },\n  \"MESSAGEFORMAT\": {\n    \"TOOLTIP\":\"Supporting Message Formats:
+    GCB,GCS,GCR,CUSTOM\",\n    \"VALIDATION_MESSAGE\": {}\n  },\n  \"TEMPLATEFILE\":
+    {\n    \"TOOLTIP\": \"To translate the Pub/Sub payload into a Spinnaker artifact,
+    you need to create a Jinja template that defines how to transform the payload data.
+    The Jinja template should produce a JSON list of Spinnaker artifacts as its output.
+    You can use any valid Jinja syntax in your template. Example : https://spinnaker.io/docs/guides/user/pipeline/triggers/pubsub/#example\",\n
+    \   \"VALIDATION_MESSAGE\": {}\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select
+    how the external resource confirms the user credentials\",\n    \"VALIDATION_MESSAGE\":{}\n
+    \ },\n  \"FILE\": {\n    \"TOOLTIP\": \"JSON service account that Spinnaker will
+    use as credentials\",\n    \"VALIDATION_MESSAGE\": {\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
     \   \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops enabled
-    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"GCB\":{\n  \"HEADER\":
-    \"GCB\",\n  \"BODY\": \"\",\n  \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"The name of
-    the account to operate on\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
-    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n  \"VALIDATETOGGLE\":{\n
+    \   \"TOOLTIP\":\"This button controls the validation of the configuration. If it
+    is on, ISD will check the configuration for errors before saving it. If it is off,
+    ISD will save the configuration as it is, without any validation. We recommend keeping
+    the button on unless you are sure that the configuration is correct and does not
+    need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"GCB\":{\n  \"HEADER\":
+    \"GCB\",\n  \"BODY\": \"<div><p>This page allows you to connect Google Cloud Build
+    with ISD. Google cloud build can be used as an automated trigger as well as a stage
+    in the pipeline.</p><p>To configure a pipeline to be triggered by a completed GCB
+    build, after this integration is succefully created, go to your application's pipeline
+    menu. Click on the configuration stage of a pipeline, then select Pub/Sub as the
+    automated trigger. Select Pub/Sub System type as Google and select your subscribtion
+    name.</p><p>To run GCB Build as part of a pipeline, create a stage of type Google
+    Cloud Build, select your GCB Account and configure the build definition.In the Produces
+    Artifacts section, you may supply any artifacts that you expect the build to create
+    in order to make these artifacts available to downstream stages</p><p><strong>Fields</strong>:</p><ul
+    class='helpTextUl'><li><strong>Account Name</strong>: The user defined name of this
+    account.<span></span></li><li><strong>Project Name</strong>: <span>The name of the
+    GCP project in which to trigger and monitor builds</span></li><li><strong>Subscription
+    Name</strong>: <span> The name of the PubSub subscription on which to listen for
+    build changes</span></li><li><strong>Authentication Type</strong>: <span>Select
+    how the external resource confirms the user credentials</span></li><li><strong>Json
+    key file (File) </strong>: <span>JSON service account that Spinnaker will use as
+    credentials</span></li><li><strong>Validate</strong>: This button controls the validation
+    of the configuration. If it is on, ISD will check the configuration for errors before
+    saving it. If it is off, ISD will save the configuration as it is, without any validation.
+    We recommend keeping the button on unless you are sure that the configuration is
+    correct and does not need validation.</li><li><strong>Connect to CD</strong>: <span>Switch
+    On this toggle to configure the resource in a gitops enabled CD tool</span></li><li><strong>Permissions</strong>:
+    <span>Configure specific user groups’ access to this integration.</li></ul></div>\",\n
+    \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"The name of the account to operate on\",\n
+    \   \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account Name cannot
+    contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \ },\n  \"PROJECTNAME\": {\n    \"TOOLTIP\": \"The name of the GCP project in which
     to trigger and monitor builds\",\n    \"VALIDATION_MESSAGE\":{\n      \"cannotContainSpace\":\"Project
     Name cannot contain space\",\n      \"required\":\"Project Name cannot be empty\"\n
     \   }\n  },\n  \"SUBSCRIPTIONNAME\": {\n    \"TOOLTIP\": \"The name of the PubSub
-    subscription on which to listen for build changes\",\n    \"VALIDATION_MESSAGE\":{\n
-    \     \"cannotContainSpace\":\"Subscription Name cannot contain space\",\n      \"required\":\"Subscription
-    Name cannot be empty\"\n    }\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select
-    how the external resource confirms the user credentials\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ },\n  \"FILE\": {\n    \"TOOLTIP\": \"JSON service account that Spinnaker will
-    use as credentials\",\n    \"VALIDATION_MESSAGE\": {\n    }\n  },\n  \"USERNAME\":{\n
-    \   \"TOOLTIP\":\"GCB User Name\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
-    \"User Name cannot contain special characters other than - and _\",\n      \"cannotContainSpace\":\"User
+    subscription on which to listen for build changes and it should have PubsSub Viewer
+    and PubSub Subscriber Roles as mandatory.\",\n    \"VALIDATION_MESSAGE\":{\n      \"cannotContainSpace\":\"Subscription
+    Name cannot contain space\",\n      \"required\":\"Subscription Name cannot be empty\"\n
+    \   }\n  },\n  \"AUTHENTICATIONTYPE\":{\n    \"TOOLTIP\":\"Select how the external
+    resource confirms the user credentials\",\n    \"VALIDATION_MESSAGE\":{}\n  },\n
+    \ \"FILE\": {\n    \"TOOLTIP\": \"JSON service account that Spinnaker will use as
+    credentials\",\n    \"VALIDATION_MESSAGE\": {\n    }\n  },\n  \"USERNAME\":{\n    \"TOOLTIP\":\"GCB
+    User Name\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"User
+    Name cannot contain special characters other than - and _\",\n      \"cannotContainSpace\":\"User
     Name cannot contain space\",\n      \"required\":\"User Name cannot be empty\",\n
     \     \"startingFromNumber\": \"User Name cannot start with numbers\"\n    }\n  },\n
     \ \"PASSWORD\": {\n    \"TOOLTIP\": \"Password\",\n    \"VALIDATION_MESSAGE\":{\n
     \   }\n  },\n  \"SPINNAKERTOGGLE\":{\n    \"TOOLTIP\":\"Switch On this toggle to
     configure the resource in a gitops enabled Spinnaker instance\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ }\n},\n\"GCR\":{\n  \"HEADER\": \"GCR\",\n  \"BODY\": \"<span><p><strong>Fields</strong>:</p><ul
-    class='helpTextUl'><li><strong>Account Name</strong>: User-defined account name
-    for your GCR Docker registry access.</li><li><strong>Registry URL</strong>: The
-    registry URL from which you want to pull and deploy images. <span class='noBr'>
-    For example: https://gcr.io - Global GCR, https://[us|eu|asia].gcr.io - Regional
-    GCR</span></li><li><strong>Email</strong>: Users docker registry email. If no value
-    is specified, the default value of fake.email@spinnaker.io will be used.</li><li><strong>Repositories</strong>:
+    \ },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This button controls the validation
+    of the configuration. If it is on, ISD will check the configuration for errors before
+    saving it. If it is off, ISD will save the configuration as it is, without any validation.
+    We recommend keeping the button on unless you are sure that the configuration is
+    correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"GCR\":{\n
+    \ \"HEADER\": \"GCR\",\n  \"BODY\": \"<span><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
+    Name</strong>: User-defined account name for your GCR Docker registry access.</li><li><strong>Registry
+    URL</strong>: The registry URL from which you want to pull and deploy images. <span
+    class='noBr'> For example: https://gcr.io - Global GCR, https://[us|eu|asia].gcr.io
+    - Regional GCR</span></li><li><strong>Email</strong>: Users docker registry email.
+    If no value is specified, the default value of fake.email@spinnaker.io will be used.</li><li><strong>Repositories</strong>:
     An optional list of repositories to cache images from. If not provided, Spinnaker
     will try to read the list of accessible repositories from the registries _catalog
     endpoint. <span class='noBr'> Example: library/ubuntu (Public repositories are prefixed
     with library/)</span></li><li><strong>Authentication Type</strong>: Select an authentication
-    type that corresponds to the connection credential parameter.</li><li><strong>Connect
+    type that corresponds to the connection credential parameter.</li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li><li><strong>Connect
     to Spinnaker</strong>: Toggle on to propagate the change into the CD Tool.</li></ul></span>\",\n
     \ \"ACCOUNTNAME\":{\n    \"TOOLTIP\":\"User-defined account name for your GCR Docker
     registry access.\",\n    \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
@@ -4228,8 +4433,13 @@ data:
     \"The path to a file containing your docker password in plaintext (not a docker/config.json
     file)\",\n    \"VALIDATION_MESSAGE\": {\n    }\n  },\n  \"SPINNAKERTOGGLE\":{\n
     \   \"TOOLTIP\":\"Toggle on to propagate the change into the CD Tool.\",\n    \"VALIDATION_MESSAGE\":{}\n
-    \ }\n},\n\"BAMBOO\":{\n    \"HEADER\": \"Bamboo CI\",\n    \"BODY\":\" <span><p>Bamboo
-    CI integration can be used as a datasource for Approval Gate.</p><p><strong>Fields</strong>:</p><ul
+    \ },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This button controls the validation
+    of the configuration. If it is on, ISD will check the configuration for errors before
+    saving it. If it is off, ISD will save the configuration as it is, without any validation.
+    We recommend keeping the button on unless you are sure that the configuration is
+    correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n},\n\"BAMBOO\":{\n
+    \   \"HEADER\": \"Bamboo CI\",\n    \"BODY\":\" <span><p>Bamboo CI integration can
+    be used as a datasource for Approval Gate.</p><p><strong>Fields</strong>:</p><ul
     class='helpTextUl'> <li><strong>Name</strong>: User defined name for the Bamboo
     CI Account <span class='noBr'>(Example: opsmx-bamboo)</span></li><li><strong>Endpoint</strong>:
     Bamboo CI URL <span class='noBr'>(Example: https://xyz.mybamboo.com)</span></li><li><strong>Token</strong>:
@@ -4267,7 +4477,11 @@ data:
     find <a href='https://www.jenkins.io/doc/book/using/using-credentials/' target='_blank'>here</a>
     how to generate personal access tokens. <span>(Example: 77d67609a841b1811a114b7fbfa109b3c2)</span></li><li><strong>CSRF</strong>:
     Recommended to toggle on the CSRF (Cross-Site Request Forgery) flag</li><li><strong>User
-    Name</strong>: Jenkins User Name</li><li><strong>Password</strong>: Jenkins Password</li><li><strong>Connect
+    Name</strong>: Jenkins User Name</li><li><strong>Password</strong>: Jenkins Password</li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li><li><strong>Connect
     to Spinnaker</strong>: Toggle to configure Spinnaker for Jenkins</li><li><strong>Permissions</strong>:
     Enable/disable access to the Jenkins account in Autopilot to specific user groups</li></ul></span>\",\n
     \   \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User-defined account name for your Jenkins
@@ -4291,9 +4505,19 @@ data:
     \   },\n    \"PASSWORD\":{\n      \"TOOLTIP\":\"Your Jenkins password\",\n      \"VALIDATION_MESSAGE\":{\n
     \       \"required\":\"Password cannot be empty\"\n      }\n    },\n    \"SPINNAKERTOGGLE\":{\n
     \     \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops
-    enabled Spinnaker instance\",\n      \"VALIDATION_MESSAGE\":{}\n    }\n  },\n  \"JIRA\":{\n
-    \   \"HEADER\": \"Jira\",\n    \"BODY\":\"\",\n    \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User
-    defined name for the Jira account\",\n      \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    enabled Spinnaker instance\",\n      \"VALIDATION_MESSAGE\":{}\n    },\n  \"VALIDATETOGGLE\":{\n
+    \   \"TOOLTIP\":\"This button controls the validation of the configuration. If it
+    is on, ISD will check the configuration for errors before saving it. If it is off,
+    ISD will save the configuration as it is, without any validation. We recommend keeping
+    the button on unless you are sure that the configuration is correct and does not
+    need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n  }\n  },\n  \"JIRA\":{\n    \"HEADER\":
+    \"Jira\",\n    \"BODY\":\"<span><ul><li><strong>Account Name</strong> : User defined
+    name for the Jira account</li><li><strong>Email</strong> : Jira Email Id</li><li><strong>Token</strong>
+    : Jira Personal Access Token</li><li><strong>Host URL</strong> : Jira Host URL</li><li><strong>Connect
+    to CD</strong> : Switch On this toggle to configure the resource in a gitops enabled
+    spinnaker instance</li><li><strong>Permissions</strong> : Authorization for the
+    account</li></ul></span>\",\n    \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User defined
+    name for the Jira account\",\n      \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
     \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
@@ -4303,18 +4527,21 @@ data:
     Access Token\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Token cannot
     be empty\"\n      }\n    },\n    \"HOSTURL\":{\n      \"TOOLTIP\":\"Jira Host URL\",\n
     \     \"VALIDATION_MESSAGE\":{\n        \"required\":\"Host URL cannot be empty\",\n
-    \       \"invalidUrl\": \"Host URL is invalid\"\n      }\n    },\n    \"SPINNAKERTOGGLE\":{\n
-    \     \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops
-    enabled Spinnaker instance\",\n      \"VALIDATION_MESSAGE\":{}\n    }\n  },\n  \"SERVICENOW\":{\n
-    \   \"HEADER\": \"Service Now\",\n    \"BODY\":\"<span><p>Service integration can
-    be used to configure ServiceNow Custom stages in Spinnaker. In addition, it can
-    also be used as a datasource for Approval Gate.</p><p><strong>Fields</strong>:</p><ul
-    class='helpTextUl'><li><strong>Account Name</strong>: User defined name for the
-    Service Account <span class='noBr'>(Example: myservicenow)</span></li><li><strong>Host
-    URL</strong>: ServiceNow URL <span class='noBr'>(Example: https://servicenow.opsmx.com)</span></li><li><strong>User
-    Name</strong>: ServiceNow User Name, for authentication</li><li><strong>Password</strong>:
-    ServiceNow Password for the User who is authenticated</li><li><strong>Connect to
-    Spinnaker</strong>: Toggle to configure Spinnaker for ServiceNow</li><li><strong>Permissions</strong>:
+    \       \"invalidUrl\": \"Host URL is invalid\"\n      }\n    },\n    \"ACCOUNTTYPE\":{\n
+    \     \"TOOLTIP\": \"Cloud Jira: Please use this option if you are using cloud instance
+    of Jira. On-Prem Jira: Please use this option if you are using Jira on-prem\",\n
+    \     \"VALIDATION_MESSAGE\": {\n      }\n    },\n    \"SPINNAKERTOGGLE\":{\n      \"TOOLTIP\":\"Switch
+    On this toggle to configure the resource in a gitops enabled Spinnaker instance\",\n
+    \     \"VALIDATION_MESSAGE\":{}\n    }\n  },\n  \"SERVICENOW\":{\n    \"HEADER\":
+    \"Service Now\",\n    \"BODY\":\"<span><p>Service integration can be used to configure
+    ServiceNow Custom stages in Spinnaker. In addition, it can also be used as a datasource
+    for Approval Gate.</p><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
+    Name</strong>: User defined name for the Service Account <span class='noBr'>(Example:
+    myservicenow)</span></li><li><strong>Host URL</strong>: ServiceNow URL <span class='noBr'>(Example:
+    https://servicenow.opsmx.com)</span></li><li><strong>User Name</strong>: ServiceNow
+    User Name, for authentication</li><li><strong>Password</strong>: ServiceNow Password
+    for the User who is authenticated</li><li><strong>Connect to Spinnaker</strong>:
+    Toggle to configure Spinnaker for ServiceNow</li><li><strong>Permissions</strong>:
     Enable/disable access to the ServiceNow account in Autopilot to specific usergroups</li></ul></span>\",\n
     \   \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User defined name for the Service Now
     account\",\n      \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account
@@ -4330,20 +4557,27 @@ data:
     cannot be empty\"\n      }\n    },\n    \"HOSTURL\":{\n      \"TOOLTIP\":\"Service
     Now Host URL\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Host URL
     cannot be empty\",\n        \"invalidUrl\": \"Host URL is invalid\"\n      }\n    }\n
-    \ }\n  ,\n  \"APPDYNAMICS\":{\n    \"HEADER\": \"APPDYNAMICS\",\n    \"BODY\":\"\",\n
-    \   \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User defined name for the APPDYNAMICS
-    account\",\n      \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account
-    Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
-    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
-    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
-    \   },\n    \"CONTROLLERHOST\":{\n      \"TOOLTIP\":\"APPDYNAMICS Controller Host\",\n
-    \     \"VALIDATION_MESSAGE\":{\n        \"required\":\"Controller Host  cannot be
-    empty\",\n        \"invalidUrl\": \"Controller Host URL is invalid\"\n      }\n
-    \   },\n    \"TEMPORARYACCESSTOKEN\":{\n      \"TOOLTIP\":\"APPDYNAMICS Personal
-    Temporary Access Token\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Temporary
-    Access Token cannot be empty\"\n      }\n    }\n  },\n  \"CLOUDWATCH\":{\n    \"HEADER\":
-    \"AWS-CLOUDWATCH\",\n    \"BODY\":\"<span>Amazon CloudWatch Can be used as a monitoring
-    provider in the verification gates</span>\",\n    \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User
+    \ }\n  ,\n  \"APPDYNAMICS\":{\n    \"HEADER\": \"APPDYNAMICS\",\n    \"BODY\":\"<span><ul><li><strong>Account
+    Name</strong> : User defined name for the APPDYNAMICS account</li><li><strong>Controller
+    Host</strong> : APPDYNAMICS Controller Host</li><li><strong>Temporary Access Token</strong>
+    : APPDYNAMICS Personal Temporary Access Token</li></ul></span>\",\n    \"ACCOUNTNAME\":{\n
+    \     \"TOOLTIP\":\"User defined name for the APPDYNAMICS account\",\n      \"VALIDATION_MESSAGE\":{\n
+    \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
+    other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
+    \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
+    \"Account Name cannot start with numbers\"\n    }\n    },\n    \"CONTROLLERHOST\":{\n
+    \     \"TOOLTIP\":\"APPDYNAMICS Controller Host\",\n      \"VALIDATION_MESSAGE\":{\n
+    \       \"required\":\"Controller Host  cannot be empty\",\n        \"invalidUrl\":
+    \"Controller Host URL is invalid\"\n      }\n    },\n    \"TEMPORARYACCESSTOKEN\":{\n
+    \     \"TOOLTIP\":\"APPDYNAMICS Personal Temporary Access Token\",\n      \"VALIDATION_MESSAGE\":{\n
+    \       \"required\":\"Temporary Access Token cannot be empty\"\n      }\n    }\n
+    \ },\n  \"CLOUDWATCH\":{\n    \"HEADER\": \"AWS-CLOUDWATCH\",\n    \"BODY\":\"<span><p>Amazon
+    CloudWatch Can be used as a monitoring provider in the verification gates</p><p><strong>Fields</strong>:</p><ul
+    class='helpTextUl'><li><strong>Account Name</strong>: User defined name for the
+    AWS-CLOUDWATCH account</li><li><strong>Access Key Id</strong>: AWS-CLOUDWATCH Access
+    Key Id</li><li><strong>Secret Access Key</strong>: AWS-CLOUDWATCH Secret Access
+    Key</li><li><strong>Permissions</strong>: Configure specific user groups’ access
+    to this integration.</li></ul></span>\",\n    \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User
     defined name for the AWS-CLOUDWATCH account\",\n      \"VALIDATION_MESSAGE\":{\n
     \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
     other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
@@ -4353,17 +4587,24 @@ data:
     \       \"required\":\"Access Key Id cannot be empty\"\n      }\n    },\n    \"SECRET_KEY\":{\n
     \     \"TOOLTIP\":\"AWS-CLOUDWATCH Secret Access Key\",\n      \"VALIDATION_MESSAGE\":{\n
     \       \"required\":\"Secret Access Key cannot be empty\"\n      }\n    }\n  },\n
-    \ \"DATADOG\":{\n    \"HEADER\": \"DATADOG\",\n    \"BODY\":\"\",\n    \"ACCOUNTNAME\":{\n
-    \     \"TOOLTIP\":\"User defined name for the DATADOG account\",\n      \"VALIDATION_MESSAGE\":{\n
-    \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
-    other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
-    \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
-    \"Account Name cannot start with numbers\"\n    }\n    },\n    \"API_KEY\":{\n      \"TOOLTIP\":\"DATADOG
-    Api Key\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"API key cannot
-    be empty\"\n      }\n    },\n    \"APPLICATION_KEY\":{\n      \"TOOLTIP\":\"DATADOG
-    Application Key\",\n      \"VALIDATION_MESSAGE\":{\n        \"required\":\"Application
-    Key cannot be empty\"\n      }\n    }\n  },\n  \"DYNATRACE\":{\n    \"HEADER\":
-    \"Dynatrace\",\n    \"BODY\":\"\",\n    \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User
+    \ \"DATADOG\":{\n    \"HEADER\": \"DATADOG\",\n    \"BODY\":\"<span><ul><li><strong>Account
+    Name</strong> : User defined name for the DATADOG account</li><li><strong>API Key</strong>
+    : DATADOG API Key</li><li><strong>Application Key</strong> : DATADOG Application
+    Key</li><li><strong>Permissions</strong> : Authorization for the account</li></ul></span>\",\n
+    \   \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User defined name for the DATADOG account\",\n
+    \     \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account Name cannot
+    contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
+    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
+    \   },\n    \"API_KEY\":{\n      \"TOOLTIP\":\"DATADOG Api Key\",\n      \"VALIDATION_MESSAGE\":{\n
+    \       \"required\":\"API key cannot be empty\"\n      }\n    },\n    \"APPLICATION_KEY\":{\n
+    \     \"TOOLTIP\":\"DATADOG Application Key\",\n      \"VALIDATION_MESSAGE\":{\n
+    \       \"required\":\"Application Key cannot be empty\"\n      }\n    }\n  },\n
+    \ \"DYNATRACE\":{\n    \"HEADER\": \"Dynatrace\",\n    \"BODY\":\"<span><ul><li><strong>Account
+    Name</strong> : User defined name for the Dynatrace account</li><li><strong>Url</strong>
+    : Dynatrace URL. For example, https://www.dynatrace.com</li><li><strong>Api Token</strong>
+    : Dynatrace Personal Access Token</li><li><strong>Permissions</strong> : Authorization
+    for the account</li></ul></span>\",\n    \"ACCOUNTNAME\":{\n      \"TOOLTIP\":\"User
     defined name for the Dynatrace account\",\n      \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
     \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
@@ -4416,11 +4657,13 @@ data:
     host address, from which you access the Graphite \",\n        \"VALIDATION_MESSAGE\":{\n
     \         \"required\":\"End Point cannot be empty\",\n          \"invalidUrl\":
     \"End Point URL is invalid\"\n        }\n      }\n    },\n    \"GRAYLOG\":{\n      \"HEADER\":
-    \"GRAYLOG\",\n      \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
+    \"GRAYLOG\",\n      \"BODY\":\"<span><ul><li><strong>Account Name</strong>: User-defined
     account name for your Graylog access.</li><li><strong>Endpoint</strong>: Graylog
     host address, from which you access the Graylog </li><li><strong>Token</strong>:
-    The user's token </li></span>\",\n      \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User-defined
-    account name for your Graylog access.\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    GrayLog Personal Access Token. To generate a token, go to Greylog -> System / Users
+    -> Users Overview, select a user and click on Edit tokens  </li></ul></span>\",\n
+    \     \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User-defined account name for your
+    Graylog access.\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
     \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
@@ -4428,25 +4671,27 @@ data:
     which you access the Graylog \",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"End
     Point cannot be empty\",\n          \"invalidUrl\": \"End Point URL is invalid\"\n
     \       }\n      },\n      \"TOKEN\":{\n        \"TOOLTIP\":\"GrayLog Personal Access
-    Token\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Token cannot
-    be empty\"\n        }\n      }\n    },\n    \"NEWRELIC\":{\n      \"HEADER\": \"New
-    Relic\",\n      \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
-    account name for your NewRelic access.</li><li><strong>Api Key</strong>: The user's
-    token to authenticate with Newrelic</li><li><strong>Application Key</strong>: The
-    application key identifies which account the incoming data belongs to.</li><li><strong>Account
-    ID</strong>: Provide account ID to identify the account </li><li><strong>Query Key</strong>:
-    Provide a query key to filter the data </li></span>\",\n      \"ACCOUNTNAME\":{\n
-    \       \"TOOLTIP\":\"User-defined account name for your NewRelic access.\",\n        \"VALIDATION_MESSAGE\":{\n
-    \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
-    other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
-    \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
-    \"Account Name cannot start with numbers\"\n    }\n      },\n      \"APIKEY\":{\n
-    \       \"TOOLTIP\":\"NewRelic Api Key\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"API
-    key cannot be empty\"\n        }\n      },\n      \"APPLICATIONKEY\":{\n        \"TOOLTIP\":\"The
-    application key identifies which account the incoming data belongs to.\",\n        \"VALIDATION_MESSAGE\":{\n
-    \         \"required\":\"Application Key cannot be empty\"\n        }\n      },\n
-    \     \"ACCOUNTID\":{\n        \"TOOLTIP\":\"Provide account ID to identify the
-    account \",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Account
+    Token. To generate a token, go to Greylog -> System / Users -> Users Overview, select
+    a user and click on Edit tokens\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Token
+    cannot be empty\"\n        }\n      }\n    },\n    \"NEWRELIC\":{\n      \"HEADER\":
+    \"New Relic\",\n      \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
+    account name for your NewRelic access.</li><li><strong>API Key</strong>: Provide
+    your Newrelic User Key. This can be generated from New Relic's API keys UI</li><li><strong>Application
+    Key</strong>: The application key identifies which account the incoming data belongs
+    to.</li><li><strong>Account ID</strong>: Provide account ID to identify the account
+    </li><li><strong>Query Key</strong>: Provide a query key to filter the data </li></span>\",\n
+    \     \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User-defined account name for your
+    NewRelic access.\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
+    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
+    \     },\n      \"APIKEY\":{\n        \"TOOLTIP\":\"Provide your Newrelic User Key.
+    This can be generated from New Relic's API keys UI\",\n        \"VALIDATION_MESSAGE\":{\n
+    \         \"required\":\"API key cannot be empty\"\n        }\n      },\n      \"APPLICATIONKEY\":{\n
+    \       \"TOOLTIP\":\"The application key identifies which account the incoming
+    data belongs to.\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Application
+    Key cannot be empty\"\n        }\n      },\n      \"ACCOUNTID\":{\n        \"TOOLTIP\":\"Provide
+    account ID to identify the account \",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Account
     Id cannot be empty\"\n        }\n      },\n      \"QUERYKEY\":{\n        \"TOOLTIP\":\"Provide
     a query key to filter the data \",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Query
     Key cannot be empty\"\n        }\n      },\n      \"TOKEN\":{\n        \"TOOLTIP\":\"The
@@ -4493,18 +4738,27 @@ data:
     \       \"TOOLTIP\":\"Splunk Dashboard URL that you want to access \",\n        \"VALIDATION_MESSAGE\":{\n
     \         \"required\":\"Splunk DashBoard Url cannot be empty\",\n          \"invalidUrl\":
     \"Splunk DashBoard URL is invalid\"\n        }\n      }\n    },\n    \"STACKDRIVER\":{\n
-    \     \"HEADER\": \"Stackdriver\",\n      \"BODY\":\"\",\n      \"ACCOUNTNAME\":{\n
-    \       \"TOOLTIP\":\"User defined name for the Stackdriver account\",\n        \"VALIDATION_MESSAGE\":{\n
+    \     \"HEADER\": \"Stackdriver\",\n      \"BODY\":\"<span><ul><p>Google Cloud's
+    operations suite (formerly Stackdriver) provides Integrated monitoring, logging,
+    and trace managed services for applications and systems running on Google Cloud
+    and beyond.</p><li><strong>Account Name</strong> : User defined name for the Stackdriver
+    account</li><li><strong>Encrypted Key</strong> : Stackdriver Encrypted Key file</li><li><strong>Permissions</strong>:
+    Authorization for the account</li></ul></span>\",\n      \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User
+    defined name for the Stackdriver account\",\n        \"VALIDATION_MESSAGE\":{\n
     \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
     other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
     \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
     \"Account Name cannot start with numbers\"\n    }\n      },\n      \"KEY_FILE\":{\n
     \       \"TOOLTIP\":\"Stackdriver Encrypted Key file\",\n        \"VALIDATION_MESSAGE\":{\n
     \         \"required\":\"Encrypted Key File cannot be empty\"\n        }\n      }\n
-    \   },\n    \"SUMOLOGIC\":{\n      \"HEADER\": \"Sumo Logic\",\n      \"BODY\":\"\",\n
-    \     \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User defined name for the Sumologic
-    account\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account
-    Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    \   },\n    \"SUMOLOGIC\":{\n      \"HEADER\": \"Sumo Logic\",\n      \"BODY\":\"<span><ul><li><strong>Account
+    Name</strong>: User defined name for the Sumologic account</li><li><strong>Access
+    ID</strong>: Sumologic Access Id. You can generate Access Id (Administration > Security
+    > Access Keys)</li><li><strong>Access Key</strong>: Sumologic Access Key. You can
+    generate Access Id (Administration > Security > Access Keys)</li><li><strong>Zone</strong>:
+    Sumologic Zone</li></ul></span>\",\n      \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User
+    defined name for the Sumologic account\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
     Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
     \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
     \     },\n      \"ACCESSID\":{\n        \"TOOLTIP\":\"sumologic Access Id. You can
@@ -4516,44 +4770,58 @@ data:
     Zone\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Zone
     cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Zone
     cannot contain space\",\n      \"required\":\"Zone cannot be empty\",\n      \"startingFromNumber\":
-    \"Zone cannot start with numbers\"\n    }\n      }\n    },\n    \"VMWARETANZU\":{\n
-    \     \"HEADER\": \"VMWare Tanzu Observability\",\n      \"BODY\":\"<span><li><strong>Account
+    \"Zone cannot start with numbers\"\n    }\n      }\n    },\n    \n    \"VMWARETANZU\":{\n
+    \     \"HEADER\": \"VMWare Tanzu Observability\",\n      \"BODY\":\"<span><ul><li><strong>Account
     Name</strong>: User-defined account name for your VMWare Tanzu access</li><li><strong>Endpoint</strong>:
     VMWare Tanzu host address, from which you access the VMWare Tanzu</li><li><strong>Email</strong>:
     Provide the user's registered and authorized email</li><li><strong>API token</strong>:
-    The user's API token </li></span>\",\n      \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User-defined
-    account name for your VMWare Tanzu access\",\n        \"VALIDATION_MESSAGE\":{\n
-    \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
-    other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
-    \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
-    \"Account Name cannot start with numbers\"\n    }\n      },\n      \"END_POINT\":{\n
-    \       \"TOOLTIP\":\"VMWare Tanzu host address, from which you access the VMWare
-    Tanzu\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"End Point cannot
-    be empty\",\n          \"invalidUrl\": \"End Point is invalid\"\n        }\n      },\n
-    \     \"EMAIL\":{\n        \"TOOLTIP\":\"Provide the user's registered and authorized
-    email\",\n        \"VALIDATION_MESSAGE\":{\n          \"email\":\"Email is invalid\",\n
-    \         \"required\":\"Email cannot be empty\"\n        }\n      },\n      \"API_TOKEN\":{\n
-    \       \"TOOLTIP\":\"The user's API token \",\n        \"VALIDATION_MESSAGE\":{\n
-    \         \"required\":\"Api Token cannot be empty\"\n        }\n      }\n    },\n
-    \   \"MSTEAMS\":{\n      \"HEADER\": \"Microsoft Teams\",\n      \"BODY\":\"\"\n
-    \   },\n    \"SLACK\":{\n      \"HEADER\": \"Slack\",\n      \"BODY\":\"<span><li><strong>Account
-    Name</strong>: User-defined account name for your Slack access.</li><li><strong>BotName</strong>:
-    Provide the bot name where you want to receive notifications in slack</li><li><strong>Token</strong>:
-    The user's token to authenticate with slack.</li></span>\",\n      \"ACCOUNTNAME\":{\n
-    \       \"TOOLTIP\":\"User defined name for the Slack account\",\n        \"VALIDATION_MESSAGE\":{\n
-    \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
-    other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
-    \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
-    \"Account Name cannot start with numbers\"\n    }\n      },\n      \"BOTNAME\":{\n
-    \       \"TOOLTIP\":\"Slack Bot Name\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
-    \"Bot Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Bot
-    Name cannot contain space\",\n      \"required\":\"Bot Name cannot be empty\",\n
-    \     \"startingFromNumber\": \"Bot Name cannot start with numbers\"\n    }\n      },\n
-    \     \"TOKEN\":{\n        \"TOOLTIP\":\"Slack Personal Access Token\",\n        \"VALIDATION_MESSAGE\":{\n
-    \         \"required\":\"Token cannot be empty\"\n        }\n      },\n      \"SPINNAKERTOGGLE\":{\n
-    \       \"TOOLTIP\":\"Switch On this toggle to configure the resource in a gitops
-    enabled Spinnaker instance\",\n        \"VALIDATION_MESSAGE\":{}\n      }\n    },\n
-    \   \"OPA\":{\n      \"HEADER\": \"OPA\",\n      \"BODY\":\"<span><li><strong>Account
+    The user's API token. To generate an API token, log in to your instance  as user
+    with the API Tokens permission. Click the gear icon  at the top right of the toolbar
+    and select your user name. On the API Access tab, click Generate. </li></ul></span>\",\n
+    \     \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User-defined account name for your
+    VMWare Tanzu access\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
+    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
+    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
+    \     },\n      \"END_POINT\":{\n        \"TOOLTIP\":\"VMWare Tanzu host address,
+    from which you access the VMWare Tanzu\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"End
+    Point cannot be empty\",\n          \"invalidUrl\": \"End Point is invalid\"\n        }\n
+    \     },\n      \"EMAIL\":{\n        \"TOOLTIP\":\"Provide the user's registered
+    and authorized email\",\n        \"VALIDATION_MESSAGE\":{\n          \"email\":\"Email
+    is invalid\",\n          \"required\":\"Email cannot be empty\"\n        }\n      },\n
+    \     \"API_TOKEN\":{\n        \"TOOLTIP\":\"The user's API token. To generate an
+    API token, log in to your instance  as user with the API Tokens permission. Click
+    the gear icon  at the top right of the toolbar and select your user name. On the
+    API Access tab, click Generate. \",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Api
+    Token cannot be empty\"\n        }\n      }\n    },\n    \"MSTEAMS\":{\n      \"HEADER\":
+    \"Microsoft Teams\",\n      \"BODY\":\"\"\n    },\n    \"SLACK\":{\n      \"HEADER\":
+    \"Slack\",\n      \"BODY\":\"<span><li><strong>Account Name</strong>: User-defined
+    account name for your Slack access.</li><li><strong>BotName</strong>: Provide the
+    bot name where you want to receive notifications in slack</li><li><strong>Token</strong>:
+    The user's token to authenticate with slack.</li><li><strong>Validate</strong>:
+    This button controls the validation of the configuration. If it is on, ISD will
+    check the configuration for errors before saving it. If it is off, ISD will save
+    the configuration as it is, without any validation. We recommend keeping the button
+    on unless you are sure that the configuration is correct and does not need validation.</li></span>\",\n
+    \     \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User defined name for the Slack account\",\n
+    \       \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\": \"Account Name
+    cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
+    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
+    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
+    \     },\n      \"BOTNAME\":{\n        \"TOOLTIP\":\"Slack Bot Name\",\n        \"VALIDATION_MESSAGE\":{\n
+    \     \"noSpecialCharacters\": \"Bot Name cannot contain special characters other
+    than -\",\n      \"cannotContainSpace\":\"Bot Name cannot contain space\",\n      \"required\":\"Bot
+    Name cannot be empty\",\n      \"startingFromNumber\": \"Bot Name cannot start with
+    numbers\"\n    }\n      },\n      \"TOKEN\":{\n        \"TOOLTIP\":\"Slack Personal
+    Access Token\",\n        \"VALIDATION_MESSAGE\":{\n          \"required\":\"Token
+    cannot be empty\"\n        }\n      },\n      \"SPINNAKERTOGGLE\":{\n        \"TOOLTIP\":\"Switch
+    On this toggle to configure the resource in a gitops enabled Spinnaker instance\",\n
+    \       \"VALIDATION_MESSAGE\":{}\n      },\n  \"VALIDATETOGGLE\":{\n    \"TOOLTIP\":\"This
+    button controls the validation of the configuration. If it is on, ISD will check
+    the configuration for errors before saving it. If it is off, ISD will save the configuration
+    as it is, without any validation. We recommend keeping the button on unless you
+    are sure that the configuration is correct and does not need validation.\",\n    \"VALIDATION_MESSAGE\":{}\n
+    \ }\n    },\n    \"OPA\":{\n      \"HEADER\": \"OPA\",\n      \"BODY\":\"<span><li><strong>Account
     Name</strong>: User-defined account name for your OPA server access.</li><li><strong>EndPoint</strong>:
     OPA server host address, <span>such as https://opa:8181</span></li></span>\",\n
     \     \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User-defined account name for your
@@ -4642,29 +4910,37 @@ data:
     \     },\n      \"TOKEN\":{\n        \"TOOLTIP\":\"The user's token (it is optional)\",\n
     \       \"VALIDATION_MESSAGE\":{\n          \"required\":\"Token cannot be empty\"\n
     \       }\n      }\n    },\n    \"AUTOPILOT\":{\n      \"HEADER\": \"Autopilot\",\n
-    \     \"BODY\":\"\",\n      \"ACCOUNTNAME\":{\n        \"TOOLTIP\":\"User defined
-    name for the Autopilot account\",\n        \"VALIDATION_MESSAGE\":{\n      \"noSpecialCharacters\":
-    \"Account Name cannot contain special characters other than -\",\n      \"cannotContainSpace\":\"Account
-    Name cannot contain space\",\n      \"required\":\"Account Name cannot be empty\",\n
-    \     \"startingFromNumber\": \"Account Name cannot start with numbers\"\n    }\n
-    \     },\n      \"USERNAME\":{\n        \"TOOLTIP\":\" Autopilot User Name\",\n
-    \       \"VALIDATION_MESSAGE\":{\n          \"noSpecialCharacters\": \"User Name
-    cannot contain special characters other than - and _\",\n          \"cannotContainSpace\":\"User
-    Name cannot contain space\",\n          \"required\":\"User Name cannot be empty\",\n
-    \         \"startingFromNumber\": \"User Name cannot start with numbers\"\n        }\n
-    \     }\n    }\n},\n  \"UNCHANGED_FORM\": \"Form is unchanged. Please make modifications
-    in the form to enable the button.\",\n  \"INVALID_FORM\": \"Few fields are mandatory
-    or invalid. Please fill the form to enable the button.\",\n  \"NO_WRITE_ACCESS\":
-    \"You have only read permission. Please check with your administrator for updating
-    permissions.\",\n  \"METRIC_TEMPLATE\": {\n    \"APM_INFRA\": {\n      \"TEMPLATE_NAME\":
-    {\n        \"TOOLTIP\": \"The unique name of the template for identification\",\n
-    \       \"VALIDATION_MESSAGE\": {\n          \"required\": \"Template Name cannot
-    be empty\",\n          \"noSpecialCharacters\": \"Template Name cannot contain special
-    characters\",\n          \"cannotContainSpace\": \"Template Name cannot contain
-    space\",\n          \"startingFromNumber\": \"Template Name cannot start with number\",\n
-    \         \"maxlength\": \"Template name should not have more than 63 characters!\",\n
-    \         \"exists\": \"Template already exists\"\n        }\n      },\n      \"APM_MONITORING_PROVIDER\":
-    {\n        \"TOOLTIP\": \"Select an APM datasource provider of choice\",\n        \"VALIDATION_MESSAGE\":
+    \     \"BODY\": \"<div><p>This page allows you to configure autopilot, which can
+    be used as a connector in the approval stage. To include verification information
+    in an approval gate, add a new row in the connector configuration, selct 'Verification'
+    from the connector dropdwon, select your Autopilot account and provide the Canary
+    ID.</p><p><strong>Fields</strong>:</p><ul class='helpTextUl'><li><strong>Account
+    Name</strong>: User defined name for the Autopilot account<span></span></li><li><strong>User
+    Name</strong>: <span>Autopilot (ISD) User Name</span></li><li><strong>Permissions</strong>:
+    <span>Authorization for the account</span></li></ul></div>\",\n      \"ACCOUNTNAME\":{\n
+    \       \"TOOLTIP\":\"User defined name for the Autopilot account\",\n        \"VALIDATION_MESSAGE\":{\n
+    \     \"noSpecialCharacters\": \"Account Name cannot contain special characters
+    other than -\",\n      \"cannotContainSpace\":\"Account Name cannot contain space\",\n
+    \     \"required\":\"Account Name cannot be empty\",\n      \"startingFromNumber\":
+    \"Account Name cannot start with numbers\"\n    }\n      },\n      \"USERNAME\":{\n
+    \       \"TOOLTIP\":\" Autopilot User Name\",\n        \"VALIDATION_MESSAGE\":{\n
+    \         \"noSpecialCharacters\": \"User Name cannot contain special characters
+    other than - and _\",\n          \"cannotContainSpace\":\"User Name cannot contain
+    space\",\n          \"required\":\"User Name cannot be empty\",\n          \"startingFromNumber\":
+    \"User Name cannot start with numbers\"\n        }\n      }\n    }\n},\n  \"UNCHANGED_FORM\":
+    \"Form is unchanged. Please make modifications in the form to enable the button.\",\n
+    \ \"INVALID_FORM\": \"Few fields are mandatory or invalid. Please fill the form
+    to enable the button.\",\n  \"NO_WRITE_ACCESS\": \"You have only read permission.
+    Please check with your administrator for updating permissions.\",\n  \"METRIC_TEMPLATE\":
+    {\n    \"APM_INFRA\": {\n      \"TEMPLATE_NAME\": {\n        \"TOOLTIP\": \"The
+    unique name of the template for identification\",\n        \"VALIDATION_MESSAGE\":
+    {\n          \"required\": \"Template Name cannot be empty\",\n          \"noSpecialCharacters\":
+    \"Template Name cannot contain special characters\",\n          \"cannotContainSpace\":
+    \"Template Name cannot contain space\",\n          \"startingFromNumber\": \"Template
+    Name cannot start with number\",\n          \"maxlength\": \"Template name should
+    not have more than 63 characters!\",\n          \"exists\": \"Template already exists\"\n
+    \       }\n      },\n      \"APM_MONITORING_PROVIDER\": {\n        \"TOOLTIP\":
+    \"Select an APM datasource provider of choice\",\n        \"VALIDATION_MESSAGE\":
     {}\n      },\n      \"APM_ACCOUNT\": {\n        \"TOOLTIP\": \"Select the account
     of interest in the configured APM datasource \",\n        \"VALIDATION_MESSAGE\":
     {}\n      },\n      \"APM_APPLICATION\": {\n        \"TOOLTIP\": \"Select the application
@@ -4745,26 +5021,30 @@ data:
     {}\n      },\n      \"NAN_STRATEGY\": {\n        \"TOOLTIP\": \"Handles NaN values
     which can occur if there is no data in a particular interval for metric data. \",\n
     \       \"VALIDATION_MESSAGE\": {}\n      }\n    }\n  },\n  \"USAGE_INSIGHTS\":
-    {\n    \"APPLICATIONS\": {\n      \"TOOLTIP\": \"Application\"\n    },\n    \"PIPELINES\":
-    {\n      \"TOOLTIP\": \"Pipelines\"\n    },\n    \"PIPELINES_WITH_INTELLIGENT_GATES\":
-    {\n      \"TOOLTIP\": \"Pipelines with Intelligent Gates\"\n    },\n    \"INTELLIGENT_GATES_BREAKDOWN\":
-    {\n      \"TOOLTIP\": \"Intelligent Gates Breakdown\"\n    },\n    \"GATES_USED\":
-    {\n      \"TOOLTIP\": \"Gates Used\"\n    },\n    \"USERS\": {\n      \"TOOLTIP\":
-    \"Users\"\n    }\n  },\n  \"DELIVERY_INSIGHTS\": {\n    \"PIPELINES\": {\n      \"TOOLTIP\":
-    \"Number of pipeline executions over time\"\n    },\n    \"MOST_ACTIVE_PIPELINES\":
-    {\n      \"TOOLTIP\": \"Pipelines which have executed most number of times\"\n    },\n
-    \   \"MOST_SUCCESSFUL_PIPELINES\": {\n      \"TOOLTIP\": \"Pipelines which have
-    successfully executed most number of times\"\n    },\n    \"MOST_FAILED_PIPELINES\":
-    {\n      \"TOOLTIP\": \"Pipelines which have failed most number of times\"\n    },\n
-    \   \"FASTEST_PIPELINES\": {\n      \"TOOLTIP\": \"Pipelines with fastest execution
-    times\"\n    },\n    \"SLOWEST_PIPELINES\": {\n      \"TOOLTIP\": \"Pipelines with
-    slowest execution times\"\n    },\n    \"MANUAL_JUDGMENT\": {\n      \"TOOLTIP\":
-    \"Pipelines with manual judgement having slowest execution times\"\n    }\n  },\n
-    \ \"ACCESS_MANAGEMENT\": {\n    \"ADMINISTRATOR\": {\n      \"INFO\": \"Super Administrator
-    Groups will not appear in the dropdown since their Access Permissions cannot be
-    modified. Administrators will have full Access to all Resources.\",\n      \"TOOLTIP\":
-    \"Groups with Administration Permissions\"\n    },\n    \"USER_ROLE_LISTING\": {\n
-    \     \"HEADER\": \"ROLE MANAGEMENT\",\n      \"BODY\": \"Users should be assigned
+    {\n    \"APPLICATIONS\": {\n      \"TOOLTIP\": \"Total number of applications and
+    active applications over time\"\n    },\n    \"PIPELINES\": {\n      \"TOOLTIP\":
+    \"Total number of pipelines and active pipelines over time\"\n    },\n    \"PIPELINES_WITH_INTELLIGENT_GATES\":
+    {\n      \"TOOLTIP\": \"Total number of pipelines and the number pipelines with
+    intelligent gates(approval, policy and verification gates) over time\"\n    },\n
+    \   \"INTELLIGENT_GATES_BREAKDOWN\": {\n      \"TOOLTIP\": \"This graph explains
+    the intelligent gates usage in pipelines over time.\"\n    },\n    \"GATES_USED\":
+    {\n      \"TOOLTIP\": \"This graph explains the intelligent gates executions over
+    time.\"\n    },\n    \"USERS\": {\n      \"TOOLTIP\": \"The total number of registered
+    users to this ISD instance Vs the number of active users over time\"\n    }\n  },\n
+    \ \"DELIVERY_INSIGHTS\": {\n    \"PIPELINES\": {\n      \"TOOLTIP\": \"Number of
+    pipeline executions over time\"\n    },\n    \"MOST_ACTIVE_PIPELINES\": {\n      \"TOOLTIP\":
+    \"Pipelines which have executed most number of times\"\n    },\n    \"MOST_SUCCESSFUL_PIPELINES\":
+    {\n      \"TOOLTIP\": \"Pipelines which have successfully executed most number of
+    times\"\n    },\n    \"MOST_FAILED_PIPELINES\": {\n      \"TOOLTIP\": \"Pipelines
+    which have failed most number of times\"\n    },\n    \"FASTEST_PIPELINES\": {\n
+    \     \"TOOLTIP\": \"Pipelines with fastest execution times\"\n    },\n    \"SLOWEST_PIPELINES\":
+    {\n      \"TOOLTIP\": \"Pipelines with slowest execution times\"\n    },\n    \"MANUAL_JUDGMENT\":
+    {\n      \"TOOLTIP\": \"Pipelines with manual judgement having slowest execution
+    times\"\n    }\n  },\n  \"ACCESS_MANAGEMENT\": {\n    \"ADMINISTRATOR\": {\n      \"INFO\":
+    \"Super Administrator Groups will not appear in the dropdown since their Access
+    Permissions cannot be modified. Administrators will have full Access to all Resources.\",\n
+    \     \"TOOLTIP\": \"Groups with Administration Permissions\"\n    },\n    \"USER_ROLE_LISTING\":
+    {\n      \"HEADER\": \"ROLE MANAGEMENT\",\n      \"BODY\": \"Users should be assigned
     user roles only if they need global access to one or more resources.\"\n    },\n
     \   \"USER_ROLE_CREATION\": {\n      \"ROLENAME\": {\n        \"TOOLTIP\": \"\",\n
     \       \"VALIDATION_MESSAGE\": {\n          \"required\": \"Role Name cannot be
@@ -4875,7 +5155,7 @@ data:
     contain space\"\n      }\n    },\n    \"TEST_SUITE_KEY\": {\n      \"TOOLTIP\":
     \"Field in the log index which  holds the test suite names\",\n      \"VALIDATION_MESSAGE\":
     {\n        \"required\": \"Test Suite Key cannot be empty\",\n        \"cannotContainSpace\":
-    \"Test Suite Key cannot contain space\"\n      }\n    }\n  }\n}\n"
+    \"Test Suite Key cannot contain space\"\n      }\n    }\n  }\n}\n\n"
 kind: ConfigMap
 metadata:
   name: oes-ui-config
@@ -4884,12 +5164,12 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/configmaps/oes-ui-nginxconf.yaml
 apiVersion: v1
 data:
-  nginx.conf: |
+  nginx-quick-install.conf: |
     # For more information on configuration, see:
     #   * Official English Documentation: http://nginx.org/en/docs/
     #   * Official Russian Documentation: http://nginx.org/ru/docs/
@@ -4977,7 +5257,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 ---
 # Source: oes/templates/configmaps/opa-persist.yaml
 apiVersion: v1
@@ -5055,6 +5335,7 @@ data:
     standardErrorCodesMapping.ISD-DoesNotExist-404-03 = ISD-DoesNotExist-404-03 : {0} - {1} does not exist {2}.
     standardErrorCodesMapping.ISD-IsNotFound-404-04 = ISD-IsNotFound-404-04 : {0} - {1} not found {2}.
     standardErrorCodesMapping.ISD-AlreadyExists-409-01 = ISD-AlreadyExists-409-01 : {0} - {1} already exists: {2}
+    standardErrorCodesMapping.ISD-Disconnected-409-02 = ISD-Disconnected-409-02 : {0} - {1}
     standardErrorCodesMapping.ISD-FailedToDelete-412-01 = ISD-FailedToDelete-412-01 : {0} - Unable to delete {1} as {1} is already in use !
     standardErrorCodesMapping.ISD-FailedToDeletePolicy-412-02 = ISD-FailedToDeletePolicy-412-02 : {0} - Unable to delete policy as it is already in use for {1} gate !
     standardErrorCodesMapping.ISD-FailedToUpdate-412-03 = ISD-FailedToUpdate-412-03 : {0} - Unable to update {1} as {1} is already in use !
@@ -5371,7 +5652,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 data:
   configFile: |
     serviceHostname: opsmx-controller-controller1
@@ -5767,9 +6048,16 @@ data:
       if [ -z $spinnaker_applications ]
       then
         spin application list > app.json
-        spinnaker_app=$(cat app.json | jq -r '[.[].name]| @csv' | sed 's/","/,/g; s/^"\|"$//g')
-        rm -rf app.json
-        get_pipelines_data  $spinnaker_app
+        testappjson=$(cat app.json)
+        if [ "$testappjson" == "null" ]; then
+          echo "ERROR: spin application list , There are no applications"
+          echo "Please check the spin-cli-config secret username and password is valid or not"
+          exit 1
+        else
+          spinnaker_app=$(cat app.json | jq -r '[.[].name]| @csv' | sed 's/","/,/g; s/^"\|"$//g')
+          rm -rf app.json
+          get_pipelines_data  $spinnaker_app
+        fi
       else
         get_pipelines_data  $spinnaker_applications
       fi
@@ -5930,9 +6218,16 @@ data:
       if [ -z $spinnaker_applications ]
       then
         spin application list > app.json
-        spinnaker_app=$(cat app.json | jq -r '[.[].name]| @csv' | sed 's/","/,/g; s/^"\|"$//g')
-        rm -rf app.json
-        get_pipelines_data $spinnaker_app
+        testappjson=$(cat app.json)
+        if [ "$testappjson" == "null" ]; then
+          echo "ERROR: spin application list , There are no applications"
+          echo "Please check the spin-cli-config secret username and password is valid or not"
+          exit 1
+        else
+          spinnaker_app=$(cat app.json | jq -r '[.[].name]| @csv' | sed 's/","/,/g; s/^"\|"$//g')
+          rm -rf app.json
+          get_pipelines_data  $spinnaker_app
+        fi
       else
         get_pipelines_data $spinnaker_applications
       fi
@@ -5967,9 +6262,11 @@ data:
     #spinnaker_applications="sampleapp"
     get_app_pipelines(){
       spin pipeline list --application $1  > tmp.json
-      if [ "$?" != "0" ]; then
-        echo "ERROR: spin pipeline list --application $1"
-        return 1
+      testjson=$(cat tmp.json)
+      if [ "$testjson" == "null" ]; then
+        echo "ERROR: spin pipeline list --application $1, There is no pipeline json for the application $1"
+        echo "Please check the spin-cli-config secret username and password is valid or not"
+        exit 1
       fi
       cat tmp.json | jq '.[] | (.name)' | sed 's/\"//g' > pipelines_in_application.list
       cat tmp.json | jq '.[] | (.id)' | sed 's/\"//g' > pipelines_guid.list
@@ -6004,9 +6301,11 @@ data:
          mkdir -p $sourceApp ; cd $sourceApp
          # Get into the correct directory
          spin -k pipeline list --application $sourceApp  > tmp.json
-         if [ "$?" != "0" ]; then
-           echo "ERROR: spin pipeline list --application $sourceApp"
-           return 1
+         testjson=$(cat tmp.json)
+         if [ "$testjson" == "null" ]; then
+           echo "ERROR: spin pipeline list --application $sourceApp, There is no pipeline json for the application $sourceApp"
+           echo "Please check the spin-cli-config secret username and password is valid or not"
+           exit 1
          fi
          cat tmp.json | jq '.[] | (.name)' | sed 's/\"//g' > live_pipelines_in_application.list
          cat tmp.json | jq '.[] | (.id)' | sed 's/\"//g' > live_pipelines_guid.list
@@ -7010,6 +7309,54 @@ spec:
     app: isd-spinnaker
     component: halyard
 ---
+# Source: oes/charts/spinnaker/templates/spinnaker-extra/spinsvcs.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spin
+    stack: deck
+    heritage: "Helm"
+    release: "isd"
+    chart: "spinnaker-2.2.3"
+  name: spin-deck-lb
+spec:
+  type: 
+  ports:
+   - name: "https"
+     port: 443
+     targetPort: 9000
+   - name: "http"
+     port: 80
+     protocol: TCP
+     targetPort: 9000
+  selector:
+    cluster: spin-deck
+---
+# Source: oes/charts/spinnaker/templates/spinnaker-extra/spinsvcs.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spin
+    stack: gate
+    heritage: "Helm"
+    release: "isd"
+    chart: "spinnaker-2.2.3"
+  name: spin-gate-lb
+spec:
+  type: 
+  ports:
+   - name: https
+     port: 443
+     targetPort: 8084
+   - name: "http"
+     port: 80
+     protocol: TCP
+     targetPort: 8084
+  selector:
+    cluster: spin-gate
+---
 # Source: oes/templates/forwarder/oes-forwarder-svc-agent.yaml
 apiVersion: v1
 kind: Service
@@ -7020,7 +7367,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -7046,7 +7393,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -7065,7 +7412,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -7084,7 +7431,7 @@ metadata:
     component: sapor-gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: sapor-gate
 spec:
   type: ClusterIP
@@ -7106,7 +7453,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-audit-client
 spec:
   ports:
@@ -7128,7 +7475,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-audit-service
 spec:
   ports:
@@ -7150,7 +7497,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-autopilot
 spec:
   type: ClusterIP
@@ -7174,7 +7521,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-dashboard
 spec:
   type: ClusterIP
@@ -7196,7 +7543,7 @@ metadata:
     component: datascience
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-datascience
 spec:
   ports:
@@ -7218,7 +7565,7 @@ metadata:
     component: db
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-db
 spec:
   type: ClusterIP
@@ -7240,7 +7587,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-gate
 spec:
   type: ClusterIP
@@ -7268,7 +7615,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-platform
 spec:
   type: ClusterIP
@@ -7290,7 +7637,7 @@ metadata:
     component: rabbitmq
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: rabbitmq-service
 spec:
   ports:
@@ -7316,7 +7663,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-sapor
 spec:
   type: ClusterIP
@@ -7337,7 +7684,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-ui
 spec:
   type: ClusterIP
@@ -7361,7 +7708,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-visibility
 spec:
   type: ClusterIP
@@ -7382,7 +7729,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 spec:
   selector:
     app: opa
@@ -7391,54 +7738,6 @@ spec:
     port: 8181
     targetPort: 8181
   type: ClusterIP
----
-# Source: oes/templates/spinnaker-extra/spinsvcs.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: spin
-    stack: deck
-    heritage: "Helm"
-    release: "isd"
-    chart: "oes-4.0.9"
-  name: spin-deck-lb
-spec:
-  type: ClusterIP
-  ports:
-   - name: "https"
-     port: 443
-     targetPort: 9000
-   - name: "http"
-     port: 80
-     protocol: TCP
-     targetPort: 9000
-  selector:
-    cluster: spin-deck
----
-# Source: oes/templates/spinnaker-extra/spinsvcs.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: spin
-    stack: gate
-    heritage: "Helm"
-    release: "isd"
-    chart: "oes-4.0.9"
-  name: spin-gate-lb
-spec:
-  type: ClusterIP
-  ports:
-   - name: https
-     port: 443
-     targetPort: 8084
-   - name: "http"
-     port: 80
-     protocol: TCP
-     targetPort: 8084
-  selector:
-    cluster: spin-gate
 ---
 # Source: oes/charts/gitea/charts/memcached/templates/deployment.yaml
 apiVersion: apps/v1
@@ -7705,7 +8004,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-audit-client
 spec:
   replicas: 1
@@ -7726,7 +8025,7 @@ spec:
         component: auditclient
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       initContainers:
       - name: db-check
@@ -7741,7 +8040,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.0.4.b4-rc1
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.0.4-rc6
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
         env:
@@ -7806,7 +8105,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-audit-service
 spec:
   replicas: 1
@@ -7827,7 +8126,7 @@ spec:
         component: auditservice
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       initContainers:
       - name: db-check
@@ -7842,7 +8141,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.0.4.b4-rc1
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.0.4-rc4
         imagePullPolicy: IfNotPresent
         name: oes-audit
         env:
@@ -7910,7 +8209,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 spec:
   replicas: 1
   selector:
@@ -7924,7 +8223,7 @@ spec:
         component: autopilot
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
       annotations:
         configmap/checksum: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
         moniker.spinnaker.io/application: isd
@@ -7962,7 +8261,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.0.4.b4-rc1
+        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.0.4-rc5
           imagePullPolicy: IfNotPresent
           name: oes-autopilot
           env:
@@ -8008,7 +8307,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-dashboard
 spec:
   replicas: 1
@@ -8030,10 +8329,10 @@ spec:
         component: dashboard
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.0.4.b3
+      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.0.4-rc4
         name: oes-dashboard
         env:
         ports:
@@ -8092,7 +8391,7 @@ metadata:
     component: datascience
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-datascience
 spec:
   replicas: 1
@@ -8113,7 +8412,7 @@ spec:
         component: datascience
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       initContainers:
       - name: db-check
@@ -8128,7 +8427,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.0.4.b4-rc1
+      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.0.4-rc4
         imagePullPolicy: IfNotPresent
         name: oes-datascience
         env:
@@ -8167,7 +8466,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-gate
 spec:
   replicas: 1
@@ -8178,7 +8477,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secret: d4920071ed2147dea386710774cb87ad4f4727ffe7f33895364cf75a007a5a80
+        checksum/secret: a5293557fab2b3e6c921dc076db0bf47b95ad6756137d2bdb4897435c3f909d8
         moniker.spinnaker.io/application: isd
         prometheus.io/scrape: "false"
         prometheus_io_path: /mgmt/prometheus
@@ -8188,10 +8487,10 @@ spec:
         component: gate
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-gate:v4.0.4.b4-rc1
+      - image: quay.io/opsmxpublic/ubi8-gate:v4.0.4-rc11
         name: oes-gate
         env:
         - name: spring_profiles_active
@@ -8241,7 +8540,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-platform
 spec:
   replicas: 1
@@ -8253,7 +8552,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secret: 4f4f82026e7ecf0811b74948d22600bacccd47052e0bdfaec6367253f2f1a9dc
+        checksum/secret: 7c026ebafafc42f344541d738880971fb14d81a32beb9ad692c174cdec41c42c
         moniker.spinnaker.io/application: isd
         prometheus.io/scrape: "true"
         prometheus_io_path: /mgmt/prometheus
@@ -8263,7 +8562,7 @@ spec:
         component: platform
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       initContainers:
       - name: db-check
@@ -8278,7 +8577,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.0.4.b4-rc1
+      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.0.4-rc9
         name: oes-platform
         ports:
         - containerPort: 8095
@@ -8346,7 +8645,7 @@ metadata:
     component: rabbitmq
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: rabbitmq
 spec:
   replicas: 1
@@ -8363,7 +8662,7 @@ spec:
         component: rabbitmq
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       containers:
       - image: quay.io/opsmxpublic/rabbitmq:3-management
@@ -8389,7 +8688,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-sapor
 spec:
   replicas: 1
@@ -8400,7 +8699,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: a951349e8aaea6764bc734b47d06b828c01527e53b96836f113d81a4638153f2
+        checksum/configmap: cd91138d28ef1da991c5646df7f238e85d808c05d6b11ad847309dd74945ac4a
         checksum/configmap: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
         moniker.spinnaker.io/application: isd
         prometheus.io/scrape: "true"
@@ -8411,7 +8710,7 @@ spec:
         component: sapor
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       initContainers:
       - name: db-check
@@ -8426,7 +8725,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.0.4.b3
+      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.0.4-rc8
         name: oes-sapor
         env:
         ports:
@@ -8501,7 +8800,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-ui
 spec:
   replicas: 1
@@ -8519,10 +8818,10 @@ spec:
         component: ui
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.0.4.b4-rc1
+      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.0.4-rc12
         name: oes-ui
         env:
         ports:
@@ -8537,7 +8836,7 @@ spec:
           subPath: help-text.json
         - mountPath: /etc/nginx/nginx.conf
           name: nginx-config
-          subPath: nginx.conf
+          subPath: nginx-quick-install.conf
         readinessProbe:
           tcpSocket:
             port: 8080
@@ -8570,7 +8869,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-visibility
 spec:
   replicas: 1
@@ -8582,7 +8881,7 @@ spec:
   template:
     metadata:
       annotations:
-        configmap/checksum: 2244eb95cf61ca11189e8574a63a09b119d41d512924506a87cd49a3da562124
+        configmap/checksum: fc3c63b637cee3eba75bdcc664e682036e0baf6d96372c0badb4d7566e6e7623
         moniker.spinnaker.io/application: isd
         prometheus.io/scrape: "true"
         prometheus_io_path: /mgmt/prometheus
@@ -8592,7 +8891,7 @@ spec:
         component: visibility
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       initContainers:
       - name: db-check
@@ -8607,7 +8906,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.0.4.b4-rc1
+      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.0.4-rc7
         name: oes-visibility
         ports:
         - containerPort: 8096
@@ -8665,7 +8964,7 @@ metadata:
     app: opa
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: opa
 spec:
   replicas: 1
@@ -8680,7 +8979,7 @@ spec:
         app: opa
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
       name: opa
     spec:
       containers:
@@ -8720,7 +9019,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
 spec:
   replicas: 1
   selector:
@@ -8734,7 +9033,7 @@ spec:
         agent.opsmx.com/role: controller
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
       annotations:
         pullversion: "16"
         checksum/configmap: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
@@ -8801,7 +9100,7 @@ metadata:
     component: sapor-gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: sapor-gate
 spec:
   replicas: 1
@@ -8819,7 +9118,7 @@ spec:
         component: sapor-gate
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-spin-gate:v3.12.0-saporgate
@@ -9348,7 +9647,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: 8c4410b28dd5bfcf7acdb033caf7aebaa19ff3de09014d1c72768b7f8f9e8e61
+        checksum/configmap: fd4ff62833c36d5ea29419364c6c4f1d7e33c0a49b67a38c624b4b7db57ed443
         moniker.spinnaker.io/application: spin
       labels:
         app: "isd-spinnaker"
@@ -9483,7 +9782,7 @@ metadata:
     component: db
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-db
 spec:
   podManagementPolicy: OrderedReady
@@ -9502,7 +9801,7 @@ spec:
         component: db
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-db:v3.0.0
@@ -9542,7 +9841,7 @@ spec:
           storage: 8Gi
       volumeMode: Filesystem
 ---
-# Source: oes/charts/spinnaker/templates/deployments/create-sample-job.yaml
+# Source: oes/charts/spinnaker/templates/job/create-sample-job.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -9570,7 +9869,7 @@ spec:
         - bash
         - /tmp/config/spin-pipeline-import.sh
         name: sample-pipeline-install
-        image: quay.io/opsmxpublic/spin-sample-pipeline:1.0
+        image: quay.io/opsmxpublic/spin-sample-pipeline:v1.0.1
         volumeMounts:         
         - name: spin-pipeline-config
           mountPath: /tmp/config/git
@@ -9596,7 +9895,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
          args:
-         - "$(NAMESPACE)"
+         - "$(NAMESPACE)" 
        restartPolicy: Never
        serviceAccount: create-controller-secret
 ---
@@ -9665,7 +9964,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: ff6be181e74b269c22441fb715c7df79aa64d83ab59a3b85d3dd7b7c0cfe2008
+        checksum/config: 5bb5d124e82b06231e1a711f990c55ecf8a15484db1e652bc704652690818897
         moniker.spinnaker.io/application: spin
       labels:
         app: "isd-spinnaker"
@@ -9713,7 +10012,7 @@ metadata:
     component: oes-config
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.9"
+    chart: "oes-4.0.25"
   name: oes-config
 spec:
   template:
@@ -9726,7 +10025,7 @@ spec:
         component: oes-config
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.9"
+        chart: "oes-4.0.25"
     spec:
       containers:
       - command: ["bash", "/tmp/config/datasource-api.sh" ]
