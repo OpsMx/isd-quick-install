@@ -1,5 +1,4 @@
 ---
-#
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -71,7 +70,7 @@ metadata:
   namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "RWNqREdENWl2eQ=="
+  postgresql-postgres-password: "c0prZjFjRVNYeQ=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
@@ -541,7 +540,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/secrets/gitea-secret.yaml
 apiVersion: v1
@@ -596,7 +595,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-audit-client-config
 ---
 # Source: oes/templates/secrets/oes-audit-service-secret.yaml
@@ -648,7 +647,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-audit-service-config
 ---
 # Source: oes/templates/secrets/oes-autopilot-secret.yaml
@@ -707,7 +706,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/secrets/oes-datascience-secret.yaml
 apiVersion: v1
@@ -962,7 +961,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/secrets/oes-gate-secret.yaml
 apiVersion: v1
@@ -976,7 +975,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/secrets/oes-platform-configmap.yaml
 apiVersion: v1
@@ -1079,7 +1078,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/secrets/oes-sapor-configmap.yaml
 apiVersion: v1
@@ -1190,7 +1189,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/secrets/oes-visibility-secret.yaml
 apiVersion: v1
@@ -1315,7 +1314,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/secrets/opsmx-gitops-secret.yaml
 apiVersion: v1
@@ -1364,7 +1363,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/charts/minio/templates/configmap.yaml
 apiVersion: v1
@@ -2693,7 +2692,8 @@ data:
     echo "##########Replacing Secret#########"
     grep -ir encrypted: /tmp/spinnaker/.hal | sort -t: -u -k1,1 |cut -d : -f1 > tmp.list
     cat tmp.list | grep -v "oes\|install\|upgrade\|MISC\|SAMPLES\|values.yaml\|values-openldap.yaml" > tmp1.list
-    echo tmp1.list
+    echo "##### Following files have the encrypted secrets ########"
+    cat tmp1.list
     while IFS= read -r file; do
     grep encrypted: $file > tmp2.list
     while read line ; do
@@ -2908,7 +2908,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 data:
   datasource-api.sh: |-
     #!/bin/bash
@@ -3098,7 +3098,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/configmaps/oes-ui-configmap.yaml
 apiVersion: v1
@@ -5170,7 +5170,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/configmaps/oes-ui-nginxconf.yaml
 apiVersion: v1
@@ -5263,7 +5263,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 ---
 # Source: oes/templates/configmaps/opa-persist.yaml
 apiVersion: v1
@@ -5658,7 +5658,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 data:
   configFile: |
     serviceHostname: opsmx-controller-controller1
@@ -7373,7 +7373,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -7399,7 +7399,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -7418,7 +7418,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 spec:
   selector:
     app: opsmx-controller-controller1
@@ -7437,7 +7437,7 @@ metadata:
     component: sapor-gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: sapor-gate
 spec:
   type: ClusterIP
@@ -7459,7 +7459,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-audit-client
 spec:
   ports:
@@ -7481,7 +7481,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-audit-service
 spec:
   ports:
@@ -7503,7 +7503,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-autopilot
 spec:
   type: ClusterIP
@@ -7527,7 +7527,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-dashboard
 spec:
   type: ClusterIP
@@ -7549,7 +7549,7 @@ metadata:
     component: datascience
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-datascience
 spec:
   ports:
@@ -7571,7 +7571,7 @@ metadata:
     component: db
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-db
 spec:
   type: ClusterIP
@@ -7593,7 +7593,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-gate
 spec:
   type: ClusterIP
@@ -7621,7 +7621,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-platform
 spec:
   type: ClusterIP
@@ -7643,7 +7643,7 @@ metadata:
     component: rabbitmq
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: rabbitmq-service
 spec:
   ports:
@@ -7669,7 +7669,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-sapor
 spec:
   type: ClusterIP
@@ -7690,7 +7690,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-ui
 spec:
   type: ClusterIP
@@ -7714,7 +7714,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-visibility
 spec:
   type: ClusterIP
@@ -7735,7 +7735,7 @@ metadata:
   labels:
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 spec:
   selector:
     app: opa
@@ -8010,7 +8010,7 @@ metadata:
     component: auditclient
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-audit-client
 spec:
   replicas: 1
@@ -8031,7 +8031,7 @@ spec:
         component: auditclient
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       initContainers:
       - name: db-check
@@ -8046,7 +8046,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.0.4-rc6
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-client:v4.0.4
         imagePullPolicy: IfNotPresent
         name: oes-audit-client
         env:
@@ -8111,7 +8111,7 @@ metadata:
     component: auditservice
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-audit-service
 spec:
   replicas: 1
@@ -8132,7 +8132,7 @@ spec:
         component: auditservice
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       initContainers:
       - name: db-check
@@ -8147,7 +8147,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.0.4-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-audit-service:v4.0.4
         imagePullPolicy: IfNotPresent
         name: oes-audit
         env:
@@ -8215,7 +8215,7 @@ metadata:
     component: autopilot
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 spec:
   replicas: 1
   selector:
@@ -8229,7 +8229,7 @@ spec:
         component: autopilot
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
       annotations:
         configmap/checksum: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
         moniker.spinnaker.io/application: isd
@@ -8267,7 +8267,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.0.4-rc5
+        - image: quay.io/opsmxpublic/ubi8-oes-autopilot:v4.0.4
           imagePullPolicy: IfNotPresent
           name: oes-autopilot
           env:
@@ -8313,7 +8313,7 @@ metadata:
     component: dashboard
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-dashboard
 spec:
   replicas: 1
@@ -8335,10 +8335,10 @@ spec:
         component: dashboard
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.0.4-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-dashboard:v4.0.4
         name: oes-dashboard
         env:
         ports:
@@ -8397,7 +8397,7 @@ metadata:
     component: datascience
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-datascience
 spec:
   replicas: 1
@@ -8418,7 +8418,7 @@ spec:
         component: datascience
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       initContainers:
       - name: db-check
@@ -8433,7 +8433,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.0.4-rc4
+      - image: quay.io/opsmxpublic/ubi8-oes-datascience:v4.0.4
         imagePullPolicy: IfNotPresent
         name: oes-datascience
         env:
@@ -8472,7 +8472,7 @@ metadata:
     component: gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-gate
 spec:
   replicas: 1
@@ -8493,10 +8493,10 @@ spec:
         component: gate
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-gate:v4.0.4-rc11
+      - image: quay.io/opsmxpublic/ubi8-gate:v4.0.4
         name: oes-gate
         env:
         - name: spring_profiles_active
@@ -8546,7 +8546,7 @@ metadata:
     component: platform
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-platform
 spec:
   replicas: 1
@@ -8568,7 +8568,7 @@ spec:
         component: platform
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       initContainers:
       - name: db-check
@@ -8583,7 +8583,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.0.4-rc9
+      - image: quay.io/opsmxpublic/ubi8-oes-platform:v4.0.4
         name: oes-platform
         ports:
         - containerPort: 8095
@@ -8651,7 +8651,7 @@ metadata:
     component: rabbitmq
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: rabbitmq
 spec:
   replicas: 1
@@ -8668,7 +8668,7 @@ spec:
         component: rabbitmq
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       containers:
       - image: quay.io/opsmxpublic/rabbitmq:3-management
@@ -8694,7 +8694,7 @@ metadata:
     component: sapor
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-sapor
 spec:
   replicas: 1
@@ -8716,7 +8716,7 @@ spec:
         component: sapor
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       initContainers:
       - name: db-check
@@ -8731,7 +8731,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.0.4-rc8
+      - image: quay.io/opsmxpublic/ubi8-oes-sapor:v4.0.4
         name: oes-sapor
         env:
         ports:
@@ -8806,7 +8806,7 @@ metadata:
     component: ui
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-ui
 spec:
   replicas: 1
@@ -8824,10 +8824,10 @@ spec:
         component: ui
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.0.4-rc12
+      - image: quay.io/opsmxpublic/ubi8-oes-ui:v4.0.4
         name: oes-ui
         env:
         ports:
@@ -8875,7 +8875,7 @@ metadata:
     component: visibility
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-visibility
 spec:
   replicas: 1
@@ -8897,7 +8897,7 @@ spec:
         component: visibility
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       initContainers:
       - name: db-check
@@ -8912,7 +8912,7 @@ spec:
             done;
             echo 'OESDB OK ✓'
       containers:
-      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.0.4-rc7
+      - image: quay.io/opsmxpublic/ubi8-oes-visibility:v4.0.4
         name: oes-visibility
         ports:
         - containerPort: 8096
@@ -8970,7 +8970,7 @@ metadata:
     app: opa
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: opa
 spec:
   replicas: 1
@@ -8985,7 +8985,7 @@ spec:
         app: opa
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
       name: opa
     spec:
       containers:
@@ -9025,7 +9025,7 @@ metadata:
     agent.opsmx.com/role: controller
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
 spec:
   replicas: 1
   selector:
@@ -9039,7 +9039,7 @@ spec:
         agent.opsmx.com/role: controller
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
       annotations:
         pullversion: "16"
         checksum/configmap: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
@@ -9106,7 +9106,7 @@ metadata:
     component: sapor-gate
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: sapor-gate
 spec:
   replicas: 1
@@ -9124,7 +9124,7 @@ spec:
         component: sapor-gate
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-spin-gate:v3.12.0-saporgate
@@ -9788,7 +9788,7 @@ metadata:
     component: db
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-db
 spec:
   podManagementPolicy: OrderedReady
@@ -9807,7 +9807,7 @@ spec:
         component: db
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       containers:
       - image: quay.io/opsmxpublic/ubi8-oes-db:v3.0.0
@@ -10018,7 +10018,7 @@ metadata:
     component: oes-config
     heritage: "Helm"
     release: "isd"
-    chart: "oes-4.0.25"
+    chart: "oes-4.0.12"
   name: oes-config
 spec:
   template:
@@ -10031,7 +10031,7 @@ spec:
         component: oes-config
         heritage: "Helm"
         release: "isd"
-        chart: "oes-4.0.25"
+        chart: "oes-4.0.12"
     spec:
       containers:
       - command: ["bash", "/tmp/config/datasource-api.sh" ]
