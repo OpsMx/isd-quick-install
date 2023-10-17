@@ -10,7 +10,7 @@ kind: ServiceAccount
 automountServiceAccountToken: true
 metadata:
   name: isd-memcached
-  namespace: default
+  namespace: opsmx-isd
   labels:
     app.kubernetes.io/name: memcached
     helm.sh/chart: memcached-5.9.0
@@ -33,7 +33,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: "isd-minio"
-  namespace: "default"
+  namespace: "opsmx-isd"
   labels:
     app: minio
     chart: minio-8.0.9
@@ -44,7 +44,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: isd-spinnaker-halyard
-  namespace: default
+  namespace: opsmx-isd
   labels:
     app: "isd-spinnaker"
     heritage: "Helm"
@@ -67,10 +67,10 @@ metadata:
     helm.sh/chart: postgresql-10.3.17
     app.kubernetes.io/instance: isd
     app.kubernetes.io/managed-by: Helm
-  namespace: default
+  namespace: opsmx-isd
 type: Opaque
 data:
-  postgresql-postgres-password: "R2RTZGY3ZUNDYQ=="
+  postgresql-postgres-password: "bHJ1V1ZzZGlvag=="
   postgresql-password: "Z2l0ZWE="
 ---
 # Source: oes/charts/gitea/templates/gitea/config.yaml
@@ -92,10 +92,10 @@ stringData:
   cache: |-
     ADAPTER=memcache
     ENABLED=true
-    HOST=isd-memcached.default.svc.cluster.local:11211
+    HOST=isd-memcached.opsmx-isd.svc.cluster.local:11211
   database: |-
     DB_TYPE=postgres
-    HOST=isd-postgresql.default.svc.cluster.local:5432
+    HOST=isd-postgresql.opsmx-isd.svc.cluster.local:5432
     NAME=gitea
     PASSWD=gitea
     USER=gitea
@@ -579,6 +579,10 @@ stringData:
           name: visibilityservice
           url: http://oes-visibility:8096
     
+    active:
+      session: 30  # Session timeout in minutes
+      noDays: 30  # Users not logged in for this duration (in days) are shown with status INACTIVE
+    
     fixedDelay:
       in:
         milliseconds: 120000
@@ -587,7 +591,6 @@ stringData:
         milliseconds: 300000
     scheduler:
       threads: 16
-    
 kind: Secret
 metadata:
   labels:
@@ -945,6 +948,15 @@ stringData:
       agentAPI: false
       webhooks: true
     
+    message-broker:
+      enabled: true
+      username: 'rabbitmq'
+      password: 'Networks123'
+      host: rabbitmq-service
+      port: 5672
+      endpoint:
+        name: rabbitmq
+    
     logging:
       level:
         com.netflix.spinnaker.gate.security: INFO
@@ -1133,7 +1145,7 @@ stringData:
         username:  opsmx
         token: opsmxadmin123
         branch: master
-        cloneUrl: http://opsmx:opsmxadmin123@isd-gitea-http.default:3000/opsmx/gitea-standard-repo
+        cloneUrl: http://opsmx:opsmxadmin123@isd-gitea-http.opsmx-isd:3000/opsmx/gitea-standard-repo
       bitbucket:
         
         enabled: false
@@ -1755,7 +1767,7 @@ data:
     policy:
       opa:
         enabled: true
-        url: http://oes-sapor.default:8085
+        url: http://oes-sapor.opsmx-isd:8085
     spinnaker:
       s3:
         versioning: false
@@ -1786,6 +1798,7 @@ data:
             Opsmx.VisibilityApprovalPlugin:
               enabled: true
               version: 1.0.1
+        plugins: null
         repositories:
           opsmx-repo:
             url: https://raw.githubusercontent.com/opsmx/spinnakerPluginRepository/v3.9.0/plugins.json
@@ -2191,7 +2204,7 @@ data:
       endpoints:
        -
         wrap: false
-        url: http://oes-sapor.default:8085/oes/echo
+        url: http://oes-sapor.opsmx-isd:8085/oes/echo
 ---
 # Source: oes/charts/spinnaker/templates/configmap/halyard-config.yaml
 apiVersion: v1
@@ -2271,7 +2284,7 @@ data:
                  \
                 --provider-version v2
     $HAL_COMMAND config deploy edit --account-name default --type distributed \
-                           --location default
+                           --location opsmx-isd
     $HAL_COMMAND config deploy ha clouddriver enable
     $HAL_COMMAND config deploy ha echo enable
 
@@ -2302,7 +2315,7 @@ data:
     wait_period=0
     while true
     do
-    kubectl get po -n default -o jsonpath='{range .items[*]}{..metadata.name}{"\t"}{..containerStatuses..ready}{"\n"}{end}' > /tmp/inst.status
+    kubectl get po -n opsmx-isd -o jsonpath='{range .items[*]}{..metadata.name}{"\t"}{..containerStatuses..ready}{"\n"}{end}' > /tmp/inst.status
     GITEA=$(grep gitea-0 /tmp/inst.status |grep -v deck | awk '{print $2}')
 
     wait_period=$(($wait_period+10))
@@ -2798,7 +2811,7 @@ data:
     wait_period=0
     while true
     do
-    kubectl get po -n default -o jsonpath='{range .items[*]}{..metadata.name}{"\t"}{..containerStatuses..ready}{"\n"}{end}' > /tmp/inst.status
+    kubectl get po -n opsmx-isd -o jsonpath='{range .items[*]}{..metadata.name}{"\t"}{..containerStatuses..ready}{"\n"}{end}' > /tmp/inst.status
     ## NON-HA
     CLOUDDRIVER=$(grep spin-clouddriver /tmp/inst.status |grep -v deck | awk '{print $2}')
     ECHO=$(grep spin-echo /tmp/inst.status | awk '{print $2}')
@@ -2917,7 +2930,7 @@ data:
     wait_period=0
     while true
     do
-    kubectl get po -n default -o jsonpath='{range .items[*]}{..metadata.name}{"\t"}{..containerStatuses..ready}{"\n"}{end}' > /tmp/inst.status
+    kubectl get po -n opsmx-isd -o jsonpath='{range .items[*]}{..metadata.name}{"\t"}{..containerStatuses..ready}{"\n"}{end}' > /tmp/inst.status
     ## NON-HA
     CLOUDDRIVER=$(grep spin-clouddriver /tmp/inst.status |grep -v deck | awk '{print $2}')
     ECHO=$(grep spin-echo /tmp/inst.status | awk '{print $2}')
@@ -2972,7 +2985,7 @@ data:
               if [[ "$STORAGE_TYPE"  ==  "gitea" ]];
               then
 
-              curl -X POST -H "Content-Type: application/json"  -k -d '{"name":"'"$GITEA_USERNAME"'"}' -u $GITEA_USERNAME:$GITEA_PASSWORD http://isd-gitea-http.default:3000/api/v1/users/$GITEA_USERNAME/tokens >token.json
+              curl -X POST -H "Content-Type: application/json"  -k -d '{"name":"'"$GITEA_USERNAME"'"}' -u $GITEA_USERNAME:$GITEA_PASSWORD http://isd-gitea-http.opsmx-isd:3000/api/v1/users/$GITEA_USERNAME/tokens >token.json
               TOKEN=$(cat token.json | jq '.sha1' -r)
 
               response=$(curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-platform:8095/platformservice/v6/datasource --data '{"datasourceType": "GITHUB", "name": "gitops", "spinEnabled": "false", "configurationFields": {"token": "'$TOKEN'", "username": "", "hostUrl": "http://isd-gitea-http:3000", "url": "http://isd-gitea-http:3000/api/v1/users/opsmx" } }')
@@ -2981,7 +2994,7 @@ data:
               curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":true,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITHUB","config":{"bucketName":"","region":"","endPoint":"http://isd-gitea-http:3000/'$GITEA_USERNAME'/gitea-standard-repo.git","sourcePath":""}},"pipelinePromotionConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITHUB","config":{"bucketName":"","region":"","endPoint":"http://isd-gitea-http:3000/'$GITEA_USERNAME'/gitea-standard-repo.git","sourcePath":""}},"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
 
               sleep 5
-              kubectl delete po isd-spinnaker-halyard-0 -n default
+              kubectl delete po isd-spinnaker-halyard-0 -n opsmx-isd
               #curl --header "Content-Type: application/json"  --header "x-spinnaker-user: admin" --request POST http://oes-sapor:8085/oes/accountsConfig/v4/spinnaker --data '{"name":"preview-saas","url":"http://sapor-gate:8084","authenticationType":"LDAP","externalAccountFlag":true,"pipelinePromotionFlag":false,"syncAccountFlag":false,"externalAccountConfiguration":{"accountId": "'"${id}"'","accountName":"gitops","provider":"GITHUB","config":{"bucketName":"","region":"","endPoint":"http://isd-gitea-http:3000/'$GITEA_USERNAME'/gitea-standard-repo.git","sourcePath":""}},"pipelinePromotionConfiguration":null,"password":"'"${PASSWORD}"'","userName":"'"${USERNAME}"'"}'
                  break
               fi
@@ -5381,7 +5394,7 @@ data:
     wait_period=0
     while true
     do
-    kubectl get po -n default -o jsonpath='{range .items[*]}{..metadata.name}{"\t"}{..containerStatuses..ready}{"\n"}{end}' > /tmp/inst.status
+    kubectl get po -n opsmx-isd -o jsonpath='{range .items[*]}{..metadata.name}{"\t"}{..containerStatuses..ready}{"\n"}{end}' > /tmp/inst.status
     SAPOR=$(grep oes-sapor /tmp/inst.status | awk '{print $2}')
     PLATFORM=$(grep oes-platform /tmp/inst.status | awk '{print $2}')
     wait_period=$(($wait_period+10))
@@ -7115,7 +7128,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: isd-minio-update-prometheus-secret
-    namespace: "default"
+    namespace: "opsmx-isd"
 ---
 # Source: oes/charts/spinnaker/templates/rbac/rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -7132,7 +7145,7 @@ roleRef:
   kind: Role                 # ClusterRole, if we have access to cluster resources
   name: spinnaker-role       # edit, if we have the access
 subjects:
-- namespace: default
+- namespace: opsmx-isd
   kind: ServiceAccount
   name: isd-spinnaker-halyard
 ---
@@ -7153,7 +7166,7 @@ roleRef:
   kind: Role             # ClusteRoleBinding if we have access accross the cluster
   name: spinnaker-role   # cluster-admin if we have the access
 subjects:
-- namespace: default
+- namespace: opsmx-isd
   kind: ServiceAccount
   # Clouddriver does not currently allow config of its
   # service account.
@@ -7176,13 +7189,13 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding # ClusterRole if you have cluster access
 metadata:
-  name: default-oes-access
+  name: opsmx-isd-oes-access
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: view
 subjects:
-- namespace: default
+- namespace: opsmx-isd
   kind: ServiceAccount
   name: default
 ---
@@ -7191,7 +7204,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: isd-memcached
-  namespace: default
+  namespace: opsmx-isd
   labels:
     app.kubernetes.io/name: memcached
     helm.sh/chart: memcached-5.9.0
@@ -7224,7 +7237,7 @@ metadata:
     # field is broken in some versions of Kubernetes:
     # https://github.com/kubernetes/kubernetes/issues/58662
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  namespace: default
+  namespace: opsmx-isd
 spec:
   type: ClusterIP
   clusterIP: None
@@ -7251,7 +7264,7 @@ metadata:
     app.kubernetes.io/instance: isd
     app.kubernetes.io/managed-by: Helm
   annotations:
-  namespace: default
+  namespace: opsmx-isd
 spec:
   type: ClusterIP
   ports:
@@ -7859,7 +7872,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: isd-memcached
-  namespace: default
+  namespace: opsmx-isd
   labels:
     app.kubernetes.io/name: memcached
     helm.sh/chart: memcached-5.9.0
@@ -7891,7 +7904,7 @@ spec:
                     app.kubernetes.io/name: memcached
                     app.kubernetes.io/instance: isd
                 namespaces:
-                  - "default"
+                  - "opsmx-isd"
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
@@ -8592,7 +8605,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secret: a5293557fab2b3e6c921dc076db0bf47b95ad6756137d2bdb4897435c3f909d8
+        checksum/secret: 5afd59be6d0156016a8c4957293e027b347135c4713ce078fdb8ed67a4fc118c
         moniker.spinnaker.io/application: isd
         prometheus.io/scrape: "false"
         prometheus_io_path: /mgmt/prometheus
@@ -9277,7 +9290,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: primary
   annotations:
-  namespace: default
+  namespace: opsmx-isd
 spec:
   serviceName: isd-postgresql-headless
   replicas: 1
@@ -9311,7 +9324,7 @@ spec:
                     app.kubernetes.io/instance: isd
                     app.kubernetes.io/component: primary
                 namespaces:
-                  - "default"
+                  - "opsmx-isd"
                 topologyKey: kubernetes.io/hostname
               weight: 1
         nodeAffinity:
@@ -9439,7 +9452,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 9282517e5144ec91cc4b30b42ad0336281bf3c0bf77fefef8fcac6f9af7a6c21
+        checksum/config: 9d002fd7ae2d1eb91f8238f5d0f2896011847d3d71b8dc12d45add370e19de9c
       labels:
         helm.sh/chart: gitea-5.0.1
         app: gitea
@@ -9762,7 +9775,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: 59af0474b35a335f68fbd1e3dd87822ab8e0fcb7a029171aa26261681e89f8c4
+        checksum/configmap: 5ce7840fce9a4516f903ac5dc746508dad2eb5708dedbc96856d4b8300f07691
         moniker.spinnaker.io/application: spin
       labels:
         app: "isd-spinnaker"
@@ -10079,7 +10092,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: e4588f2d8c334d30cae22efc6cb2d0c28b0940c259711d8764682c1124992de2
+        checksum/config: 5bb5d124e82b06231e1a711f990c55ecf8a15484db1e652bc704652690818897
         moniker.spinnaker.io/application: spin
       labels:
         app: "isd-spinnaker"
